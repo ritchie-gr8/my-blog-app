@@ -1,4 +1,27 @@
 @import "tailwindcss";
+@plugin "daisyui";
+
+@theme {
+  --color-brown-600: #26231E;
+  --color-brown-500: #43403B;
+  --color-brown-400: #75716B;
+  --color-brown-300: #DAD6D1;
+  --color-brown-200: #EFEEEB;
+  --color-brown-100: #F9F8F6;
+
+  --color-brand-orange: #F2B68C;
+  --color-brand-green: #12B279;
+  --color-brand-light-green: #D7F2E9;
+  --color-brand-red: #EB5164;
+
+  --text-h1: 3.25rem;
+  --text-h2: 2.5rem;
+  --text-h3: 1.5rem;
+  --text-h4: 1.25rem;
+  --text-b1: 1rem;
+  --text-b2: 0.875rem;
+  --text-b3: 0.75rem;
+}
 
 body {
   font-family: "Poppins", sans-serif;
