@@ -7,6 +7,10 @@ const Navbar = () => {
 
   const handleShowMobileMenu = () => setShowMobileMenu(prev => !prev);
 
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
+
+  const handleShowMobileMenu = () => setShowMobileMenu(prev => !prev);
+
   return (
     <header className="border-b border-brown-300 relative">
       <div className="container mx-auto flex items-center justify-between px-6 py-3 md:px-0">
@@ -16,8 +20,10 @@ const Navbar = () => {
 
         <div>
           <Menu onClick={() => handleShowMobileMenu()} className="sm:hidden cursor-pointer" />
+          <Menu onClick={() => handleShowMobileMenu()} className="sm:hidden cursor-pointer" />
           <div className="hidden sm:flex gap-2">
             <Button>Log in</Button>
+            <Button variant={"secondary"}>Sign up</Button>
             <Button variant={"secondary"}>Sign up</Button>
           </div>
         </div>
