@@ -2,8 +2,8 @@ import React from "react";
 
 const SearchBox = () => {
   return (
-    <div className="flex flex-col sm:flex-row sm:items-center px-4 py-4 bg-brown-200 sm:rounded-2xl">
-      <div class="hidden sm:flex items-center gap-2 w-full font-medium">
+    <div className="flex flex-col md:flex-row md:items-center px-4 py-4 sm:px-6 bg-brown-200 sm:rounded-2xl">
+      <div class="hidden md:flex items-center gap-2 w-full font-medium">
         <button className="px-5 py-3 bg-brown-300 rounded-lg text-brown-500">Highlight</button>
         <button className="px-5 py-3 text-brown-400" >Cat</button>
         <button className="px-5 py-3 text-brown-400">Inspiration</button>
@@ -11,7 +11,7 @@ const SearchBox = () => {
       </div>
 
       <label
-        className="input border border-brown-300 w-full sm:max-w-[360px]"
+        className="input border border-brown-300 w-full md:max-w-[360px]"
         style={{
           outline: "none",
           boxShadow: "none",
@@ -40,11 +40,11 @@ const SearchBox = () => {
         </svg>
       </label>
 
-      <p className="font-medium text-brown-400 mt-4 mb-1 sm:hidden">Category</p>
+      <p className="font-medium text-brown-400 mt-4 mb-1 md:hidden">Category</p>
 
       <select
         defaultValue="Highlight"
-        className="select text-brown-400 font-medium w-full sm:hidden"
+        className="select text-brown-400 font-medium w-full md:hidden"
         style={{
           outline: "none",
           boxShadow: "none",
