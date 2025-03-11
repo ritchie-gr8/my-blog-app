@@ -7,10 +7,6 @@ const Navbar = () => {
 
   const handleShowMobileMenu = () => setShowMobileMenu(prev => !prev);
 
-  const [showMobileMenu, setShowMobileMenu] = useState(false);
-
-  const handleShowMobileMenu = () => setShowMobileMenu(prev => !prev);
-
   return (
     <header className="border-b border-brown-300 relative">
       <div className="container mx-auto flex items-center justify-between px-6 py-3 md:px-0">
