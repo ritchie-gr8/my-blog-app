@@ -12,6 +12,7 @@ const ArticleSection = () => {
           <ArticleCard />
         ))}
       </article>
+      <button className="w-full font-medium text-brown-600 underline text-center mt-6 mb-14 cursor-pointer sm:mt-14 sm:mb-28">View more</button>
     </section>
   );
 };
