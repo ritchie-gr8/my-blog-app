@@ -3,8 +3,8 @@ import placeholderImg from "../assets/hero-placeholder-img.png";
 
 const Hero = () => {
   return (
-    <article className="py-10 mx-4">
-      <div className="container mx-auto flex flex-col items-center justify-center md:grid md:grid-cols-3 md:gap-16">
+    <article className="py-10 mx-4 md:mx-32">
+      <div className="flex flex-col items-center justify-center md:grid md:grid-cols-3 md:gap-16">
         <div>
           <h1 className="text-h2 font-semibold text-center mb-4 md:text-h1 md:text-right">
             Stay Informed, Stay Inspired

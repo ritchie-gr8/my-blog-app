@@ -9,7 +9,7 @@ const Navbar = () => {
 
   return (
     <header className="border-b border-brown-300 relative">
-      <div className="container mx-auto flex items-center justify-between px-6 py-3 md:px-0">
+      <div className="flex items-center justify-between px-6 py-3 md:px-32">
         <div>
           <img src="/logo.svg" alt="logo" />
         </div>
