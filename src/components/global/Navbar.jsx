@@ -16,10 +16,8 @@ const Navbar = () => {
 
         <div>
           <Menu onClick={() => handleShowMobileMenu()} className="sm:hidden cursor-pointer" />
-          <Menu onClick={() => handleShowMobileMenu()} className="sm:hidden cursor-pointer" />
           <div className="hidden sm:flex gap-2">
             <Button>Log in</Button>
-            <Button variant={"secondary"}>Sign up</Button>
             <Button variant={"secondary"}>Sign up</Button>
           </div>
         </div>
