@@ -1,3 +1,4 @@
+import Article from "./components/Article";
 import ArticleSection from "./components/ArticleSection";
 import Hero from "./components/Hero";
 import Footer from "./components/global/Footer";
@@ -8,8 +9,9 @@ function App() {
     <>
       <Navbar />
       <div>
-        <Hero />
-        <ArticleSection />
+        {/* <Hero />
+        <ArticleSection /> */}
+        <Article />
       </div>
       <Footer />
     </>

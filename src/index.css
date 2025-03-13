@@ -29,6 +29,7 @@
 
 body {
   font-family: "Poppins", sans-serif;
+  background-color: var(--color-brown-100);
 }
 
 :root {
