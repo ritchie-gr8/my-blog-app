@@ -1,6 +1,6 @@
 import React from "react";
-import SearchBox from "./ui/SearchBox";
-import ArticleCard from "./ui/ArticleCard";
+import SearchBox from "./custom/SearchBox";
+import ArticleCard from "./custom/ArticleCard";
 
 const ArticleSection = () => {
   return (
@@ -9,7 +9,7 @@ const ArticleSection = () => {
       <SearchBox />
       <article className="flex flex-col sm:grid sm:grid-cols-2 lg:grid-cols-3">
         {[1, 2, 3, 4, 5, 6].map((x) => (
-          <ArticleCard />
+          <ArticleCard key={x} />
         ))}
       </article>
       <button className="w-full font-medium text-brown-600 underline text-center mt-6 mb-14 cursor-pointer sm:mt-14 sm:mb-28">View more</button>

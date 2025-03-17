@@ -1,15 +1,16 @@
 import React from 'react'
 import articleImg from '../../assets/article-card-placeholder.png'
 import Avatar from '../global/Avatar'
+import Button from '../global/Button'
 
 const ArticleCard = () => {
   return (
     <div className='my-4 flex flex-col mx-4'>
         <img src={articleImg} alt='article image' className="w-full h-auto" />
-        
-        <div className='bg-brand-light-green text-brand-green px-3 py-1 rounded-full w-fit mt-4 mb-2 font-medium text-b2'>
+
+        <Button className='px-3 py-1 w-fit mt-4 mb-2 font-medium text-b2' variant={'article-genre'}>
             Cat
-        </div>
+        </Button>
 
         <h4 className='text-h4 font-semibold text-brown-600'>
             The Fascinating World of Cats: Why We Love Our Furry Friends
