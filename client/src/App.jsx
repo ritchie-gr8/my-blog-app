@@ -9,9 +9,9 @@ function App() {
     <>
       <Navbar />
       <div>
-        {/* <Hero />
-        <ArticleSection /> */}
-        <Article />
+        <Hero />
+        <ArticleSection />
+        {/* <Article /> */}
       </div>
       <Footer />
     </>
