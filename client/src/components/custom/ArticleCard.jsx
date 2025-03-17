@@ -1,12 +1,14 @@
 import React from 'react'
-import articleImg from '../../assets/article-card-placeholder.png'
+// import articleImg from '../../assets/article-card-placeholder.png'
+// import articleImg from '../../assets/article-placeholder.jpg'
+import articleImg from '../../assets/article-placeholder-2.jpg'
 import Avatar from '../global/Avatar'
 import Button from '../global/Button'
 
 const ArticleCard = () => {
   return (
     <div className='my-4 flex flex-col mx-4'>
-        <img src={articleImg} alt='article image' className="w-full h-auto" />
+        <img src={articleImg} alt='article image' className="w-full h-auto max-h-[240px] object-cover" />
 
         <Button className='px-3 py-1 w-fit mt-4 mb-2 font-medium text-b2' variant={'article-genre'}>
             Cat
