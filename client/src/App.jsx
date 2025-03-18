@@ -5,6 +5,7 @@ import Hero from "./components/Hero";
 import Footer from "./components/global/Footer";
 import Navbar from "./components/global/Navbar";
 import { checkHealth } from "./api/user";
+import LogIn from "./components/LogIn";
 
 function App() {
   useEffect(() => {
@@ -20,11 +21,12 @@ function App() {
     <>
       <Navbar />
       <div>
-        <Hero />
-        <ArticleSection />
+        {/* <Hero /> */}
+        {/* <ArticleSection /> */}
         {/* <Article /> */}
+        <LogIn />
       </div>
-      <Footer />
+      {/* <Footer /> */}
     </>
   );
 }
