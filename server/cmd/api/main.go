@@ -9,6 +9,8 @@ import (
 	"github.com/ritchie-gr8/my-blog-app/store"
 )
 
+const version = "0.0.1"
+
 func main() {
 	// load env file
 	if err := godotenv.Load(); err != nil {
@@ -24,6 +26,7 @@ func main() {
 			maxIdleConns: env.GetInt("DB_MAX_IDLE_CONNS", 30),
 			maxIdleTime:  env.GetString("DB_MAX_IDLE_TIME", "15m"),
 		},
+		env: env.GetString("ENV", "development"),
 	}
 
 	// create db
