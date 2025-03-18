@@ -1,6 +1,7 @@
 import React from "react";
 import SearchBox from "./custom/SearchBox";
 import ArticleCard from "./custom/ArticleCard";
+import { blogPosts } from "@/constants/blogPost";
 
 const ArticleSection = () => {
   return (
@@ -8,11 +9,21 @@ const ArticleSection = () => {
       <h3 className="text-h3 m-4">Latest articles</h3>
       <SearchBox />
       <article className="flex flex-col sm:grid sm:grid-cols-2 lg:grid-cols-3">
-        {[1, 2, 3, 4, 5, 6].map((x) => (
-          <ArticleCard key={x} />
+        {blogPosts.map((post) => (
+          <ArticleCard
+            key={post.id}
+            image={post.image}
+            category={post.category}
+            title={post.title}
+            description={post.description}
+            author={post.author}
+            date={post.date}
+          />
         ))}
       </article>
-      <button className="w-full font-medium text-brown-600 underline text-center mt-6 mb-14 cursor-pointer sm:mt-14 sm:mb-28">View more</button>
+      <button className="w-full font-medium text-brown-600 underline text-center mt-6 mb-14 cursor-pointer sm:mt-14 sm:mb-28">
+        View more
+      </button>
     </section>
   );
 };
