@@ -10,10 +10,10 @@ import (
 )
 
 type CreatePostPayload struct {
-	Title        string `json:"title"`
-	Introduction string `json:"introduction"`
-	Content      string `json:"content"`
-	Category     string `json:"category"`
+	Title        string `json:"title" validate:"required,max=100"`
+	Introduction string `json:"introduction" validate:"required,max=300"`
+	Content      string `json:"content" validate:"required,max=1000"`
+	Category     string `json:"category" validate:"required,max=100"`
 }
 
 func (app *application) createPostHandler(w http.ResponseWriter, r *http.Request) {
@@ -23,6 +23,12 @@ func (app *application) createPostHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	if err := Validate.Struct(payload); err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	// TODO: change hard code after implementing auth
 	userId := 2
 
 	post := &store.Post{
