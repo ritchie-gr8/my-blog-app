@@ -6,6 +6,7 @@ import Footer from "./components/global/Footer";
 import Navbar from "./components/global/Navbar";
 import { checkHealth } from "./api/user";
 import LogIn from "./components/LogIn";
+import SignUp from "./components/SignUp";
 
 function App() {
   useEffect(() => {
@@ -25,6 +26,7 @@ function App() {
         {/* <ArticleSection /> */}
         {/* <Article /> */}
         <LogIn />
+        {/* <SignUp /> */}
       </div>
       {/* <Footer /> */}
     </>

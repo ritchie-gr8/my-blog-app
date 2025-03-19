@@ -13,11 +13,12 @@ import { Input } from "@/components/ui/input";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "./ui/button";
+import { toast } from "./custom/Toast";
 
 const LogIn = () => {
   const formSchema = z.object({
-    username: z.string().min(2, {
-      message: "Username must be at least 2 characters.",
+    email: z.string().email({
+      message: "Please enter a valid email address",
     }),
     password: z.string().min(6, {
       message: "Password must be at least 6 characters.",
@@ -27,7 +28,7 @@ const LogIn = () => {
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      username: "",
+      email: "",
       password: "",
     },
   });
@@ -36,8 +37,12 @@ const LogIn = () => {
   function onSubmit(values) {
     //TODO: implement onSubmit
     console.log(values);
-  }
+    toast.success(
+      "Your password is incorrect or this email doesn’t exist",
+      "Please try another password or email"
+    );
 
+  }
 
   return (
     <div className="flex items-center justify-center w-full">
@@ -54,7 +59,7 @@ const LogIn = () => {
             <h2 className="text-center text-h2 font-semibold">Log in</h2>
             <FormField
               control={form.control}
-              name="username"
+              name="email"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="font-medium !text-brown-400 text-base">
@@ -63,9 +68,10 @@ const LogIn = () => {
                   <FormControl>
                     <Input
                       placeholder="Email"
+                      type="email"
                       className={`bg-white px-4 py-3 !text-brown-400 font-medium
                         ${
-                          formErrors.username
+                          formErrors.email
                             ? "border-2 border-brand-red text-brand-red"
                             : "border-2 border-gray-300"
                         }`}
@@ -78,7 +84,7 @@ const LogIn = () => {
 
             <FormField
               control={form.control}
-              name="Password"
+              name="password"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="font-medium text-brown-400 text-base">
@@ -86,6 +92,7 @@ const LogIn = () => {
                   </FormLabel>
                   <FormControl>
                     <Input
+                      type="password"
                       placeholder="Password"
                       className={`bg-white px-4 py-3 text-brown-400 font-medium
                         ${
