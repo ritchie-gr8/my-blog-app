@@ -16,6 +16,7 @@ type Post struct {
 	ThumbnailImage []byte    `json:"thumbnail_image"`
 	CreatedAt      string    `json:"created_at"`
 	UpdatedAt      string    `json:"updated_at"`
+	Version        int       `json:"version"`
 	Comments       []Comment `json:"comments"`
 }
 
@@ -53,7 +54,7 @@ func (s *PostStore) Create(ctx context.Context, post *Post) error {
 
 func (s *PostStore) GetByID(ctx context.Context, id int64) (*Post, error) {
 	query := `
-		SELECT id, title, introduction, content, category, user_id, thumbnail_image, created_at, updated_at
+		SELECT id, title, introduction, content, category, user_id, thumbnail_image, created_at, updated_at, version
 		FROM posts WHERE id = $1
 	`
 
@@ -68,6 +69,7 @@ func (s *PostStore) GetByID(ctx context.Context, id int64) (*Post, error) {
 		&post.ThumbnailImage,
 		&post.CreatedAt,
 		&post.UpdatedAt,
+		&post.Version,
 	)
 	if err != nil {
 		switch {
@@ -85,13 +87,24 @@ func (s *PostStore) Update(ctx context.Context, post *Post) error {
 	query := `
 		UPDATE posts
 		SET title = $1, introduction = $2, content = $3, category = $4, thumbnail_image = $5,
-		updated_at = NOW()
-		WHERE id = $6
+		updated_at = NOW(), version = version + 1
+		WHERE id = $6 AND version = $7
+		RETURNING version
 	`
 
-	_, err := s.db.ExecContext(ctx, query, post.Title, post.Introduction, post.Content, post.Category, post.ThumbnailImage, post.ID)
+	err := s.db.QueryRowContext(
+		ctx, query,
+		post.Title, post.Introduction,
+		post.Content, post.Category,
+		post.ThumbnailImage, post.ID,
+		post.Version).Scan(&post.Version)
 	if err != nil {
-		return err
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return ErrNotFound
+		default:
+			return err
+		}
 	}
 
 	return nil
