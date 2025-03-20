@@ -78,6 +78,8 @@ func (app *application) mount() http.Handler {
 			})
 
 		})
+
+		r.Get("/feed", app.getFeedHandler)
 	})
 
 	return r

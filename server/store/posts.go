@@ -20,8 +20,60 @@ type Post struct {
 	Comments       []Comment `json:"comments"`
 }
 
+type FeedItem struct {
+	ID             int64  `json:"id"`
+	Title          string `json:"title"`
+	Introduction   string `json:"introduction"`
+	Category       string `json:"category"`
+	UpdatedAt      string `json:"updated_at"`
+	ThumbnailImage []byte `json:"thumbnail_image"`
+	UserID         int64  `json:"user_id"`
+	Name           string `json:"name"`
+}
+
 type PostStore struct {
 	db *sql.DB
+}
+
+func (s *PostStore) GetFeed(ctx context.Context) ([]FeedItem, error) {
+	query := `
+		SELECT p.id, p.title, p.introduction, p.category, p.updated_at, p.thumbnail_image, p.user_id, u.name
+		FROM posts p
+		LEFT JOIN users u ON u.id = p.user_id
+		ORDER BY p.updated_at DESC
+	`
+	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
+	defer cancel()
+
+	rows, err := s.db.QueryContext(
+		ctx,
+		query,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var feed []FeedItem
+	for rows.Next() {
+		var item FeedItem
+		err := rows.Scan(
+			&item.ID,
+			&item.Title,
+			&item.Introduction,
+			&item.Category,
+			&item.UpdatedAt, &item.ThumbnailImage,
+			&item.UserID,
+			&item.Name,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		feed = append(feed, item)
+	}
+
+	return feed, nil
 }
 
 func (s *PostStore) Create(ctx context.Context, post *Post) error {
