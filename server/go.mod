@@ -8,6 +8,7 @@ require (
 )
 
 require (
+	github.com/go-chi/cors v1.2.1
 	github.com/go-playground/validator/v10 v10.25.0
 	github.com/lib/pq v1.10.9
 )
