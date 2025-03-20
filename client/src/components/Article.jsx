@@ -1,33 +1,52 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import articleImg from "../assets/article-placeholder.jpg";
 import Button from "./global/Button";
 import AuthorProfileCard from "./custom/AuthorProfileCard";
 import ArticleShareMenu from "./custom/ArticleShareMenu";
 import ArticleCommentSection from "./custom/ArticleCommentSection";
+import { getPostById } from "@/api/posts";
+import { getUserById } from "@/api/users";
 
-const ArticleContent = () => {
+const ArticleContent = ({ content }) => {
   return (
     <div className="mb-10">
       <h4 className="font-semibold text-h4 text-brown-600 mb-6">
         1. Independent Yet Affectionate
       </h4>
-      <p className="text-b1 font-medium text-brown-500">
-        One of the most remarkable traits of cats is their balance between
-        independence and affection. Unlike dogs, who are often eager for
-        constant attention, cats enjoy their alone time. They can spend hours
-        grooming themselves, exploring the house, or napping in quiet corners.
-        However, when they want affection, they know how to seek it out with a
-        soft purr, a gentle nuzzle, or by curling up on your lap. This duality
-        makes cats appealing to many people who appreciate the fact that their
-        feline companions are low-maintenance but still loving. It’s like having
-        a roommate who enjoys your company but doesn’t demand too much of your
-        time!
-      </p>
+      <p className="text-b1 font-medium text-brown-500">{content}</p>
     </div>
   );
 };
 
 const Article = () => {
+  const [post, setPost] = useState();
+  const [user, setUser] = useState();
+
+  useEffect(() => {
+    const fetchPost = async () => {
+      // TODO: change to get url param for post id
+      const postData = await getPostById(2);
+      if (postData) {
+        setPost(postData.data);
+      }
+    };
+
+    fetchPost();
+  }, []); 
+
+  useEffect(() => {
+    if (post?.user_id) {
+      const fetchUser = async () => {
+        const userData = await getUserById(post.user_id);
+        if (userData) {
+          setUser(userData.data);
+        }
+      };
+
+      fetchUser();
+    }
+  }, [post]);
+
   return (
     <article>
       {/* Image */}
@@ -48,43 +67,42 @@ const Article = () => {
                 style="px-3 py-1 w-fit font-medium text-b2"
                 variant={"article-genre"}
               >
-                Cat
+                {post?.category}
               </Button>
 
               <p className="text-b1 font-medium text-brown-400">
-                11 September 2024
+                {new Date(post?.created_at).toLocaleString()}
               </p>
             </div>
 
             <h3 className="text-h3 font-semibold text-brown-600">
-              The Fascinating World of Cats: Why We Love Our Furry Friends
+              {post?.title}
             </h3>
 
             <div className="mt-6 mb-9 text-b1 font-medium text-brown-500">
-              <p>
-                Cats have captivated human hearts for thousands of years.
-                Whether lounging in a sunny spot or playfully chasing a string,
-                these furry companions bring warmth and joy to millions of
-                homes. But what makes cats so special? Let’s dive into the
-                unique traits, behaviors, and quirks that make cats endlessly
-                fascinating.
-              </p>
+              <p>{post?.introduction}</p>
             </div>
 
-            {[1, 2, 3, 4, 5].map((x) => (
-              <ArticleContent key={x} />
-            ))}
+            <ArticleContent content={post?.content} />
 
-            <AuthorProfileCard className="md:hidden" />
+            {user && <AuthorProfileCard className="md:hidden" user={user} />}
           </div>
 
           <ArticleShareMenu />
 
-          <ArticleCommentSection />
+          {post?.comments && post?.comments.length > 0 && (
+            <ArticleCommentSection comments={post?.comments} />
+          )}
         </div>
-        <div className="hidden md:block md:relative w-fit justify-self-end">
-          <AuthorProfileCard className="my-12 sticky top-12 max-w-[305px] right-0" isSticky={true} />
-        </div>
+        {user && (
+          <div className="hidden md:block md:relative w-fit justify-self-end">
+            <AuthorProfileCard
+              className="my-12 sticky top-12 max-w-[305px] right-0"
+              isSticky={true}
+              user={user}
+            />
+          </div>
+        )}
       </section>
     </article>
   );

@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/card";
 import Avatar from "../global/Avatar";
 
-const AuthorProfileCard = ({className, isSticky = false}) => {
+const AuthorProfileCard = ({className, isSticky = false, user}) => {
   return (
     <Card className={`w-full p-6 bg-brown-200 ${className}`}>
       <CardHeader className={`flex items-center gap-3 border-b border-b-brown-300 !pb-[22px] ${isSticky ? 'px-0' : ''}`}>
@@ -21,7 +21,7 @@ const AuthorProfileCard = ({className, isSticky = false}) => {
             Author
           </CardDescription>
           <CardTitle className="text-h4 text-brown-500 font-semibold">
-            Thompson P.
+            {user.name}
           </CardTitle>
         </div>
       </CardHeader>
