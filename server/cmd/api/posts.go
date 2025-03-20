@@ -29,6 +29,12 @@ type UpdatePostPayload struct {
 	ThumbnailImage *[]byte `json:"thumbnail_image" validate:"omitempty"`
 }
 
+type CreateCommentPayload struct {
+	PostID  int64  `json:"post_id" validate:"required"`
+	UserID  int64  `json:"user_id" validate:"required"`
+	Content string `json:"content" validate:"required,max=300"`
+}
+
 func (app *application) createPostHandler(w http.ResponseWriter, r *http.Request) {
 	var payload CreatePostPayload
 	if err := readJSON(w, r, &payload); err != nil {
@@ -186,4 +192,37 @@ func (app *application) postsContextMiddleware(next http.Handler) http.Handler {
 func getPostFromCtx(r *http.Request) *store.Post {
 	post, _ := r.Context().Value(postCtx).(*store.Post)
 	return post
+}
+
+func (app *application) createCommentHandler(w http.ResponseWriter, r *http.Request) {
+	post := getPostFromCtx(r)
+
+	var payload CreateCommentPayload
+	if err := readJSON(w, r, &payload); err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	if err := Validate.Struct(payload); err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	comment := &store.Comment{
+		PostID:  post.ID,
+		UserID:  payload.UserID,
+		Content: payload.Content,
+	}
+
+	ctx := r.Context()
+
+	if err := app.store.Comments.Create(ctx, comment); err != nil {
+		app.internalServerError(w, r, err)
+		return
+	}
+
+	if err := app.jsonResponse(w, http.StatusCreated, comment); err != nil {
+		app.internalServerError(w, r, err)
+		return
+	}
 }

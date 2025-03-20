@@ -71,6 +71,7 @@ func (s *CommentStore) Create(ctx context.Context, comment *Comment) error {
 	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
 	defer cancel()
 
+	// TODO: maybe return user data back to response as well
 	if err := s.db.QueryRowContext(
 		ctx,
 		query,
