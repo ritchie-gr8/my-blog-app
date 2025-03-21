@@ -1,13 +1,12 @@
 package main
 
 import (
-	"log"
-
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 	"github.com/ritchie-gr8/my-blog-app/internal/db"
 	"github.com/ritchie-gr8/my-blog-app/internal/env"
 	"github.com/ritchie-gr8/my-blog-app/internal/store"
+	"go.uber.org/zap"
 )
 
 const version = "0.0.1"
@@ -30,9 +29,19 @@ const version = "0.0.1"
 // @name						Authorization
 // @description
 func main() {
+	// create logger without printing stacktrace
+	loggerCfg := zap.NewProductionConfig()
+	loggerCfg.EncoderConfig.StacktraceKey = ""
+	zap, err := loggerCfg.Build()
+	if err != nil {
+		panic(err)
+	}
+	defer zap.Sync()
+	logger := zap.Sugar()
+
 	// load env file
 	if err := godotenv.Load(); err != nil {
-		log.Fatal("Error loading .env file")
+		logger.Fatal("Error loading .env file")
 	}
 
 	// setup config
@@ -56,19 +65,20 @@ func main() {
 		cfg.db.maxIdleTime,
 	)
 	if err != nil {
-		log.Panic(err)
+		logger.Panic(err)
 	}
 	defer db.Close()
-	log.Printf("database connection pool established")
+	logger.Info("database connection pool established")
 
 	store := store.NewStorage(db)
 
 	app := &application{
 		config: cfg,
 		store:  store,
+		logger: logger,
 	}
 
 	mux := app.mount()
 
-	log.Fatal(app.run(mux))
+	logger.Fatal(app.run(mux))
 }
