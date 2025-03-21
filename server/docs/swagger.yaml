@@ -21,6 +21,31 @@ definitions:
     - password
     - username
     type: object
+  main.UserWithToken:
+    properties:
+      bio:
+        type: string
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      is_active:
+        type: boolean
+      name:
+        type: string
+      profile_picture:
+        items:
+          type: integer
+        type: array
+      role:
+        type: string
+      token:
+        type: string
+      username:
+        type: string
+    type: object
   store.Comment:
     properties:
       content:
@@ -88,12 +113,16 @@ definitions:
     type: object
   store.User:
     properties:
+      bio:
+        type: string
       created_at:
         type: string
       email:
         type: string
       id:
         type: integer
+      is_active:
+        type: boolean
       name:
         type: string
       profile_picture:
@@ -135,7 +164,7 @@ paths:
         "201":
           description: User registered
           schema:
-            $ref: '#/definitions/store.User'
+            $ref: '#/definitions/main.UserWithToken'
         "400":
           description: Bad Request
           schema: {}
@@ -425,6 +454,35 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Fetch a user profile
+      tags:
+      - users
+  /users/activate/{token}:
+    put:
+      consumes:
+      - application/json
+      description: Activate/Register a user by invitation token
+      parameters:
+      - description: Invitation token
+        in: path
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: User activated
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Activate/Register a user
       tags:
       - users
 securityDefinitions:
