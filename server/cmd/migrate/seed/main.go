@@ -6,7 +6,7 @@ import (
 	_ "github.com/lib/pq"
 	"github.com/ritchie-gr8/my-blog-app/internal/db"
 	"github.com/ritchie-gr8/my-blog-app/internal/env"
-	"github.com/ritchie-gr8/my-blog-app/store"
+	"github.com/ritchie-gr8/my-blog-app/internal/store"
 )
 
 func main() {

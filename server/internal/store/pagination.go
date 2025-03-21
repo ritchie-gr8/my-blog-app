@@ -16,25 +16,23 @@ type PaginatedFeedQuery struct {
 func (fq PaginatedFeedQuery) Parse(r *http.Request) (PaginatedFeedQuery, error) {
 	queryString := r.URL.Query()
 
-	parseIntParam := func(param string) (int, error) {
-		value := queryString.Get(param)
-		if value == "" {
-			return 0, nil
+	parseIntParam := func(param string, fallback int) int {
+		value, err := strconv.Atoi(param)
+		if err != nil {
+			return fallback
 		}
 
-		return strconv.Atoi(value)
+		return value
 	}
 
-	if limit, err := parseIntParam("limit"); err != nil {
-		return fq, err
-	} else if limit >= 0 {
-		fq.Limit = limit
+	limit := queryString.Get("limit")
+	if limit != "" {
+		fq.Limit = parseIntParam(limit, fq.Limit)
 	}
 
-	if offset, err := parseIntParam("offset"); err != nil {
-		return fq, err
-	} else if offset >= 0 {
-		fq.Offset = offset
+	offset := queryString.Get("offset")
+	if offset != "" {
+		fq.Offset = parseIntParam(offset, fq.Offset)
 	}
 
 	if sort := queryString.Get("sort"); sort != "" {

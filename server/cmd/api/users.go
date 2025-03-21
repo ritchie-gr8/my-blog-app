@@ -6,13 +6,25 @@ import (
 	"strconv"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/ritchie-gr8/my-blog-app/store"
+	"github.com/ritchie-gr8/my-blog-app/internal/store"
 )
 
 type userKey string
 
 const userCtx userKey = "user"
 
+// @Summary		Fetch a user profile
+// @Description	Fetch a user profile by ID
+// @Tags			users
+// @Accept			json
+// @Produce		json
+// @Param			id	path		int	true	"User ID"
+// @Success		200	{object}	store.User
+// @Failure		400	{object}	error
+// @Failure		404	{object}	error
+// @Failure		500	{object}	error
+// @Security		ApiKeyAuth
+// @Router			/users/{id} [get]
 func (app *application) getUserHandler(w http.ResponseWriter, r *http.Request) {
 	user := getUserFromCtx(r)
 

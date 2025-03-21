@@ -1,0 +1,386 @@
+basePath: /v1
+definitions:
+  store.Comment:
+    properties:
+      content:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      post_id:
+        type: integer
+      user:
+        $ref: '#/definitions/store.User'
+      user_id:
+        type: integer
+    type: object
+  store.FeedItem:
+    properties:
+      category:
+        type: string
+      id:
+        type: integer
+      introduction:
+        type: string
+      name:
+        type: string
+      thumbnail_image:
+        items:
+          type: integer
+        type: array
+      title:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  store.Post:
+    properties:
+      category:
+        type: string
+      comments:
+        items:
+          $ref: '#/definitions/store.Comment'
+        type: array
+      content:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      introduction:
+        type: string
+      thumbnail_image:
+        items:
+          type: integer
+        type: array
+      title:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: integer
+      version:
+        type: integer
+    type: object
+  store.User:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      profile_picture:
+        items:
+          type: integer
+        type: array
+      role:
+        type: string
+      username:
+        type: string
+    type: object
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: API for my blog post
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Blog Post API
+paths:
+  /feed:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a paginated feed of posts with optional filters for category
+        and search
+      parameters:
+      - description: Number of posts to retrieve (default is 20, max is 20)
+        in: query
+        maximum: 20
+        minimum: 1
+        name: limit
+        type: integer
+      - description: Offset for pagination (default is 0)
+        in: query
+        name: offset
+        type: integer
+      - description: Sort order (default is 'desc', options are 'asc' or 'desc')
+        in: query
+        name: sort
+        type: string
+      - description: Category to filter posts by
+        in: query
+        name: category
+        type: string
+      - description: Search term to filter posts by (max length is 100)
+        in: query
+        name: search
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully retrieved the posts feed
+          schema:
+            items:
+              $ref: '#/definitions/store.FeedItem'
+            type: array
+        "400":
+          description: Invalid request, the request data was incorrect or malformed
+          schema: {}
+        "500":
+          description: Internal server error, the server encountered a problem
+          schema: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Get post feed
+      tags:
+      - posts
+  /health:
+    get:
+      consumes:
+      - application/json
+      description: Check the health status of the server, environment, and version
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Returns server health status, environment, and version
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error, the server encountered a problem
+          schema: {}
+      summary: Health check
+      tags:
+      - health
+  /posts:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new post with the provided details
+      parameters:
+      - description: Post Title
+        in: body
+        maxLength: 100
+        name: title
+        required: true
+        schema:
+          type: string
+      - description: Post Introduction
+        in: body
+        maxLength: 120
+        name: introduction
+        required: true
+        schema:
+          type: string
+      - description: Post Content
+        in: body
+        maxLength: 1000
+        name: content
+        required: true
+        schema:
+          type: string
+      - description: Post Category
+        in: body
+        maxLength: 100
+        name: category
+        required: true
+        schema:
+          type: string
+      - description: Thumbnail Image
+        in: body
+        name: thumbnail_image
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Successfully created post
+          schema:
+            $ref: '#/definitions/store.Post'
+        "400":
+          description: Invalid request, the request data was incorrect or malformed
+          schema: {}
+        "500":
+          description: Internal server error, the server encountered a problem
+          schema: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Create a post
+      tags:
+      - posts
+  /posts/{postID}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a post by its ID
+      parameters:
+      - description: Post ID
+        in: path
+        name: postID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: "No Content\"\t\"Successfully deleted post, no content returned"
+        "400":
+          description: Invalid request, the request data was incorrect or malformed
+          schema: {}
+        "404":
+          description: Post not found
+          schema: {}
+        "500":
+          description: Internal server error, the server encountered a problem
+          schema: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Delete a post
+      tags:
+      - posts
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a post along with its comments
+      parameters:
+      - description: Post ID
+        in: path
+        name: postID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully fetched post
+          schema:
+            $ref: '#/definitions/store.Post'
+        "400":
+          description: Invalid request, the request data was incorrect or malformed
+          schema: {}
+        "404":
+          description: Post not found
+          schema: {}
+        "500":
+          description: Internal server error, the server encountered a problem
+          schema: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Get a post
+      tags:
+      - posts
+    put:
+      consumes:
+      - application/json
+      description: Update an existing post with new details
+      parameters:
+      - description: Post ID
+        in: path
+        name: postID
+        required: true
+        type: integer
+      - description: Post Title
+        in: body
+        maxLength: 100
+        name: title
+        schema:
+          type: string
+      - description: Post Introduction
+        in: body
+        maxLength: 120
+        name: introduction
+        schema:
+          type: string
+      - description: Post Content
+        in: body
+        maxLength: 1000
+        name: content
+        schema:
+          type: string
+      - description: Post Category
+        in: body
+        maxLength: 100
+        name: category
+        schema:
+          type: string
+      - description: Thumbnail Image
+        in: body
+        name: thumbnail_image
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully updated post
+          schema:
+            $ref: '#/definitions/store.Post'
+        "400":
+          description: Invalid request, the request data was incorrect or malformed
+          schema: {}
+        "404":
+          description: Post not found
+          schema: {}
+        "409":
+          description: 'Conflict: The request could not be completed due to a conflict'
+          schema: {}
+        "500":
+          description: Internal server error, the server encountered a problem
+          schema: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Update a post
+      tags:
+      - posts
+  /users/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Fetch a user profile by ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/store.User'
+        "400":
+          description: Bad Request
+          schema: {}
+        "404":
+          description: Not Found
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Fetch a user profile
+      tags:
+      - users
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

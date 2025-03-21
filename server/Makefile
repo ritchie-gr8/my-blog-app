@@ -1,5 +1,6 @@
 include .env
 MIGRATIONS_PATH = ./cmd/migrate/migrations
+SWAGGER_PATH = ./api/main.go
 
 .PHONY: migrate-create
 migration:
@@ -16,3 +17,7 @@ migrate-down:
 .PHONY: seed
 seed:
 	@go run cmd/migrate/seed/main.go
+
+.PHONY: gen-docs
+gen-docs:
+	@swag init -g ${SWAGGER_PATH} -d cmd,internal && swag fmt

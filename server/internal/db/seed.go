@@ -6,7 +6,7 @@ import (
 	"log"
 	"math/rand"
 
-	"github.com/ritchie-gr8/my-blog-app/store"
+	"github.com/ritchie-gr8/my-blog-app/internal/store"
 )
 
 var usernames = []string{
