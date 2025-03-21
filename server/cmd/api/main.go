@@ -1,6 +1,8 @@
 package main
 
 import (
+	"time"
+
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 	"github.com/ritchie-gr8/my-blog-app/internal/db"
@@ -55,6 +57,9 @@ func main() {
 			maxIdleTime:  env.GetString("DB_MAX_IDLE_TIME", "15m"),
 		},
 		env: env.GetString("ENV", "development"),
+		mail: mailConfig{
+			exp: time.Hour * 24 * 3,
+		},
 	}
 
 	// create db

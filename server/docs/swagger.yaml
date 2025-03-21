@@ -1,5 +1,26 @@
 basePath: /v1
 definitions:
+  main.RegisterUserPayload:
+    properties:
+      email:
+        maxLength: 255
+        type: string
+      name:
+        maxLength: 100
+        type: string
+      password:
+        maxLength: 72
+        minLength: 3
+        type: string
+      username:
+        maxLength: 100
+        type: string
+    required:
+    - email
+    - name
+    - password
+    - username
+    type: object
   store.Comment:
     properties:
       content:
@@ -96,6 +117,34 @@ info:
   termsOfService: http://swagger.io/terms/
   title: Blog Post API
 paths:
+  /authentication/user:
+    post:
+      consumes:
+      - application/json
+      description: Register a user
+      parameters:
+      - description: User credentials
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/main.RegisterUserPayload'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: User registered
+          schema:
+            $ref: '#/definitions/store.User'
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Register a user
+      tags:
+      - authentication
   /feed:
     get:
       consumes:
