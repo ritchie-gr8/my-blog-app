@@ -4,6 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
+	"strings"
 )
 
 type Post struct {
@@ -35,19 +37,57 @@ type PostStore struct {
 	db *sql.DB
 }
 
-func (s *PostStore) GetFeed(ctx context.Context) ([]FeedItem, error) {
-	query := `
+func getFeedQuery(fq *PaginatedFeedQuery, sort string) (string, []any) {
+	baseQuery := `
 		SELECT p.id, p.title, p.introduction, p.category, p.updated_at, p.thumbnail_image, p.user_id, u.name
 		FROM posts p
 		LEFT JOIN users u ON u.id = p.user_id
-		ORDER BY p.updated_at DESC
 	`
+
+	whereConditions := []string{}
+	var queryParams = []any{
+		fq.Limit,
+		fq.Offset,
+	}
+
+	if fq.Search != "" {
+		whereConditions = append(whereConditions, fmt.Sprintf("(p.title ILIKE '%%' || $%d || '%%' OR p.introduction ILIKE '%%' || $%d || '%%')",
+			len(queryParams)+1,
+			len(queryParams)+1,
+		))
+		queryParams = append(queryParams, fq.Search)
+	}
+
+	if fq.Category != "" {
+		whereConditions = append(whereConditions, fmt.Sprintf("p.category = $%d", len(queryParams)+1))
+		queryParams = append(queryParams, fq.Category)
+	}
+
+	finalQuery := baseQuery
+	if len(whereConditions) > 0 {
+		finalQuery += " WHERE " + strings.Join(whereConditions, " AND ")
+	}
+
+	finalQuery += " ORDER BY p.updated_at " + sort + " LIMIT $1 OFFSET $2"
+
+	return finalQuery, queryParams
+}
+
+func (s *PostStore) GetFeed(ctx context.Context, fq PaginatedFeedQuery) ([]FeedItem, error) {
+	sort := strings.ToUpper(fq.Sort)
+	if sort != "ASC" && sort != "DESC" {
+		sort = "DESC"
+	}
+
+	query, queryParams := getFeedQuery(&fq, sort)
+
 	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
 	defer cancel()
 
 	rows, err := s.db.QueryContext(
 		ctx,
 		query,
+		queryParams...,
 	)
 	if err != nil {
 		return nil, err
