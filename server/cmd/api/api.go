@@ -11,6 +11,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/ritchie-gr8/my-blog-app/docs"
+	"github.com/ritchie-gr8/my-blog-app/internal/auth"
 	"github.com/ritchie-gr8/my-blog-app/internal/env"
 	"github.com/ritchie-gr8/my-blog-app/internal/mailer"
 	"github.com/ritchie-gr8/my-blog-app/internal/store"
@@ -18,10 +19,11 @@ import (
 )
 
 type application struct {
-	config config
-	store  store.Storage
-	logger *zap.SugaredLogger
-	mailer mailer.Client
+	config        config
+	store         store.Storage
+	logger        *zap.SugaredLogger
+	mailer        mailer.Client
+	authenticator auth.Authenticator
 }
 
 type config struct {
@@ -31,6 +33,23 @@ type config struct {
 	apiURL      string
 	mail        mailConfig
 	frontendURL string
+	auth        authConfig
+}
+
+type authConfig struct {
+	basic basicConfig
+	token tokenConfig
+}
+
+type basicConfig struct {
+	user string
+	pass string
+}
+
+type tokenConfig struct {
+	secret string
+	exp    time.Duration
+	issue  string
 }
 
 type mailConfig struct {
@@ -71,15 +90,14 @@ func (app *application) mount() http.Handler {
 	// processing should be stopped.
 	r.Use(middleware.Timeout(60 * time.Second))
 
-	r.Get("/health", app.healthCheckHandler)
-
 	r.Route("/v1", func(r chi.Router) {
-		r.Get("/health", app.healthCheckHandler)
+		r.With(app.BasicAuthMiddleware()).Get("/health", app.healthCheckHandler)
 
 		docsURL := fmt.Sprintf("%s/swagger/doc.json", app.config.addr)
 		r.Get("/swagger/*", httpSwagger.Handler(httpSwagger.URL(docsURL)))
 
 		r.Route("/posts", func(r chi.Router) {
+			r.Use(app.AuthTokenMiddleware)
 			r.Post("/", app.createPostHandler)
 
 			r.Route("/{postID}", func(r chi.Router) {
@@ -96,7 +114,7 @@ func (app *application) mount() http.Handler {
 			r.Put("/activate/{token}", app.activeUserHandler)
 
 			r.Route("/{userID}", func(r chi.Router) {
-				r.Use(app.userContextMiddleware)
+				r.Use(app.AuthTokenMiddleware)
 
 				r.Get("/", app.getUserHandler)
 			})
@@ -106,6 +124,7 @@ func (app *application) mount() http.Handler {
 
 		r.Route("/authentication", func(r chi.Router) {
 			r.Post("/user", app.registerUserHandler)
+			r.Post("/token", app.createTokenHandler)
 		})
 	})
 

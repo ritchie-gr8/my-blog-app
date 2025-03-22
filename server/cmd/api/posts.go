@@ -35,21 +35,21 @@ type CreateCommentPayload struct {
 	Content string `json:"content" validate:"required,max=300"`
 }
 
-//	@Summary		Create a post
-//	@Description	Creates a new post with the provided details
-//	@Tags			posts
-//	@Accept			json
-//	@Produce		json
-//	@Param			title			body		string		true	"Post Title"		maxLength(100)
-//	@Param			introduction	body		string		true	"Post Introduction"	maxLength(120)
-//	@Param			content			body		string		true	"Post Content"		maxLength(1000)
-//	@Param			category		body		string		true	"Post Category"		maxLength(100)
-//	@Param			thumbnail_image	body		string		false	"Thumbnail Image"
-//	@Success		201				{object}	store.Post	"Successfully created post"
-//	@Failure		400				{object}	error		"Invalid request, the request data was incorrect or malformed"
-//	@Failure		500				{object}	error		"Internal server error, the server encountered a problem"
-//	@Security		ApiKeyAuth
-//	@Router			/posts [post]
+// @Summary		Create a post
+// @Description	Creates a new post with the provided details
+// @Tags			posts
+// @Accept			json
+// @Produce		json
+// @Param			title			body		string		true	"Post Title"		maxLength(100)
+// @Param			introduction	body		string		true	"Post Introduction"	maxLength(120)
+// @Param			content			body		string		true	"Post Content"		maxLength(1000)
+// @Param			category		body		string		true	"Post Category"		maxLength(100)
+// @Param			thumbnail_image	body		string		false	"Thumbnail Image"
+// @Success		201				{object}	store.Post	"Successfully created post"
+// @Failure		400				{object}	error		"Invalid request, the request data was incorrect or malformed"
+// @Failure		500				{object}	error		"Internal server error, the server encountered a problem"
+// @Security		ApiKeyAuth
+// @Router			/posts [post]
 func (app *application) createPostHandler(w http.ResponseWriter, r *http.Request) {
 	var payload CreatePostPayload
 	if err := readJSON(w, r, &payload); err != nil {
@@ -62,15 +62,14 @@ func (app *application) createPostHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	// TODO: change hard code after implementing auth
-	userId := 2
+	user := getUserFromCtx(r)
 
 	post := &store.Post{
 		Title:        payload.Title,
 		Introduction: payload.Introduction,
 		Content:      payload.Content,
 		Category:     payload.Category,
-		UserID:       int64(userId),
+		UserID:       user.ID,
 	}
 
 	ctx := r.Context()
@@ -86,18 +85,18 @@ func (app *application) createPostHandler(w http.ResponseWriter, r *http.Request
 	}
 }
 
-//	@Summary		Get a post
-//	@Description	Retrieve a post along with its comments
-//	@Tags			posts
-//	@Accept			json
-//	@Produce		json
-//	@Param			postID	path		int			true	"Post ID"
-//	@Success		200		{object}	store.Post	"Successfully fetched post"
-//	@Failure		400		{object}	error		"Invalid request, the request data was incorrect or malformed"
-//	@Failure		404		{object}	error		"Post not found"
-//	@Failure		500		{object}	error		"Internal server error, the server encountered a problem"
-//	@Security		ApiKeyAuth
-//	@Router			/posts/{postID} [get]
+// @Summary		Get a post
+// @Description	Retrieve a post along with its comments
+// @Tags			posts
+// @Accept			json
+// @Produce		json
+// @Param			postID	path		int			true	"Post ID"
+// @Success		200		{object}	store.Post	"Successfully fetched post"
+// @Failure		400		{object}	error		"Invalid request, the request data was incorrect or malformed"
+// @Failure		404		{object}	error		"Post not found"
+// @Failure		500		{object}	error		"Internal server error, the server encountered a problem"
+// @Security		ApiKeyAuth
+// @Router			/posts/{postID} [get]
 func (app *application) getPostHandler(w http.ResponseWriter, r *http.Request) {
 	post := getPostFromCtx(r)
 
@@ -115,18 +114,18 @@ func (app *application) getPostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-//	@Summary		Delete a post
-//	@Description	Delete a post by its ID
-//	@Tags			posts
-//	@Accept			json
-//	@Produce		json
-//	@Param			postID	path			int	true	"Post ID"
-//	@Success		204		"No Content"	"Successfully deleted post, no content returned"
-//	@Failure		400		{object}		error	"Invalid request, the request data was incorrect or malformed"
-//	@Failure		404		{object}		error	"Post not found"
-//	@Failure		500		{object}		error	"Internal server error, the server encountered a problem"
-//	@Security		ApiKeyAuth
-//	@Router			/posts/{postID} [delete]
+// @Summary		Delete a post
+// @Description	Delete a post by its ID
+// @Tags			posts
+// @Accept			json
+// @Produce		json
+// @Param			postID	path			int	true	"Post ID"
+// @Success		204		"No Content"	"Successfully deleted post, no content returned"
+// @Failure		400		{object}		error	"Invalid request, the request data was incorrect or malformed"
+// @Failure		404		{object}		error	"Post not found"
+// @Failure		500		{object}		error	"Internal server error, the server encountered a problem"
+// @Security		ApiKeyAuth
+// @Router			/posts/{postID} [delete]
 func (app *application) deletePostHandler(w http.ResponseWriter, r *http.Request) {
 	idParam := chi.URLParam(r, "postID")
 	id, err := strconv.ParseInt(idParam, 10, 64)
@@ -150,24 +149,24 @@ func (app *application) deletePostHandler(w http.ResponseWriter, r *http.Request
 	w.WriteHeader(http.StatusNoContent)
 }
 
-//	@Summary		Update a post
-//	@Description	Update an existing post with new details
-//	@Tags			posts
-//	@Accept			json
-//	@Produce		json
-//	@Param			postID			path		int			true	"Post ID"
-//	@Param			title			body		string		false	"Post Title"		maxLength(100)
-//	@Param			introduction	body		string		false	"Post Introduction"	maxLength(120)
-//	@Param			content			body		string		false	"Post Content"		maxLength(1000)
-//	@Param			category		body		string		false	"Post Category"		maxLength(100)
-//	@Param			thumbnail_image	body		string		false	"Thumbnail Image"
-//	@Success		200				{object}	store.Post	"Successfully updated post"
-//	@Failure		400				{object}	error		"Invalid request, the request data was incorrect or malformed"
-//	@Failure		404				{object}	error		"Post not found"
-//	@Failure		409				{object}	error		"Conflict: The request could not be completed due to a conflict"
-//	@Failure		500				{object}	error		"Internal server error, the server encountered a problem"
-//	@Security		ApiKeyAuth
-//	@Router			/posts/{postID} [put]
+// @Summary		Update a post
+// @Description	Update an existing post with new details
+// @Tags			posts
+// @Accept			json
+// @Produce		json
+// @Param			postID			path		int			true	"Post ID"
+// @Param			title			body		string		false	"Post Title"		maxLength(100)
+// @Param			introduction	body		string		false	"Post Introduction"	maxLength(120)
+// @Param			content			body		string		false	"Post Content"		maxLength(1000)
+// @Param			category		body		string		false	"Post Category"		maxLength(100)
+// @Param			thumbnail_image	body		string		false	"Thumbnail Image"
+// @Success		200				{object}	store.Post	"Successfully updated post"
+// @Failure		400				{object}	error		"Invalid request, the request data was incorrect or malformed"
+// @Failure		404				{object}	error		"Post not found"
+// @Failure		409				{object}	error		"Conflict: The request could not be completed due to a conflict"
+// @Failure		500				{object}	error		"Internal server error, the server encountered a problem"
+// @Security		ApiKeyAuth
+// @Router			/posts/{postID} [put]
 func (app *application) updatePostHandler(w http.ResponseWriter, r *http.Request) {
 	post := getPostFromCtx(r)
 

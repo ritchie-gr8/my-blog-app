@@ -5,6 +5,7 @@ import (
 
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
+	"github.com/ritchie-gr8/my-blog-app/internal/auth"
 	"github.com/ritchie-gr8/my-blog-app/internal/db"
 	"github.com/ritchie-gr8/my-blog-app/internal/env"
 	"github.com/ritchie-gr8/my-blog-app/internal/mailer"
@@ -27,10 +28,10 @@ const version = "0.0.1"
 
 //	@BasePath	/v1
 
-//	@securityDefinitions.apiKey	ApiKeyAuth
-//	@in							header
-//	@name						Authorization
-//	@description
+// @securityDefinitions.apiKey	ApiKeyAuth
+// @in							header
+// @name						Authorization
+// @description
 func main() {
 	// create logger without printing stacktrace
 	loggerCfg := zap.NewProductionConfig()
@@ -66,6 +67,17 @@ func main() {
 				apiKey: env.GetString("SENDGRID_API_KEY", ""),
 			},
 		},
+		auth: authConfig{
+			basic: basicConfig{
+				user: env.GetString("AUTH_BASIC_USER", ""),
+				pass: env.GetString("AUTH_BASIC_PASS", ""),
+			},
+			token: tokenConfig{
+				secret: env.GetString("AUTH_TOKEN_SECRET", ""),
+				exp:    time.Hour * 24 * 3,
+				issue:  env.GetString("AUTH_ISSUE", ""),
+			},
+		},
 	}
 
 	// create db
@@ -85,11 +97,14 @@ func main() {
 
 	mailer := mailer.NewSendgrid(cfg.mail.sendGrid.apiKey, cfg.mail.fromEmail)
 
+	jwtAuthenticator := auth.NewJWTAuthenticator(cfg.auth.token.secret, cfg.auth.token.issue, cfg.auth.token.issue)
+
 	app := &application{
-		config: cfg,
-		store:  store,
-		logger: logger,
-		mailer: mailer,
+		config:        cfg,
+		store:         store,
+		logger:        logger,
+		mailer:        mailer,
+		authenticator: jwtAuthenticator,
 	}
 
 	mux := app.mount()
