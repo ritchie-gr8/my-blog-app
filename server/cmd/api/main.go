@@ -3,6 +3,7 @@ package main
 import (
 	"time"
 
+	"github.com/go-redis/redis/v8"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 	"github.com/ritchie-gr8/my-blog-app/internal/auth"
@@ -10,6 +11,7 @@ import (
 	"github.com/ritchie-gr8/my-blog-app/internal/env"
 	"github.com/ritchie-gr8/my-blog-app/internal/mailer"
 	"github.com/ritchie-gr8/my-blog-app/internal/store"
+	"github.com/ritchie-gr8/my-blog-app/internal/store/cache"
 	"go.uber.org/zap"
 )
 
@@ -78,6 +80,12 @@ func main() {
 				issue:  env.GetString("AUTH_ISSUE", ""),
 			},
 		},
+		redisCfg: redisConfig{
+			addr:     env.GetString("REDIS_ADDR", "localhost:6379"),
+			password: env.GetString("REDIS_PW", ""),
+			db:       env.GetInt("REDIS_DB", 0),
+			enabled:  env.GetBool("REDIS_ENABLED", false),
+		},
 	}
 
 	// create db
@@ -93,7 +101,18 @@ func main() {
 	defer db.Close()
 	logger.Info("database connection pool established")
 
+	// cache
+	var redisDB *redis.Client
+	if cfg.redisCfg.enabled {
+		redisDB = cache.NewRedisClient(
+			cfg.redisCfg.addr,
+			cfg.redisCfg.password,
+			cfg.redisCfg.db)
+		logger.Info("redis connection established")
+	}
+
 	store := store.NewStorage(db)
+	cacheStore := cache.NewRedisStore(redisDB)
 
 	mailer := mailer.NewSendgrid(cfg.mail.sendGrid.apiKey, cfg.mail.fromEmail)
 
@@ -102,6 +121,7 @@ func main() {
 	app := &application{
 		config:        cfg,
 		store:         store,
+		cacheStore:    cacheStore,
 		logger:        logger,
 		mailer:        mailer,
 		authenticator: jwtAuthenticator,

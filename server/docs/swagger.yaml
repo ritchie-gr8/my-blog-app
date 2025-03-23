@@ -542,6 +542,69 @@ paths:
       summary: Fetch a user profile
       tags:
       - users
+  /users/{userID}:
+    patch:
+      consumes:
+      - application/json
+      description: Update the details of an existing user (partial update)
+      parameters:
+      - description: User ID
+        in: path
+        name: userID
+        required: true
+        type: integer
+      - description: Name
+        in: body
+        maxLength: 72
+        name: name
+        schema:
+          type: string
+      - description: Username
+        in: body
+        maxLength: 72
+        name: username
+        schema:
+          type: string
+      - description: Email
+        format: email
+        in: body
+        maxLength: 120
+        name: email
+        schema:
+          type: string
+      - description: Bio
+        in: body
+        maxLength: 120
+        name: bio
+        schema:
+          type: string
+      - description: Profile Picture (base64 encoded)
+        in: body
+        maxLength: 1000000
+        name: profile_picture
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully updated user
+          schema:
+            $ref: '#/definitions/store.User'
+        "400":
+          description: Invalid request, the request data was incorrect or malformed
+          schema: {}
+        "404":
+          description: User not found
+          schema: {}
+        "500":
+          description: Internal server error, the server encountered a problem
+          schema: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Update an existing user
+      tags:
+      - users
   /users/activate/{token}:
     put:
       consumes:

@@ -15,12 +15,14 @@ import (
 	"github.com/ritchie-gr8/my-blog-app/internal/env"
 	"github.com/ritchie-gr8/my-blog-app/internal/mailer"
 	"github.com/ritchie-gr8/my-blog-app/internal/store"
+	"github.com/ritchie-gr8/my-blog-app/internal/store/cache"
 	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 type application struct {
 	config        config
 	store         store.Storage
+	cacheStore    cache.Storage
 	logger        *zap.SugaredLogger
 	mailer        mailer.Client
 	authenticator auth.Authenticator
@@ -34,6 +36,14 @@ type config struct {
 	mail        mailConfig
 	frontendURL string
 	auth        authConfig
+	redisCfg    redisConfig
+}
+
+type redisConfig struct {
+	addr     string
+	password string
+	db       int
+	enabled  bool
 }
 
 type authConfig struct {
@@ -115,8 +125,9 @@ func (app *application) mount() http.Handler {
 
 			r.Route("/{userID}", func(r chi.Router) {
 				r.Use(app.AuthTokenMiddleware)
-
 				r.Get("/", app.getUserHandler)
+
+				r.Patch("/", app.updateUserHandler)
 			})
 		})
 

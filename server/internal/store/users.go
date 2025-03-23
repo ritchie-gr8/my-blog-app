@@ -209,6 +209,30 @@ func (s *UserStore) Delete(ctx context.Context, userID int64) error {
 	})
 }
 
+func (s *UserStore) Update(ctx context.Context, user *User) (int64, error) {
+	query := `
+        UPDATE users 
+        SET username = $1, name = $2, email = $3, bio = $4, profile_picture = $5 
+        WHERE id = $6
+    `
+
+	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
+	defer cancel()
+
+	result, err := s.db.ExecContext(
+		ctx, query,
+		user.Username, user.Name,
+		user.Email, user.Bio,
+		user.ProfilePicture, user.ID,
+	)
+
+	if err != nil {
+		return 0, err
+	}
+
+	return result.RowsAffected()
+}
+
 func (s *UserStore) getUserFromInvitation(ctx context.Context, tx *sql.Tx, token string) (*User, error) {
 	query := `
 		SELECT u.id, u.name, u.username, u.email, u.created_at, u.is_active
