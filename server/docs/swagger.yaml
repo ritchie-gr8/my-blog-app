@@ -218,6 +218,48 @@ paths:
       summary: Register a user
       tags:
       - authentication
+  /comments:
+    post:
+      consumes:
+      - application/json
+      description: Create a new comment on a post with the provided details
+      parameters:
+      - description: Post ID
+        in: path
+        name: postID
+        required: true
+        type: integer
+      - description: User ID
+        in: body
+        name: user_id
+        required: true
+        schema:
+          type: integer
+      - description: Comment Content
+        in: body
+        maxLength: 300
+        name: content
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Successfully created comment
+          schema:
+            $ref: '#/definitions/store.Comment'
+        "400":
+          description: Invalid request, the request data was incorrect or malformed
+          schema: {}
+        "500":
+          description: Internal server error, the server encountered a problem
+          schema: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Create a new comment
+      tags:
+      - comments
   /feed:
     get:
       consumes:

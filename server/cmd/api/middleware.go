@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/ritchie-gr8/my-blog-app/internal/store"
 )
 
 func (app *application) BasicAuthMiddleware() func(http.Handler) http.Handler {
@@ -85,4 +86,49 @@ func (app *application) AuthTokenMiddleware(next http.Handler) http.Handler {
 		ctx = context.WithValue(ctx, userCtx, user)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
+}
+
+func (app *application) checkPostOwnership(requiredRole string, next http.HandlerFunc) http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		user := getUserFromCtx(r)
+		post := getPostFromCtx(r)
+
+		if post.UserID == user.ID {
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		allowed, err := app.checkRolePrecedence(user, requiredRole)
+		if err != nil {
+			app.internalServerError(w, r, err)
+			return
+		}
+
+		if !allowed {
+			app.forbiddenResponse(w, r)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}
+
+func (app *application) checkRolePrecedence(user *store.User, requiredRole string) (bool, error) {
+	roleHierarchy := map[string]int{
+		"user":      1,
+		"moderator": 2,
+		"admin":     3,
+	}
+
+	userRoleLevel, userExists := roleHierarchy[user.Role]
+	requiredRoleLevel, requiredExists := roleHierarchy[requiredRole]
+
+	if !userExists {
+		return false, fmt.Errorf("invalid user role: %s", user.Role)
+	}
+	if !requiredExists {
+		return false, fmt.Errorf("invalid required role: %s", requiredRole)
+	}
+
+	return userRoleLevel >= requiredRoleLevel, nil
 }
