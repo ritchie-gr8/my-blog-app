@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/ritchie-gr8/my-blog-app/internal/store"
 	"github.com/ritchie-gr8/my-blog-app/internal/store/cache"
@@ -13,6 +14,13 @@ type UserService struct {
 	store      store.Storage
 	cacheStore cache.Storage
 	logger     *zap.SugaredLogger
+}
+
+type RegisterUserPayload struct {
+	Username string `json:"username" validate:"required,max=100"`
+	Name     string `json:"name" validate:"required,max=100"`
+	Email    string `json:"email" validate:"required,email,max=255"`
+	Password string `json:"password" validate:"required,min=3,max=72"`
 }
 
 func (s *UserService) Get(ctx context.Context, id int64) (*store.User, error) {
@@ -78,4 +86,22 @@ func (s *UserService) getUser(ctx context.Context, userID int64) (*store.User, e
 	}
 
 	return user, nil
+}
+
+func (s *UserService) GetByEmail(ctx context.Context, email string) (*store.User, error) {
+	user, err := s.store.Users.GetByEmail(ctx, email)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
+func (s *UserService) CreateAndInvite(ctx context.Context, user *store.User, hashToken string, exp time.Duration) error {
+	err := s.store.Users.CreateAndInvite(ctx, user, hashToken, exp)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"time"
 
 	"github.com/ritchie-gr8/my-blog-app/internal/store"
 )
@@ -23,5 +24,13 @@ func (s *MockUserService) Update(ctx context.Context, user *store.User) error {
 	return nil
 }
 func (s *MockUserService) Activate(ctx context.Context, token string) error {
+	return nil
+}
+
+func (s *MockUserService) GetByEmail(ctx context.Context, email string) (*store.User, error) {
+	return nil, nil
+}
+
+func (s *MockUserService) CreateAndInvite(ctx context.Context, user *store.User, hashToken string, exp time.Duration) error {
 	return nil
 }

@@ -69,7 +69,7 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 	hash := sha256.Sum256([]byte(plainToken))
 	hashToken := hex.EncodeToString(hash[:])
 
-	err := app.store.Users.CreateAndInvite(ctx, user, hashToken, app.config.mail.exp)
+	err := app.service.Users.CreateAndInvite(ctx, user, hashToken, app.config.mail.exp)
 	if err != nil {
 		switch err {
 		case store.ErrDuplicateEmail:
@@ -139,7 +139,7 @@ func (app *application) createTokenHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	user, err := app.store.Users.GetByEmail(r.Context(), payload.Email)
+	user, err := app.service.Users.GetByEmail(r.Context(), payload.Email)
 	if err != nil {
 		switch err {
 		case store.ErrNotFound:
