@@ -7,18 +7,23 @@ import (
 
 	"github.com/ritchie-gr8/my-blog-app/cmd/service"
 	"github.com/ritchie-gr8/my-blog-app/internal/auth"
+	"github.com/ritchie-gr8/my-blog-app/internal/ratelimiter"
 	"github.com/ritchie-gr8/my-blog-app/internal/store"
 	"github.com/ritchie-gr8/my-blog-app/internal/store/cache"
 	"go.uber.org/zap"
 )
 
-func newTestApplication(t *testing.T) *application {
+func newTestApplication(t *testing.T, cfg config) *application {
 	t.Helper()
 	logger := zap.Must(zap.NewProduction()).Sugar()
 	mockStore := store.NewMockStore()
 	mockCacheStore := cache.NewMockStore()
 	testAuth := &auth.TestAuthenticator{}
 	mockService := service.NewMockService()
+	rateLimiter := ratelimiter.NewFixedWindowLimiter(
+		cfg.rateLimiter.RequestsPerTimeFrame,
+		cfg.rateLimiter.TimeFrame,
+	)
 
 	return &application{
 		logger:        logger,
@@ -26,6 +31,8 @@ func newTestApplication(t *testing.T) *application {
 		cacheStore:    mockCacheStore,
 		authenticator: testAuth,
 		service:       mockService,
+		config:        cfg,
+		rateLimiter:   rateLimiter,
 	}
 }
 

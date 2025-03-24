@@ -1,8 +1,13 @@
 package main
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -15,6 +20,7 @@ import (
 	"github.com/ritchie-gr8/my-blog-app/internal/auth"
 	"github.com/ritchie-gr8/my-blog-app/internal/env"
 	"github.com/ritchie-gr8/my-blog-app/internal/mailer"
+	"github.com/ritchie-gr8/my-blog-app/internal/ratelimiter"
 	"github.com/ritchie-gr8/my-blog-app/internal/store"
 	"github.com/ritchie-gr8/my-blog-app/internal/store/cache"
 	httpSwagger "github.com/swaggo/http-swagger"
@@ -28,6 +34,7 @@ type application struct {
 	mailer        mailer.Client
 	authenticator auth.Authenticator
 	service       service.Service
+	rateLimiter   ratelimiter.Limiter
 }
 
 type config struct {
@@ -38,7 +45,8 @@ type config struct {
 	mail        mailConfig
 	frontendURL string
 	auth        authConfig
-	redisCfg    redisConfig
+	redis       redisConfig
+	rateLimiter ratelimiter.Config
 }
 
 type redisConfig struct {
@@ -96,6 +104,7 @@ func (app *application) mount() http.Handler {
 		AllowCredentials: false,
 		MaxAge:           300, // Maximum value not ignored by any of major browsers
 	}))
+	r.Use(app.RateLimiterMiddleware)
 
 	// Set a timeout value on the request context (ctx), that will signal
 	// through ctx.Done() that the request has timed out and further
@@ -103,7 +112,7 @@ func (app *application) mount() http.Handler {
 	r.Use(middleware.Timeout(60 * time.Second))
 
 	r.Route("/v1", func(r chi.Router) {
-		r.With(app.BasicAuthMiddleware()).Get("/health", app.healthCheckHandler)
+		r.Get("/health", app.healthCheckHandler)
 
 		docsURL := fmt.Sprintf("%s/swagger/doc.json", app.config.addr)
 		r.Get("/swagger/*", httpSwagger.Handler(httpSwagger.URL(docsURL)))
@@ -158,7 +167,35 @@ func (app *application) run(mux http.Handler) error {
 		IdleTimeout:  time.Minute,
 	}
 
+	shutdown := make(chan error)
+
+	go func() {
+		quit := make(chan os.Signal, 1)
+
+		signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+		s := <-quit
+
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+		defer cancel()
+
+		app.logger.Infow("signal caught", "signal", s.String())
+
+		shutdown <- server.Shutdown(ctx)
+	}()
+
 	app.logger.Infow("server has started", "addr", app.config.addr, "env", app.config.env)
 
-	return server.ListenAndServe()
+	err := server.ListenAndServe()
+	if !errors.Is(err, http.ErrServerClosed) {
+		return err
+	}
+
+	err = <-shutdown
+	if err != nil {
+		return err
+	}
+
+	app.logger.Infow("server has stopped", "addr", app.config.addr, "env", app.config.env)
+
+	return nil
 }

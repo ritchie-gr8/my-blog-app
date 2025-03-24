@@ -11,6 +11,7 @@ import (
 	"github.com/ritchie-gr8/my-blog-app/internal/db"
 	"github.com/ritchie-gr8/my-blog-app/internal/env"
 	"github.com/ritchie-gr8/my-blog-app/internal/mailer"
+	"github.com/ritchie-gr8/my-blog-app/internal/ratelimiter"
 	"github.com/ritchie-gr8/my-blog-app/internal/store"
 	"github.com/ritchie-gr8/my-blog-app/internal/store/cache"
 	"go.uber.org/zap"
@@ -81,11 +82,16 @@ func main() {
 				issue:  env.GetString("AUTH_ISSUE", ""),
 			},
 		},
-		redisCfg: redisConfig{
+		redis: redisConfig{
 			addr:     env.GetString("REDIS_ADDR", "localhost:6379"),
 			password: env.GetString("REDIS_PW", ""),
 			db:       env.GetInt("REDIS_DB", 0),
 			enabled:  env.GetBool("REDIS_ENABLED", false),
+		},
+		rateLimiter: ratelimiter.Config{
+			RequestsPerTimeFrame: env.GetInt("RATE_LIMITER_REQUESTS_COUNT", 20),
+			TimeFrame:            time.Second * 5,
+			Enabled:              env.GetBool("RATE_LIMITER_ENABLED", true),
 		},
 	}
 
@@ -104,13 +110,19 @@ func main() {
 
 	// cache
 	var redisDB *redis.Client
-	if cfg.redisCfg.enabled {
+	if cfg.redis.enabled {
 		redisDB = cache.NewRedisClient(
-			cfg.redisCfg.addr,
-			cfg.redisCfg.password,
-			cfg.redisCfg.db)
+			cfg.redis.addr,
+			cfg.redis.password,
+			cfg.redis.db)
 		logger.Info("redis connection established")
 	}
+
+	// rate limiter
+	rateLimiter := ratelimiter.NewFixedWindowLimiter(
+		cfg.rateLimiter.RequestsPerTimeFrame,
+		cfg.rateLimiter.TimeFrame,
+	)
 
 	store := store.NewStorage(db)
 	cacheStore := cache.NewRedisStore(redisDB)
@@ -128,6 +140,7 @@ func main() {
 		mailer:        mailer,
 		authenticator: jwtAuthenticator,
 		service:       service,
+		rateLimiter:   rateLimiter,
 	}
 
 	mux := app.mount()
