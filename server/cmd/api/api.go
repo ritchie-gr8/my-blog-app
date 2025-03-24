@@ -10,6 +10,7 @@ import (
 	"github.com/go-chi/cors"
 	"go.uber.org/zap"
 
+	"github.com/ritchie-gr8/my-blog-app/cmd/service"
 	"github.com/ritchie-gr8/my-blog-app/docs"
 	"github.com/ritchie-gr8/my-blog-app/internal/auth"
 	"github.com/ritchie-gr8/my-blog-app/internal/env"
@@ -26,6 +27,7 @@ type application struct {
 	logger        *zap.SugaredLogger
 	mailer        mailer.Client
 	authenticator auth.Authenticator
+	service       service.Service
 }
 
 type config struct {

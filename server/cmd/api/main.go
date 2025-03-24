@@ -6,6 +6,7 @@ import (
 	"github.com/go-redis/redis/v8"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
+	"github.com/ritchie-gr8/my-blog-app/cmd/service"
 	"github.com/ritchie-gr8/my-blog-app/internal/auth"
 	"github.com/ritchie-gr8/my-blog-app/internal/db"
 	"github.com/ritchie-gr8/my-blog-app/internal/env"
@@ -113,6 +114,7 @@ func main() {
 
 	store := store.NewStorage(db)
 	cacheStore := cache.NewRedisStore(redisDB)
+	service := service.NewService(store, cacheStore, logger)
 
 	mailer := mailer.NewSendgrid(cfg.mail.sendGrid.apiKey, cfg.mail.fromEmail)
 
@@ -125,6 +127,7 @@ func main() {
 		logger:        logger,
 		mailer:        mailer,
 		authenticator: jwtAuthenticator,
+		service:       service,
 	}
 
 	mux := app.mount()

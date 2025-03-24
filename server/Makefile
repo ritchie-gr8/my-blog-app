@@ -2,6 +2,10 @@ include .env
 MIGRATIONS_PATH = ./cmd/migrate/migrations
 SWAGGER_PATH = ./api/main.go
 
+.PHONY: test
+test:
+	@go test -v ./...
+
 .PHONY: migrate-create
 migration:
 	@migrate create -seq -ext sql -dir $(MIGRATIONS_PATH) $(filter-out $@,$(MAKECMDGOALS))
