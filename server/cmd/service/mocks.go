@@ -31,6 +31,6 @@ func (s *MockUserService) GetByEmail(ctx context.Context, email string) (*store.
 	return nil, nil
 }
 
-func (s *MockUserService) CreateAndInvite(ctx context.Context, user *store.User, hashToken string, exp time.Duration) error {
+func (s *MockUserService) CreateUserWithInvitation(ctx context.Context, user *store.User, hashToken string, exp time.Duration) error {
 	return nil
 }

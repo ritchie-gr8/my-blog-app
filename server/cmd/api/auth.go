@@ -1,15 +1,10 @@
 package main
 
 import (
-	"crypto/sha256"
-	"encoding/hex"
-	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/google/uuid"
-	"github.com/ritchie-gr8/my-blog-app/internal/mailer"
 	"github.com/ritchie-gr8/my-blog-app/internal/store"
 )
 
@@ -65,11 +60,9 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 
 	ctx := r.Context()
 
-	plainToken := uuid.New().String()
-	hash := sha256.Sum256([]byte(plainToken))
-	hashToken := hex.EncodeToString(hash[:])
+	plainToken, hashToken := app.service.Tokens.GenerateActivationToken()
 
-	err := app.service.Users.CreateAndInvite(ctx, user, hashToken, app.config.mail.exp)
+	err := app.service.Users.CreateUserWithInvitation(ctx, user, hashToken, app.config.mail.exp)
 	if err != nil {
 		switch err {
 		case store.ErrDuplicateEmail:
@@ -86,19 +79,11 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 		User:  user,
 		Token: plainToken,
 	}
-	activationURL := fmt.Sprintf("%s/confirm/%s", app.config.frontendURL, plainToken)
+
+	activationURL := app.service.Emails.GenerateActivationURL(plainToken)
 	app.logger.Info(activationURL)
 
-	isProdEnv := app.config.env == "production"
-	data := struct {
-		Username      string
-		ActivationURL string
-	}{
-		Username:      user.Username,
-		ActivationURL: activationURL,
-	}
-
-	status, err := app.mailer.Send(mailer.UserWelcomeTemplate, user.Username, user.Email, data, !isProdEnv)
+	status, err := app.service.Emails.SendWelcomeEmail(user, activationURL)
 	if err != nil {
 		app.logger.Errorw("error sending welcome email", "error", err)
 

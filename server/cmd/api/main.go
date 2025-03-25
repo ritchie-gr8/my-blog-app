@@ -128,9 +128,12 @@ func main() {
 
 	store := store.NewStorage(db)
 	cacheStore := cache.NewRedisStore(redisDB)
-	service := service.NewService(store, cacheStore, logger)
 
 	mailer := mailer.NewSendgrid(cfg.mail.sendGrid.apiKey, cfg.mail.fromEmail)
+
+	emailConfig := service.NewEmailConfig(cfg.env, cfg.frontendURL, mailer)
+
+	service := service.NewService(store, cacheStore, logger, *emailConfig)
 
 	jwtAuthenticator := auth.NewJWTAuthenticator(cfg.auth.token.secret, cfg.auth.token.issue, cfg.auth.token.issue)
 

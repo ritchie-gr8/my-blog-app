@@ -97,7 +97,7 @@ func (s *UserService) GetByEmail(ctx context.Context, email string) (*store.User
 	return user, nil
 }
 
-func (s *UserService) CreateAndInvite(ctx context.Context, user *store.User, hashToken string, exp time.Duration) error {
+func (s *UserService) CreateUserWithInvitation(ctx context.Context, user *store.User, hashToken string, exp time.Duration) error {
 	err := s.store.Users.CreateAndInvite(ctx, user, hashToken, exp)
 	if err != nil {
 		return err

@@ -4,10 +4,25 @@ import (
 	"context"
 	"time"
 
+	"github.com/ritchie-gr8/my-blog-app/internal/mailer"
 	"github.com/ritchie-gr8/my-blog-app/internal/store"
 	"github.com/ritchie-gr8/my-blog-app/internal/store/cache"
 	"go.uber.org/zap"
 )
+
+type emailConfig struct {
+	env         string
+	frontendURL string
+	mailer      mailer.Client
+}
+
+func NewEmailConfig(env, frontendURL string, mailer mailer.Client) *emailConfig {
+	return &emailConfig{
+		env:         env,
+		frontendURL: frontendURL,
+		mailer:      mailer,
+	}
+}
 
 type Service struct {
 	Users interface {
@@ -15,7 +30,7 @@ type Service struct {
 		Update(ctx context.Context, user *store.User) error
 		Activate(ctx context.Context, token string) error
 		GetByEmail(ctx context.Context, email string) (*store.User, error)
-		CreateAndInvite(context.Context, *store.User, string, time.Duration) error
+		CreateUserWithInvitation(ctx context.Context, user *store.User, hashToken string, exp time.Duration) error
 	}
 
 	Posts interface {
@@ -30,9 +45,19 @@ type Service struct {
 		GetByPostID(ctx context.Context, postID int64) ([]store.Comment, error)
 		Create(ctx context.Context, comment *store.Comment) error
 	}
+
+	Emails interface {
+		SendWelcomeEmail(user *store.User, activationURL string) (int, error)
+		GenerateActivationURL(token string) string
+	}
+
+	Tokens interface {
+		GenerateActivationToken() (plainToken string, hashedToken string)
+	}
 }
 
-func NewService(store store.Storage, cacheStore cache.Storage, logger *zap.SugaredLogger) Service {
+func NewService(store store.Storage, cacheStore cache.Storage,
+	logger *zap.SugaredLogger, emailConfig emailConfig) Service {
 	return Service{
 		Users: &UserService{
 			store:      store,
@@ -44,6 +69,14 @@ func NewService(store store.Storage, cacheStore cache.Storage, logger *zap.Sugar
 		},
 		Comments: &CommentService{
 			store: store,
+		},
+		Emails: &EmailService{
+			mailer:      emailConfig.mailer,
+			env:         emailConfig.env,
+			frontendURL: emailConfig.frontendURL,
+		},
+		Tokens: &TokenService{
+			logger: logger,
 		},
 	}
 }
