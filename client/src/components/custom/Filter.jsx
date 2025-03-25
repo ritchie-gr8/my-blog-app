@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 
-const Filter = ({ style }) => {
+const Filter = ({ style, onFilterChange }) => {
   const [activeIndex, setActiveIndex] = useState(0);
-  const articleTypes = ["Highlight", "Cat", "Inspiration", "General"];
+  const postTypes = ["Highlight", "Cat", "Inspiration", "General"];
 
   return (
     <div className={`relative flex items-center gap-2 ${style}`}>
-      {articleTypes.map((article, index) => (
+      {postTypes.map((post, index) => (
         <button
           key={index}
           className={`relative px-5 py-3 z-10 font-medium text-sm ${
@@ -14,9 +14,10 @@ const Filter = ({ style }) => {
           }`}
           onClick={() => {
             setActiveIndex(index);
+            onFilterChange(post)
           }}
         >
-          {article}
+          {post}
         </button>
       ))}
     </div>

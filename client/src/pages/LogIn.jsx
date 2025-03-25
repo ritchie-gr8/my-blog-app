@@ -3,7 +3,6 @@ import { useForm } from "react-hook-form";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -12,8 +11,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "./ui/button";
-import { toast } from "./custom/Toast";
+import { Button } from "../components/ui/button";
+import { toast } from "../components/custom/Toast";
 
 const LogIn = () => {
   const formSchema = z.object({

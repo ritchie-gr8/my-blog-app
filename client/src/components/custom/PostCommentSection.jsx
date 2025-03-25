@@ -25,7 +25,7 @@ const Comment = ({ comment }) => {
   );
 };
 
-const ArticleCommentSection = ({ comments }) => {
+const PostCommentSection = ({ comments }) => {
   return (
     <div className="px-4 py-6 bg-brown-100 mb-7 md:ml-36 md:mr-20 md:px-0">
       <div className="flex flex-col">
@@ -48,4 +48,4 @@ const ArticleCommentSection = ({ comments }) => {
   );
 };
 
-export default ArticleCommentSection;
+export default PostCommentSection;

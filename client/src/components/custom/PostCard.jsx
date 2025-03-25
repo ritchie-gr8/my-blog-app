@@ -5,7 +5,7 @@ import React from 'react'
 import Avatar from '../global/Avatar'
 import Button from '../global/Button'
 
-const ArticleCard = ({image, category, title, description, author, date}) => {
+const PostCard = ({image, category, title, description, author, date}) => {
   return (
     <div className='my-4 flex flex-col mx-4'>
         <img src={image} alt={title} className="w-full h-auto max-h-[240px] object-cover" />
@@ -33,4 +33,4 @@ const ArticleCard = ({image, category, title, description, author, date}) => {
   )
 }
 
-export default ArticleCard
+export default PostCard

@@ -10,10 +10,10 @@ import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import Filter from "./Filter";
 
-const SearchBox = () => {
+const SearchBox = ({onFilterChange}) => {
   return (
     <div className="flex flex-col md:flex-row md:justify-between md:items-center px-4 py-4 sm:px-6 bg-brown-200 sm:rounded-2xl">
-      <Filter style="hidden md:flex" />
+      <Filter onFilterChange={onFilterChange} style="hidden md:flex" />
 
       <div className="flex w-full items-center justify-between px-4 py-3 max-h-12 bg-white rounded-[8px] border border-brown-300 md:max-w-[360px]">
         <Input

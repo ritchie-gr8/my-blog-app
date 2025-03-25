@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 const Footer = () => {
   return (
@@ -108,7 +109,11 @@ const Footer = () => {
           </a>
         </div>
       </div>
-      <button className="cursor-pointer underline font-medium text-brown-600">Home page</button>
+      <Link to={"/"}>
+        <button className="cursor-pointer underline font-medium text-brown-600">
+          Home page
+        </button>
+      </Link>
     </footer>
   );
 };
