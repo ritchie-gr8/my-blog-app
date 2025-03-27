@@ -54,6 +54,13 @@ type Service struct {
 	Tokens interface {
 		GenerateActivationToken() (plainToken string, hashedToken string)
 	}
+
+	Categories interface {
+		Create(ctx context.Context, category *store.Category) error
+		GetAll(ctx context.Context) ([]*store.Category, error)
+		Delete(ctx context.Context, id int64) error
+		Update(ctx context.Context, category *store.Category) error
+	}
 }
 
 func NewService(store store.Storage, cacheStore cache.Storage,
@@ -77,6 +84,9 @@ func NewService(store store.Storage, cacheStore cache.Storage,
 		},
 		Tokens: &TokenService{
 			logger: logger,
+		},
+		Categories: &CategoryService{
+			store: store,
 		},
 	}
 }

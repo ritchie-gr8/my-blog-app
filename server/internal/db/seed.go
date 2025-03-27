@@ -85,26 +85,10 @@ var contents = []string{
 }
 
 var categories = []string{
-	"Productivity",
-	"Motivation",
-	"Health",
-	"Creativity",
-	"Self-Care",
-	"Sleep",
-	"Recipes",
-	"Organization",
-	"Fitness",
-	"Mental Health",
-	"Minimalism",
-	"Personal Growth",
-	"Time Management",
-	"Outdoor Activities",
-	"Stress Management",
-	"Goal Setting",
-	"Meditation",
-	"Budgeting",
-	"Gratitude",
-	"Life Hacks",
+	"JavaScript",
+	"React",
+	"Go",
+	"Docker",
 }
 
 var comments = []string{
@@ -134,7 +118,15 @@ func Seed(store store.Storage, db *sql.DB) {
 	}
 	tx.Commit()
 
-	posts := generatePosts(200, users)
+	categories := generateCategories(len(categories))
+	for _, category := range categories {
+		if err := store.Categories.Create(ctx, category); err != nil {
+			log.Println("Error creating category:", err)
+			return
+		}
+	}
+
+	posts := generatePosts(200, users, categories)
 	for _, post := range posts {
 		if err := store.Posts.Create(ctx, post); err != nil {
 			log.Println("Error creating user:", err)
@@ -168,18 +160,19 @@ func generateUsers(num int) []*store.User {
 	return users
 }
 
-func generatePosts(num int, users []*store.User) []*store.Post {
+func generatePosts(num int, users []*store.User, categories []*store.Category) []*store.Post {
 	posts := make([]*store.Post, num)
 
 	for i := range num {
 		user := users[rand.Intn(len(users))]
+		category := categories[rand.Intn(len(categories))]
 
 		posts[i] = &store.Post{
 			UserID:       user.ID,
 			Title:        titles[rand.Intn(len(titles))],
 			Introduction: introductions[rand.Intn(len(introductions))],
 			Content:      contents[rand.Intn(len(contents))],
-			Category:     categories[rand.Intn(len(categories))],
+			CategoryID:   category.ID,
 		}
 	}
 
@@ -198,4 +191,14 @@ func generateComments(num int, users []*store.User, posts []*store.Post) []*stor
 	}
 
 	return cms
+}
+
+func generateCategories(num int) []*store.Category {
+	categoriesList := make([]*store.Category, num)
+
+	for i := range num {
+		categoriesList[i] = &store.Category{Name: categories[rand.Intn(len(categories))]}
+	}
+
+	return categoriesList
 }

@@ -150,6 +150,16 @@ func (app *application) mount() http.Handler {
 			r.Post("/user", app.registerUserHandler)
 			r.Post("/token", app.createTokenHandler)
 		})
+
+		r.Route("/categories", func(r chi.Router) {
+			r.Get("/", app.getCategoriesHandler)
+
+			r.With(app.AuthTokenMiddleware, app.checkRole("admin")).Route("/", func(r chi.Router) {
+				r.Post("/", app.createCategoryHandler)
+				r.Delete("/{categoryID}", app.deleteCategoryHandler)
+				r.Patch("/{categoryID}", app.updateCategoryHandler)
+			})
+		})
 	})
 
 	return r

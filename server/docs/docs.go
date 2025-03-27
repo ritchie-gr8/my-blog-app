@@ -112,6 +112,191 @@ const docTemplate = `{
                 }
             }
         },
+        "/categories": {
+            "get": {
+                "description": "Retrieve all categories",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "categories"
+                ],
+                "summary": "Get all categories",
+                "responses": {
+                    "200": {
+                        "description": "Successfully fetched categories",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/store.Category"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error, the server encountered a problem",
+                        "schema": {}
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Creates a new category with the provided name",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "categories"
+                ],
+                "summary": "Create a category",
+                "parameters": [
+                    {
+                        "description": "Category Name",
+                        "name": "name",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Successfully created category",
+                        "schema": {
+                            "$ref": "#/definitions/store.Category"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request, the request data was incorrect or malformed",
+                        "schema": {}
+                    },
+                    "409": {
+                        "description": "Conflict: Category with this name already exists",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal server error, the server encountered a problem",
+                        "schema": {}
+                    }
+                }
+            }
+        },
+        "/categories/{categoryID}": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Delete a category by its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "categories"
+                ],
+                "summary": "Delete a category",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Category ID",
+                        "name": "categoryID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content\"\t\"Successfully deleted category"
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {}
+                    },
+                    "404": {
+                        "description": "Category not found",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {}
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Update a category's name",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "categories"
+                ],
+                "summary": "Update a category",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Category ID",
+                        "name": "categoryID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "New Category Name",
+                        "name": "name",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully updated category",
+                        "schema": {
+                            "$ref": "#/definitions/store.Category"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request, the request data was incorrect or malformed",
+                        "schema": {}
+                    },
+                    "404": {
+                        "description": "Category not found",
+                        "schema": {}
+                    },
+                    "409": {
+                        "description": "Conflict: Category with this name already exists",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal server error, the server encountered a problem",
+                        "schema": {}
+                    }
+                }
+            }
+        },
         "/comments": {
             "post": {
                 "security": [
@@ -329,13 +514,12 @@ const docTemplate = `{
                         }
                     },
                     {
-                        "maxLength": 100,
-                        "description": "Post Category",
-                        "name": "category",
+                        "description": "Post Category ID",
+                        "name": "category_id",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "type": "integer"
                         }
                     },
                     {
@@ -413,7 +597,51 @@ const docTemplate = `{
                     }
                 }
             },
-            "put": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Delete a post by its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "posts"
+                ],
+                "summary": "Delete a post",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Post ID",
+                        "name": "postID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content\"\t\"Successfully deleted post, no content returned"
+                    },
+                    "400": {
+                        "description": "Invalid request, the request data was incorrect or malformed",
+                        "schema": {}
+                    },
+                    "404": {
+                        "description": "Post not found",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal server error, the server encountered a problem",
+                        "schema": {}
+                    }
+                }
+            },
+            "patch": {
                 "security": [
                     {
                         "ApiKeyAuth": []
@@ -466,12 +694,11 @@ const docTemplate = `{
                         }
                     },
                     {
-                        "maxLength": 100,
-                        "description": "Post Category",
-                        "name": "category",
+                        "description": "Post Category ID",
+                        "name": "category_id",
                         "in": "body",
                         "schema": {
-                            "type": "string"
+                            "type": "integer"
                         }
                     },
                     {
@@ -500,50 +727,6 @@ const docTemplate = `{
                     },
                     "409": {
                         "description": "Conflict: The request could not be completed due to a conflict",
-                        "schema": {}
-                    },
-                    "500": {
-                        "description": "Internal server error, the server encountered a problem",
-                        "schema": {}
-                    }
-                }
-            },
-            "delete": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Delete a post by its ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "posts"
-                ],
-                "summary": "Delete a post",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Post ID",
-                        "name": "postID",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "No Content\"\t\"Successfully deleted post, no content returned"
-                    },
-                    "400": {
-                        "description": "Invalid request, the request data was incorrect or malformed",
-                        "schema": {}
-                    },
-                    "404": {
-                        "description": "Post not found",
                         "schema": {}
                     },
                     "500": {
@@ -828,6 +1011,17 @@ const docTemplate = `{
                 }
             }
         },
+        "store.Category": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
         "store.Comment": {
             "type": "object",
             "properties": {
@@ -860,6 +1054,9 @@ const docTemplate = `{
                 "category": {
                     "type": "string"
                 },
+                "category_id": {
+                    "type": "integer"
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -886,8 +1083,8 @@ const docTemplate = `{
         "store.Post": {
             "type": "object",
             "properties": {
-                "category": {
-                    "type": "string"
+                "category_id": {
+                    "type": "integer"
                 },
                 "comments": {
                     "type": "array",

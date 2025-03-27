@@ -13,7 +13,7 @@ type Post struct {
 	Title          string    `json:"title"`
 	Introduction   string    `json:"introduction"`
 	Content        string    `json:"content"`
-	Category       string    `json:"category"`
+	CategoryID     int64     `json:"category_id"`
 	UserID         int64     `json:"user_id"`
 	ThumbnailImage []byte    `json:"thumbnail_image"`
 	CreatedAt      string    `json:"created_at"`
@@ -26,6 +26,7 @@ type FeedItem struct {
 	ID             int64  `json:"id"`
 	Title          string `json:"title"`
 	Introduction   string `json:"introduction"`
+	CategoryID     int64  `json:"category_id"`
 	Category       string `json:"category"`
 	UpdatedAt      string `json:"updated_at"`
 	ThumbnailImage []byte `json:"thumbnail_image"`
@@ -39,9 +40,10 @@ type PostStore struct {
 
 func getFeedQuery(fq *PaginatedFeedQuery, sort string) (string, []any) {
 	baseQuery := `
-		SELECT p.id, p.title, p.introduction, p.category, p.updated_at, p.thumbnail_image, p.user_id, u.name
+		SELECT p.id, p.title, p.introduction, p.category_id, c.name AS category, p.updated_at, p.thumbnail_image, p.user_id, u.name
 		FROM posts p
 		LEFT JOIN users u ON u.id = p.user_id
+		LEFT JOIN categories c ON c.id = p.category_id
 	`
 
 	whereConditions := []string{}
@@ -59,7 +61,7 @@ func getFeedQuery(fq *PaginatedFeedQuery, sort string) (string, []any) {
 	}
 
 	if fq.Category != "" {
-		whereConditions = append(whereConditions, fmt.Sprintf("p.category = $%d", len(queryParams)+1))
+		whereConditions = append(whereConditions, fmt.Sprintf("c.name = $%d", len(queryParams)+1))
 		queryParams = append(queryParams, fq.Category)
 	}
 
@@ -101,8 +103,10 @@ func (s *PostStore) GetFeed(ctx context.Context, fq PaginatedFeedQuery) ([]FeedI
 			&item.ID,
 			&item.Title,
 			&item.Introduction,
+			&item.CategoryID,
 			&item.Category,
-			&item.UpdatedAt, &item.ThumbnailImage,
+			&item.UpdatedAt,
+			&item.ThumbnailImage,
 			&item.UserID,
 			&item.Author,
 		)
@@ -119,7 +123,7 @@ func (s *PostStore) GetFeed(ctx context.Context, fq PaginatedFeedQuery) ([]FeedI
 func (s *PostStore) Create(ctx context.Context, post *Post) error {
 	query := `
 		INSERT INTO posts 
-		(title, introduction, content, category, user_id, thumbnail_image)
+		(title, introduction, content, category_id, user_id, thumbnail_image)
 		VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, created_at, updated_at
 	`
 	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
@@ -131,7 +135,7 @@ func (s *PostStore) Create(ctx context.Context, post *Post) error {
 		post.Title,
 		post.Introduction,
 		post.Content,
-		post.Category,
+		post.CategoryID,
 		post.UserID,
 		post.ThumbnailImage,
 	).Scan(
@@ -149,9 +153,8 @@ func (s *PostStore) Create(ctx context.Context, post *Post) error {
 
 func (s *PostStore) GetByID(ctx context.Context, id int64) (*Post, error) {
 	query := `
-		SELECT id, title, introduction, content, category, user_id, thumbnail_image, created_at, updated_at, version
+		SELECT id, title, introduction, content, category_id, user_id, thumbnail_image, created_at, updated_at, version
 		FROM posts WHERE id = $1
-
 	`
 	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
 	defer cancel()
@@ -162,7 +165,7 @@ func (s *PostStore) GetByID(ctx context.Context, id int64) (*Post, error) {
 		&post.Title,
 		&post.Introduction,
 		&post.Content,
-		&post.Category,
+		&post.CategoryID,
 		&post.UserID,
 		&post.ThumbnailImage,
 		&post.CreatedAt,
@@ -184,7 +187,7 @@ func (s *PostStore) GetByID(ctx context.Context, id int64) (*Post, error) {
 func (s *PostStore) Update(ctx context.Context, post *Post) error {
 	query := `
 		UPDATE posts
-		SET title = $1, introduction = $2, content = $3, category = $4, thumbnail_image = $5,
+		SET title = $1, introduction = $2, content = $3, category_id = $4, thumbnail_image = $5,
 		updated_at = NOW(), version = version + 1
 		WHERE id = $6 AND version = $7
 		RETURNING version
@@ -196,7 +199,7 @@ func (s *PostStore) Update(ctx context.Context, post *Post) error {
 	err := s.db.QueryRowContext(
 		ctx, query,
 		post.Title, post.Introduction,
-		post.Content, post.Category,
+		post.Content, post.CategoryID,
 		post.ThumbnailImage, post.ID,
 		post.Version).Scan(&post.Version)
 	if err != nil {

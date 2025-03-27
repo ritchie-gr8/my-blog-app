@@ -18,14 +18,14 @@ type CreatePostPayload struct {
 	Title        string `json:"title" validate:"required,max=100"`
 	Introduction string `json:"introduction" validate:"required,max=120"`
 	Content      string `json:"content" validate:"required,max=1000"`
-	Category     string `json:"category" validate:"required,max=100"`
+	CategoryID   int64  `json:"category_id" validate:"required"`
 }
 
 type UpdatePostPayload struct {
 	Title          *string `json:"title" validate:"omitempty,max=100"`
 	Introduction   *string `json:"introduction" validate:"omitempty,max=120"`
 	Content        *string `json:"content" validate:"omitempty,max=1000"`
-	Category       *string `json:"category" validate:"omitempty,max=100"`
+	CategoryID     *int64  `json:"category_id" validate:"omitempty"`
 	ThumbnailImage *[]byte `json:"thumbnail_image" validate:"omitempty"`
 }
 
@@ -43,7 +43,7 @@ type CreateCommentPayload struct {
 // @Param			title			body		string		true	"Post Title"		maxLength(100)
 // @Param			introduction	body		string		true	"Post Introduction"	maxLength(120)
 // @Param			content			body		string		true	"Post Content"		maxLength(1000)
-// @Param			category		body		string		true	"Post Category"		maxLength(100)
+// @Param			category_id		body		int64		true	"Post Category ID"
 // @Param			thumbnail_image	body		string		false	"Thumbnail Image"
 // @Success		201				{object}	store.Post	"Successfully created post"
 // @Failure		400				{object}	error		"Invalid request, the request data was incorrect or malformed"
@@ -68,7 +68,7 @@ func (app *application) createPostHandler(w http.ResponseWriter, r *http.Request
 		Title:        payload.Title,
 		Introduction: payload.Introduction,
 		Content:      payload.Content,
-		Category:     payload.Category,
+		CategoryID:   payload.CategoryID,
 		UserID:       user.ID,
 	}
 
@@ -158,7 +158,7 @@ func (app *application) deletePostHandler(w http.ResponseWriter, r *http.Request
 // @Param			title			body		string		false	"Post Title"		maxLength(100)
 // @Param			introduction	body		string		false	"Post Introduction"	maxLength(120)
 // @Param			content			body		string		false	"Post Content"		maxLength(1000)
-// @Param			category		body		string		false	"Post Category"		maxLength(100)
+// @Param			category_id		body		int64		false	"Post Category ID"
 // @Param			thumbnail_image	body		string		false	"Thumbnail Image"
 // @Success		200				{object}	store.Post	"Successfully updated post"
 // @Failure		400				{object}	error		"Invalid request, the request data was incorrect or malformed"
@@ -166,7 +166,7 @@ func (app *application) deletePostHandler(w http.ResponseWriter, r *http.Request
 // @Failure		409				{object}	error		"Conflict: The request could not be completed due to a conflict"
 // @Failure		500				{object}	error		"Internal server error, the server encountered a problem"
 // @Security		ApiKeyAuth
-// @Router			/posts/{postID} [put]
+// @Router			/posts/{postID} [patch]
 func (app *application) updatePostHandler(w http.ResponseWriter, r *http.Request) {
 	post := getPostFromCtx(r)
 
@@ -193,8 +193,8 @@ func (app *application) updatePostHandler(w http.ResponseWriter, r *http.Request
 		post.Content = *payload.Content
 	}
 
-	if payload.Category != nil {
-		post.Category = *payload.Category
+	if payload.CategoryID != nil {
+		post.CategoryID = *payload.CategoryID
 	}
 
 	if payload.ThumbnailImage != nil {

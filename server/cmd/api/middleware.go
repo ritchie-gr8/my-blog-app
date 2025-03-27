@@ -115,6 +115,27 @@ func (app *application) checkPostOwnership(requiredRole string, next http.Handle
 	})
 }
 
+func (app *application) checkRole(requiredRole string) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			user := getUserFromCtx(r)
+
+			allowed, err := app.checkRolePrecedence(user, requiredRole)
+			if err != nil {
+				app.internalServerError(w, r, err)
+				return
+			}
+
+			if !allowed {
+				app.forbiddenResponse(w, r)
+				return
+			}
+
+			next.ServeHTTP(w, r)
+		})
+	}
+}
+
 func (app *application) checkRolePrecedence(user *store.User, requiredRole string) (bool, error) {
 	roleHierarchy := map[string]int{
 		"user":      1,

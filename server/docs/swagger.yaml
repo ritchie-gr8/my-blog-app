@@ -59,6 +59,13 @@ definitions:
       username:
         type: string
     type: object
+  store.Category:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
   store.Comment:
     properties:
       content:
@@ -80,6 +87,8 @@ definitions:
         type: string
       category:
         type: string
+      category_id:
+        type: integer
       id:
         type: integer
       introduction:
@@ -97,8 +106,8 @@ definitions:
     type: object
   store.Post:
     properties:
-      category:
-        type: string
+      category_id:
+        type: integer
       comments:
         items:
           $ref: '#/definitions/store.Comment'
@@ -218,6 +227,128 @@ paths:
       summary: Register a user
       tags:
       - authentication
+  /categories:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve all categories
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully fetched categories
+          schema:
+            items:
+              $ref: '#/definitions/store.Category'
+            type: array
+        "500":
+          description: Internal server error, the server encountered a problem
+          schema: {}
+      summary: Get all categories
+      tags:
+      - categories
+    post:
+      consumes:
+      - application/json
+      description: Creates a new category with the provided name
+      parameters:
+      - description: Category Name
+        in: body
+        name: name
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Successfully created category
+          schema:
+            $ref: '#/definitions/store.Category'
+        "400":
+          description: Invalid request, the request data was incorrect or malformed
+          schema: {}
+        "409":
+          description: 'Conflict: Category with this name already exists'
+          schema: {}
+        "500":
+          description: Internal server error, the server encountered a problem
+          schema: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Create a category
+      tags:
+      - categories
+  /categories/{categoryID}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a category by its ID
+      parameters:
+      - description: Category ID
+        in: path
+        name: categoryID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: "No Content\"\t\"Successfully deleted category"
+        "400":
+          description: Invalid request
+          schema: {}
+        "404":
+          description: Category not found
+          schema: {}
+        "500":
+          description: Internal server error
+          schema: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Delete a category
+      tags:
+      - categories
+    patch:
+      consumes:
+      - application/json
+      description: Update a category's name
+      parameters:
+      - description: Category ID
+        in: path
+        name: categoryID
+        required: true
+        type: integer
+      - description: New Category Name
+        in: body
+        name: name
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully updated category
+          schema:
+            $ref: '#/definitions/store.Category'
+        "400":
+          description: Invalid request, the request data was incorrect or malformed
+          schema: {}
+        "404":
+          description: Category not found
+          schema: {}
+        "409":
+          description: 'Conflict: Category with this name already exists'
+          schema: {}
+        "500":
+          description: Internal server error, the server encountered a problem
+          schema: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Update a category
+      tags:
+      - categories
   /comments:
     post:
       consumes:
@@ -356,13 +487,12 @@ paths:
         required: true
         schema:
           type: string
-      - description: Post Category
+      - description: Post Category ID
         in: body
-        maxLength: 100
-        name: category
+        name: category_id
         required: true
         schema:
-          type: string
+          type: integer
       - description: Thumbnail Image
         in: body
         name: thumbnail_image
@@ -447,7 +577,7 @@ paths:
       summary: Get a post
       tags:
       - posts
-    put:
+    patch:
       consumes:
       - application/json
       description: Update an existing post with new details
@@ -475,12 +605,11 @@ paths:
         name: content
         schema:
           type: string
-      - description: Post Category
+      - description: Post Category ID
         in: body
-        maxLength: 100
-        name: category
+        name: category_id
         schema:
-          type: string
+          type: integer
       - description: Thumbnail Image
         in: body
         name: thumbnail_image
