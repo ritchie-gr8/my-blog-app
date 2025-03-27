@@ -1,23 +1,21 @@
-import React, { useState } from "react";
+import React from "react";
 
-const Filter = ({ style, onFilterChange }) => {
-  const [activeIndex, setActiveIndex] = useState(0);
-  const postTypes = ["Highlight", "Cat", "Inspiration", "General"];
+const Filter = ({ style, onFilterChange, categories, selectedCategory, setSelectedCategory }) => {
 
   return (
     <div className={`relative flex items-center gap-2 ${style}`}>
-      {postTypes.map((post, index) => (
+      {categories && categories.map((category) => (
         <button
-          key={index}
+          key={category.id}
           className={`relative px-5 py-3 z-10 font-medium text-sm ${
-            activeIndex === index ? "text-brown-500 bg-brown-300 rounded-[8px]" : "text-brown-400"
+            selectedCategory.id === category.id ? "text-brown-500 bg-brown-300 rounded-[8px]" : "text-brown-400"
           }`}
           onClick={() => {
-            setActiveIndex(index);
-            onFilterChange(post)
+            setSelectedCategory(category)
+            onFilterChange(category.name)
           }}
         >
-          {post}
+          {category.name}
         </button>
       ))}
     </div>

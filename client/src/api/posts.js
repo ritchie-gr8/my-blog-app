@@ -1,6 +1,5 @@
 import axios from "axios";
-
-const apiUrl = import.meta.env.VITE_API_URL;
+import { apiUrl } from "@/constants/urls";
 
 export const getPostById = async (id) => {
   try {
@@ -13,9 +12,12 @@ export const getPostById = async (id) => {
   }
 };
 
-export const getPosts = async (offset = 0, limit = 6) => {
+export const getPosts = async (offset = 0, limit = 6, category = null) => {
+  const categoryQuery = category ? `&category=${category}` : "";
   try {
-    const res = await axios.get(`${apiUrl}/feed?offset=${offset}&limit=${limit}`);
+    const res = await axios.get(
+      `${apiUrl}/feed?offset=${offset}&limit=${limit}${categoryQuery}`
+    );
     if (res.status !== 200) throw new Error("Error fetching posts.");
 
     return res.data;

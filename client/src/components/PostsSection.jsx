@@ -1,63 +1,91 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import SearchBox from "./custom/SearchBox";
 import ArticleCard from "./custom/PostCard";
-import { blogPosts } from "@/constants/blogPost";
 import { Link } from "react-router-dom";
 import { getPosts } from "@/api/posts";
 import { toast } from "./custom/Toast";
+import { getCategories } from "@/api/categories";
+
+const LIMIT = 6;
 
 const PostsSection = () => {
   const [posts, setPosts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState(null);
   const [offset, setOffset] = useState(0);
-  const limit = 6;
 
-  const handleFilterChange = (postType) => {
-    if (postType !== "Highlight") {
-      setPosts(blogPosts.filter((post) => post.category === postType));
+  const handleError = (error) => {
+    console.error(error);
+    toast.error("Error", error);
+  };
+
+  const fetchPosts = useCallback(async (offset, limit, categoryName = null) => {
+    try {
+      const { data } = await getPosts(offset, limit, categoryName);
+      setPosts(data);
+    } catch (error) {
+      handleError(error);
+    }
+  }, []);
+
+  const fetchCategories = useCallback(async () => {
+    try {
+      const { data } = await getCategories();
+      const categories = [{ id: 0, name: "Highlight" }, ...data];
+      setCategories(categories);
+      setSelectedCategory(categories[0]);
+    } catch (error) {
+      handleError(error);
+    }
+  }, []);
+
+  const handleFilterChange = useCallback(async (categoryName) => {
+    if (categoryName === selectedCategory?.name) {
       return;
     }
 
-    setPosts(blogPosts);
-  };
+    const newOffset = categoryName === "Highlight" ? 0 : offset;
+    await fetchPosts(newOffset, LIMIT, categoryName === "Highlight" ? null : categoryName);
+  }, [selectedCategory, offset, fetchPosts]);
 
-  const handleViewMore = async () => {
+  const handleViewMore = useCallback(async () => {
     try {
-      const { data } = await getPosts(offset + limit);
+      const { data } = await getPosts(
+        offset + LIMIT,
+        LIMIT,
+        selectedCategory?.name === "Highlight" ? null : selectedCategory?.name
+      );
       setPosts((prevPosts) => [...prevPosts, ...data]);
-      setOffset((prevOffset) => prevOffset + limit);
+      setOffset((prevOffset) => prevOffset + LIMIT);
     } catch (error) {
-      toast.error("Error", error);
+      handleError(error);
     }
-  };
+  }, [offset, selectedCategory]);
 
   useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        const { data } = await getPosts();
-        console.log(data);
-        setPosts(data);
-      } catch (error) {
-        toast.error("Error", error);
-      }
-    };
-
-    fetchPosts();
-  }, []);
+    fetchCategories();
+    fetchPosts(0, LIMIT);
+  }, [fetchCategories, fetchPosts]);
 
   return (
     <section className="md:mx-32">
       <h3 className="text-h3 m-4">Latest articles</h3>
-      <SearchBox onFilterChange={handleFilterChange} />
+      <SearchBox
+        categories={categories}
+        selectedCategory={selectedCategory}
+        setSelectedCategory={setSelectedCategory}
+        onFilterChange={handleFilterChange}
+      />
       <article className="flex flex-col sm:grid sm:grid-cols-2 lg:grid-cols-3">
-        {posts.map((post) => (
-          <Link to={`/posts/${post.id}`} key={post.id}>
+        {posts.map(({ id, image, category, title, introduction, author, updated_at }) => (
+          <Link to={`/posts/${id}`} key={id}>
             <ArticleCard
-              image={post.image}
-              category={post.category}
-              title={post.title}
-              description={post.introduction}
-              author={post.author}
-              date={new Date(post.updated_at).toLocaleDateString("en-GB", {
+              image={image}
+              category={category}
+              title={title}
+              description={introduction}
+              author={author}
+              date={new Date(updated_at).toLocaleDateString("en-GB", {
                 day: "numeric",
                 month: "long",
                 year: "numeric",

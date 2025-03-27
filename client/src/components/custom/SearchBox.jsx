@@ -10,10 +10,21 @@ import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import Filter from "./Filter";
 
-const SearchBox = ({onFilterChange}) => {
+const SearchBox = ({
+  onFilterChange,
+  categories,
+  selectedCategory,
+  setSelectedCategory,
+}) => {
   return (
     <div className="flex flex-col md:flex-row md:justify-between md:items-center px-4 py-4 sm:px-6 bg-brown-200 sm:rounded-2xl">
-      <Filter onFilterChange={onFilterChange} style="hidden md:flex" />
+      <Filter
+        categories={categories}
+        selectedCategory={selectedCategory}
+        setSelectedCategory={setSelectedCategory}
+        onFilterChange={onFilterChange}
+        style="hidden md:flex"
+      />
 
       <div className="flex w-full items-center justify-between px-4 py-3 max-h-12 bg-white rounded-[8px] border border-brown-300 md:max-w-[360px]">
         <Input
@@ -25,7 +36,15 @@ const SearchBox = ({onFilterChange}) => {
 
       <p className="font-medium text-brown-400 mt-4 mb-1 md:hidden">Category</p>
 
-      <Select>
+      <Select
+        value={selectedCategory?.name ?? 'Highlight'}
+        onValueChange={(val) => {
+          setSelectedCategory(
+            categories.find((category) => category.name === val)
+          );
+          onFilterChange(val);
+        }}
+      >
         <SelectTrigger
           className="select pl-4 text-brown-400 bg-white font-medium w-full min-h-12 md:hidden"
           style={{
@@ -33,12 +52,15 @@ const SearchBox = ({onFilterChange}) => {
             outline: "none",
           }}
         >
-          <SelectValue placeholder="Highlight" />
+          <SelectValue />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="light">Light</SelectItem>
-          <SelectItem value="dark">Dark</SelectItem>
-          <SelectItem value="system">System</SelectItem>
+          {categories &&
+            categories.map((category) => (
+              <SelectItem value={category.name} key={category.id}>
+                {category.name}
+              </SelectItem>
+            ))}
         </SelectContent>
       </Select>
     </div>
