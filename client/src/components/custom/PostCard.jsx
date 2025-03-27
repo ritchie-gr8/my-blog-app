@@ -1,15 +1,12 @@
 import React from 'react'
-// import articleImg from '../../assets/article-card-placeholder.png'
-// import articleImg from '../../assets/article-placeholder.jpg'
-// import articleImg from '../../assets/article-placeholder-2.jpg'
 import Avatar from '../global/Avatar'
 import Button from '../global/Button'
 
 const PostCard = ({image, category, title, description, author, date}) => {
-  return (
-    <div className='my-4 flex flex-col mx-4'>
-        <img src={image} alt={title} className="w-full h-auto max-h-[240px] object-cover" />
 
+  return (
+    <div className='my-4 flex flex-col mx-4 h-full'>
+         <img src={image ?? `https://placehold.co/360x360`} alt={title} className="w-full h-[212px] xl:h-[240px] 2xl:h-[360px] object-cover" /> 
         <Button className='px-3 py-1 w-fit mt-4 mb-2 font-medium text-b2' variant={'article-genre'}>
             {category}
         </Button>
@@ -22,7 +19,7 @@ const PostCard = ({image, category, title, description, author, date}) => {
             {description}
         </p>
 
-        <div className='flex'>
+        <div className='flex items-center'>
             <div className='flex items-center border-r border-r-brown-300 w-fit'>
                 <Avatar />
                 <span className='ml-2 mr-4 text-b2 text-brown-500 font-medium'>{author}</span>

@@ -30,7 +30,7 @@ type FeedItem struct {
 	UpdatedAt      string `json:"updated_at"`
 	ThumbnailImage []byte `json:"thumbnail_image"`
 	UserID         int64  `json:"user_id"`
-	Name           string `json:"name"`
+	Author         string `json:"author"`
 }
 
 type PostStore struct {
@@ -68,7 +68,7 @@ func getFeedQuery(fq *PaginatedFeedQuery, sort string) (string, []any) {
 		finalQuery += " WHERE " + strings.Join(whereConditions, " AND ")
 	}
 
-	finalQuery += " ORDER BY p.updated_at " + sort + " LIMIT $1 OFFSET $2"
+	finalQuery += " ORDER BY p.id " + sort + " LIMIT $1 OFFSET $2"
 
 	return finalQuery, queryParams
 }
@@ -104,7 +104,7 @@ func (s *PostStore) GetFeed(ctx context.Context, fq PaginatedFeedQuery) ([]FeedI
 			&item.Category,
 			&item.UpdatedAt, &item.ThumbnailImage,
 			&item.UserID,
-			&item.Name,
+			&item.Author,
 		)
 		if err != nil {
 			return nil, err

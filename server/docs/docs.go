@@ -199,7 +199,7 @@ const docTemplate = `{
                         "maximum": 20,
                         "minimum": 1,
                         "type": "integer",
-                        "description": "Number of posts to retrieve (default is 20, max is 20)",
+                        "description": "Number of posts to retrieve (default is 6, max is 20)",
                         "name": "limit",
                         "in": "query"
                     },
@@ -854,6 +854,9 @@ const docTemplate = `{
         "store.FeedItem": {
             "type": "object",
             "properties": {
+                "author": {
+                    "type": "string"
+                },
                 "category": {
                     "type": "string"
                 },
@@ -861,9 +864,6 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "introduction": {
-                    "type": "string"
-                },
-                "name": {
                     "type": "string"
                 },
                 "thumbnail_image": {

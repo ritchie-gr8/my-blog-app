@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import {
   Form,
@@ -13,8 +13,15 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "../components/ui/button";
 import { toast } from "../components/custom/Toast";
+import { login } from "@/api/auth";
+import { Loader2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const LogIn = () => {
+  const [loading, setLoading] = useState(false);
+
+  const navigate = useNavigate()
+
   const formSchema = z.object({
     email: z.string().email({
       message: "Please enter a valid email address",
@@ -33,14 +40,26 @@ const LogIn = () => {
   });
   const formErrors = form.formState.errors;
 
-  function onSubmit(values) {
-    //TODO: implement onSubmit
-    console.log(values);
-    toast.success(
-      "Your password is incorrect or this email doesn’t exist",
-      "Please try another password or email"
-    );
+  async function onSubmit(values) {
+    setLoading(true);
+    try {
+      const res = await login(values);
+      if (res.code !== 201) throw new Error("error logging in...");
+      toast.success(
+        "Login successful! Welcome back! You are now logged in. Redirecting you to the dashboard...",
+        "You can start exploring your profile or check out the latest updates."
+      );
 
+      navigate("/posts/22")
+    } catch (error) {
+      console.log(error);
+      toast.error(
+        "Your password is incorrect or this email doesn’t exist",
+        "Please try another password or email"
+      );
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -109,8 +128,10 @@ const LogIn = () => {
             <Button
               type="submit"
               className="w-fit self-center px-10 py-3 rounded-full cursor-pointer md:my-10"
+              disabled={loading}
             >
               Log in
+              {loading && <Loader2 className="animate-spin" />}
             </Button>
 
             <p className="text-brown-400 font-medium self-center">

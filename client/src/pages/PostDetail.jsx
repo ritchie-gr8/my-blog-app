@@ -8,6 +8,7 @@ import PostCommentSection from "../components/custom/PostCommentSection";
 import PostShareMenu from "../components/custom/PostShareMenu";
 import { useParams } from "react-router-dom";
 import { blogPosts } from "@/constants/blogPost";
+import { getPostById } from "@/api/posts";
 
 const PostContent = ({ content, introduction }) => {
   return (
@@ -26,6 +27,8 @@ const PostDetail = () => {
   useEffect(() => {
     const fetchPost = async () => {
       // mocking data from api
+      const testApiPost = await getPostById(id)
+      console.log(testApiPost)
       const postData = blogPosts.find((post) => post.id === +id);
       if (postData) {
         setPost(postData);

@@ -11,7 +11,7 @@ import (
 // @Tags			posts
 // @Accept			json
 // @Produce		json
-// @Param			limit		query		int				false	"Number of posts to retrieve (default is 20, max is 20)"	minimum(1)	maximum(20)
+// @Param			limit		query		int				false	"Number of posts to retrieve (default is 6, max is 20)"	minimum(1)	maximum(20)
 // @Param			offset		query		int				false	"Offset for pagination (default is 0)"
 // @Param			sort		query		string			false	"Sort order (default is 'desc', options are 'asc' or 'desc')"
 // @Param			category	query		string			false	"Category to filter posts by"
@@ -23,7 +23,7 @@ import (
 // @Router			/feed [get]
 func (app *application) getFeedHandler(w http.ResponseWriter, r *http.Request) {
 	fq := store.PaginatedFeedQuery{
-		Limit:  20,
+		Limit:  6,
 		Offset: 0,
 		Sort:   "desc",
 	}

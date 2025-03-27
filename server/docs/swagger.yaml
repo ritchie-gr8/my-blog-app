@@ -76,13 +76,13 @@ definitions:
     type: object
   store.FeedItem:
     properties:
+      author:
+        type: string
       category:
         type: string
       id:
         type: integer
       introduction:
-        type: string
-      name:
         type: string
       thumbnail_image:
         items:
@@ -267,7 +267,7 @@ paths:
       description: Retrieve a paginated feed of posts with optional filters for category
         and search
       parameters:
-      - description: Number of posts to retrieve (default is 20, max is 20)
+      - description: Number of posts to retrieve (default is 6, max is 20)
         in: query
         maximum: 20
         minimum: 1
