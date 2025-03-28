@@ -995,10 +995,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "profile_picture": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
+                    "type": "string"
                 },
                 "role": {
                     "type": "string"
@@ -1146,10 +1143,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "profile_picture": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
+                    "type": "string"
                 },
                 "role": {
                     "type": "string"

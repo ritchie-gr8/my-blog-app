@@ -8,9 +8,10 @@ import PostDetail from "./pages/PostDetail";
 import NotFound from "./pages/NotFound";
 import Member from "./pages/Member";
 import { UserProvider } from "./context/UserContext";
+import ProtectedRoute from "./components/ProtectedRoute";
+import PublicRoute from "./components/PublicRoute";
 
 function App() {
-
   return (
     <BrowserRouter>
       <UserProvider>
@@ -19,10 +20,31 @@ function App() {
           <main className="flex-grow">
             <Routes>
               <Route path="/" element={<Landing />} />
-              <Route path="/login" element={<LogIn />} />
-              <Route path="/signup" element={<SignUp />} />
+              <Route
+                path="/login"
+                element={
+                  <PublicRoute>
+                    <LogIn />
+                  </PublicRoute>
+                }
+              />
+              <Route
+                path="/signup"
+                element={
+                  <PublicRoute>
+                    <SignUp />
+                  </PublicRoute>
+                }
+              />
               <Route path="/posts/:id" element={<PostDetail />} />
-              <Route path="/member" element={<Member />} />
+              <Route
+                path="/member"
+                element={
+                  <ProtectedRoute>
+                    <Member />
+                  </ProtectedRoute>
+                }
+              />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>

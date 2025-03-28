@@ -49,9 +49,7 @@ definitions:
       name:
         type: string
       profile_picture:
-        items:
-          type: integer
-        type: array
+        type: string
       role:
         type: string
       token:
@@ -148,9 +146,7 @@ definitions:
       name:
         type: string
       profile_picture:
-        items:
-          type: integer
-        type: array
+        type: string
       role:
         type: string
       username:

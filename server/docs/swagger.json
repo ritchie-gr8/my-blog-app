@@ -987,10 +987,7 @@
                     "type": "string"
                 },
                 "profile_picture": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
+                    "type": "string"
                 },
                 "role": {
                     "type": "string"
@@ -1138,10 +1135,7 @@
                     "type": "string"
                 },
                 "profile_picture": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
+                    "type": "string"
                 },
                 "role": {
                     "type": "string"

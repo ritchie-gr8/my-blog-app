@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RotateCcw, UserPen } from "lucide-react";
-import Avatar from "@/components/global/Avatar";
 import ProfileForm from "@/components/custom/ProfileForm";
 import ResetPasswordForm from "@/components/custom/ResetPasswordForm";
 import { useLocation } from "react-router-dom";
+import { useUser } from "@/hooks/useUser";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const Member = () => {
   const [currentTab, setCurrentTab] = useState("profile");
   const location = useLocation();
+  const { user } = useUser();
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -23,8 +25,13 @@ const Member = () => {
     <div className="flex justify-center items-center">
       <Tabs value={currentTab} className="w-full">
         <div className="hidden md:flex items-center px-32 mt-14 text-h3 font-semibold">
-          <Avatar size={60} />
-          <h3 className="px-4 border-r mr-4 text-brown-400">Moodeng ja</h3>
+          <Avatar className='size-[60px]'>
+            <AvatarImage src={user.profile_picture} />
+            <AvatarFallback className='bg-brown-400 text-white'>
+              {user.name[0]}
+            </AvatarFallback>
+          </Avatar>
+          <h3 className="px-4 border-r mr-4 text-brown-400">{user.name}</h3>
           <h3>{currentTab === "profile" ? "Profile" : "Reset password"}</h3>
         </div>
         <div className="w-full flex flex-col md:flex-row md:px-32 md:mt-12">

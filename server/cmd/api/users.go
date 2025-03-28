@@ -19,7 +19,7 @@ type UpdateUserPayload struct {
 	Username       *string `json:"username" validate:"omitempty,max=72"`
 	Email          *string `json:"email" validate:"omitempty,email,max=120"`
 	Bio            *string `json:"bio" validate:"omitempty,max=120"`
-	ProfilePicture *[]byte `json:"profile_picture" validate:"omitempty"`
+	ProfilePicture *string `json:"profile_picture" validate:"omitempty"`
 }
 
 // @Summary		Fetch a user profile

@@ -22,7 +22,7 @@ type User struct {
 	Email          string   `json:"email"`
 	Name           string   `json:"name"`
 	Password       password `json:"-"`
-	ProfilePicture []byte   `json:"profile_picture"`
+	ProfilePicture string   `json:"profile_picture"`
 	CreatedAt      string   `json:"created_at"`
 	Role           string   `json:"role"`
 	Bio            string   `json:"bio"`

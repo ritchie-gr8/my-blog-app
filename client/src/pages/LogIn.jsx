@@ -15,12 +15,13 @@ import { Button } from "../components/ui/button";
 import { toast } from "../components/custom/Toast";
 import { login as loginApi } from "@/api/auth";
 import { Loader2 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useUser } from "@/hooks/useUser";
 
 const LogIn = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const { login } = useUser();
 
   const formSchema = z.object({
@@ -48,9 +49,10 @@ const LogIn = () => {
       if (res.code !== 201) throw new Error("error logging in...");
 
       login(res.data);
+      toast.success("Login successful! Redirecting...");
 
-      toast.success("Login successful! Redirecting you to the dashboard...");
-      navigate("/");
+      const destination = location.state?.from || "/";
+      navigate(destination);
     } catch (error) {
       console.log(error);
       toast.error("Your password is incorrect or this email doesn't exist");

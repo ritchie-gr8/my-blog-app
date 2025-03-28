@@ -9,11 +9,14 @@ import PostShareMenu from "../components/custom/PostShareMenu";
 import { useParams } from "react-router-dom";
 import { blogPosts } from "@/constants/blogPost";
 import { getPostById } from "@/api/posts";
+import { toast } from "@/components/custom/Toast";
 
 const PostContent = ({ content, introduction }) => {
   return (
     <div className="mb-10">
-      <h4 className="font-semibold text-h4 text-brown-600 mb-6">{introduction}</h4>
+      <h4 className="font-semibold text-h4 text-brown-600 mb-6">
+        {introduction}
+      </h4>
       <p className="text-b1 font-medium text-brown-500">{content}</p>
     </div>
   );
@@ -27,8 +30,8 @@ const PostDetail = () => {
   useEffect(() => {
     const fetchPost = async () => {
       // mocking data from api
-      const testApiPost = await getPostById(id)
-      console.log(testApiPost)
+      const testApiPost = await getPostById(id);
+      console.log(testApiPost);
       const postData = blogPosts.find((post) => post.id === +id);
       if (postData) {
         setPost(postData);
@@ -41,9 +44,13 @@ const PostDetail = () => {
   useEffect(() => {
     if (post?.user_id) {
       const fetchUser = async () => {
-        const userData = await getUserById(post.user_id);
-        if (userData) {
-          setUser(userData.data);
+        try {
+          const userData = await getUserById(post.user_id);
+          if (userData) {
+            setUser(userData.data);
+          }
+        } catch (error) {
+          toast.error("Error fetching user", error);
         }
       };
 
@@ -89,7 +96,10 @@ const PostDetail = () => {
                   <p>{post?.introduction}</p>
                 </div>
 
-                <PostContent introduction={post?.description} content={post?.content} />
+                <PostContent
+                  introduction={post?.description}
+                  content={post?.content}
+                />
 
                 {user && (
                   <AuthorProfileCard className="md:hidden" user={user} />

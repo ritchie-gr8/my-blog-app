@@ -4,13 +4,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import {
-  ChevronDown,
-  ChevronUp,
-  LogOut,
-  RotateCcw,
-  UserPen,
-} from "lucide-react";
+import { Bell, ChevronDown, LogOut, RotateCcw, UserPen } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "@/hooks/useUser";
 
@@ -60,6 +54,9 @@ const UserAvatarDropdown = () => {
       ref={dropdownRef}
       onClick={toggleDropdown}
     >
+      <div className="bg-white rounded-full border border-brown-200 size-10 flex items-center justify-center mr-4">
+        <Bell className="size-5 text-brown-400" />
+      </div>
       <Avatar className="size-9 cursor-pointer">
         <AvatarImage src={profile_picture} />
         <AvatarFallback className="bg-brown-600 text-white">
