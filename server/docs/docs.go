@@ -50,9 +50,9 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "201": {
-                        "description": "Token",
+                        "description": "User and token",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/main.UserWithToken"
                         }
                     },
                     "400": {

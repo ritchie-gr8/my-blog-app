@@ -107,7 +107,7 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 // @Accept			json
 // @Produce		json
 // @Param			payload	body		CreateUserTokenPayload	true	"User credentials"
-// @Success		201		{string}	string					"Token"
+// @Success		201		{object}	UserWithToken			"User and token"
 // @Failure		400		{object}	error
 // @Failure		401		{object}	error
 // @Failure		500		{object}	error
@@ -154,7 +154,14 @@ func (app *application) createTokenHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	if err := app.jsonResponse(w, http.StatusCreated, token); err != nil {
+	userWithToken := UserWithToken{
+		User:  user,
+		Token: token,
+	}
+
+	app.logger.Infow("User logged in", "user", userWithToken.User)
+
+	if err := app.jsonResponse(w, http.StatusCreated, userWithToken); err != nil {
 		app.internalServerError(w, r, err)
 	}
 }

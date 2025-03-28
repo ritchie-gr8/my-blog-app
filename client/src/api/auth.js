@@ -7,13 +7,14 @@ export const login = async (loginPayload) => {
       `${apiUrl}/authentication/token`,
       loginPayload
     );
-    if (res.status !== 201 || !res.data) throw new Error("error logging in...");
+    if (res.status !== 201 || !res?.data?.data) throw new Error("error logging in...");
 
-    const token = res.data.data;
-    localStorage.setItem("authToken", token);
+    const userData = res.data.data;
+    const token = userData.token;
+    localStorage.setItem("userData", JSON.stringify(userData));
     axios.defaults.headers["Authorization"] = `Bearer ${token}`;
 
-    return { status: "success", code: res.status };
+    return { status: "success", code: res.status, data: userData };
   } catch (error) {
     return error;
   }

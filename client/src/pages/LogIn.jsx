@@ -13,14 +13,15 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "../components/ui/button";
 import { toast } from "../components/custom/Toast";
-import { login } from "@/api/auth";
+import { login as loginApi } from "@/api/auth";
 import { Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useUser } from "@/hooks/useUser";
 
 const LogIn = () => {
   const [loading, setLoading] = useState(false);
-
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+  const { login } = useUser();
 
   const formSchema = z.object({
     email: z.string().email({
@@ -43,20 +44,16 @@ const LogIn = () => {
   async function onSubmit(values) {
     setLoading(true);
     try {
-      const res = await login(values);
+      const res = await loginApi(values);
       if (res.code !== 201) throw new Error("error logging in...");
-      toast.success(
-        "Login successful! Welcome back! You are now logged in. Redirecting you to the dashboard...",
-        "You can start exploring your profile or check out the latest updates."
-      );
 
-      navigate("/posts/22")
+      login(res.data);
+
+      toast.success("Login successful! Redirecting you to the dashboard...");
+      navigate("/");
     } catch (error) {
       console.log(error);
-      toast.error(
-        "Your password is incorrect or this email doesn’t exist",
-        "Please try another password or email"
-      );
+      toast.error("Your password is incorrect or this email doesn't exist");
     } finally {
       setLoading(false);
     }
@@ -135,7 +132,7 @@ const LogIn = () => {
             </Button>
 
             <p className="text-brown-400 font-medium self-center">
-              Don’t have any account?
+              Don't have any account?
               <span className="text-brown-600 ml-3 underline cursor-pointer">
                 Sign up
               </span>

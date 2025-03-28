@@ -1,16 +1,27 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RotateCcw, UserPen } from "lucide-react";
 import Avatar from "@/components/global/Avatar";
 import ProfileForm from "@/components/custom/ProfileForm";
 import ResetPasswordForm from "@/components/custom/ResetPasswordForm";
+import { useLocation } from "react-router-dom";
 
 const Member = () => {
   const [currentTab, setCurrentTab] = useState("profile");
+  const location = useLocation();
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const tabParam = params.get("tab");
+
+    if (tabParam && (tabParam === "profile" || tabParam === "password")) {
+      setCurrentTab(tabParam);
+    }
+  }, [location.search]);
 
   return (
     <div className="flex justify-center items-center">
-      <Tabs defaultValue={currentTab} className="w-full ">
+      <Tabs value={currentTab} className="w-full">
         <div className="hidden md:flex items-center px-32 mt-14 text-h3 font-semibold">
           <Avatar size={60} />
           <h3 className="px-4 border-r mr-4 text-brown-400">Moodeng ja</h3>

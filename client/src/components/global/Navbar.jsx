@@ -2,9 +2,12 @@ import React, { useState } from "react";
 import Button from "./Button";
 import { Menu } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useUser } from "../../hooks/useUser";
+import UserAvatarDropdown from "./UserAvatarDropdown";
 
 const Navbar = () => {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const { user } = useUser();
 
   const handleShowMobileMenu = () => setShowMobileMenu((prev) => !prev);
 
@@ -23,12 +26,18 @@ const Navbar = () => {
             className="sm:hidden cursor-pointer"
           />
           <div className="hidden sm:flex gap-2">
-            <Link to={"/login"}>
-              <Button>Log in</Button>
-            </Link>
-            <Link to={"/signup"}>
-              <Button variant={"secondary"}>Sign up</Button>
-            </Link>
+            {user ? (
+              <UserAvatarDropdown />
+            ) : (
+              <>
+                <Link to={"/login"}>
+                  <Button>Log in</Button>
+                </Link>
+                <Link to={"/signup"}>
+                  <Button variant={"secondary"}>Sign up</Button>
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -38,13 +47,19 @@ const Navbar = () => {
         px-6 py-10 gap-6 w-full bg-white border-t border-t-brown-300 
         absolute top-12"
         >
-          <Link to={"/login"}>
-            <Button>Log in</Button>
-          </Link>
+          {user ? (
+            <UserAvatarDropdown />
+          ) : (
+            <>
+              <Link to={"/login"}>
+                <Button>Log in</Button>
+              </Link>
 
-          <Link to={"/signup"}>
-            <Button variant={"secondary"}>Sign up</Button>
-          </Link>
+              <Link to={"/signup"}>
+                <Button variant={"secondary"}>Sign up</Button>
+              </Link>
+            </>
+          )}
         </div>
       )}
     </header>
