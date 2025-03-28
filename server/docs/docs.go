@@ -1077,6 +1077,17 @@ const docTemplate = `{
                 }
             }
         },
+        "store.Author": {
+            "type": "object",
+            "properties": {
+                "bio": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
         "store.Category": {
             "type": "object",
             "properties": {
@@ -1149,6 +1160,12 @@ const docTemplate = `{
         "store.Post": {
             "type": "object",
             "properties": {
+                "author": {
+                    "$ref": "#/definitions/store.Author"
+                },
+                "category": {
+                    "type": "string"
+                },
                 "category_id": {
                     "type": "integer"
                 },

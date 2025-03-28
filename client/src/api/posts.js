@@ -1,4 +1,4 @@
-import api from './axios';
+import api from "./axios";
 
 export const getPostById = async (id) => {
   const res = await api.get(`/posts/${id}`);

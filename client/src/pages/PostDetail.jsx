@@ -2,12 +2,9 @@ import React, { useEffect, useState } from "react";
 import articleImg from "../assets/article-placeholder.jpg";
 import Button from "../components/global/Button";
 import AuthorProfileCard from "../components/custom/AuthorProfileCard";
-// import { getPostById } from "@/api/posts";
-import { getUserById } from "@/api/users";
 import PostCommentSection from "../components/custom/PostCommentSection";
 import PostShareMenu from "../components/custom/PostShareMenu";
 import { useParams } from "react-router-dom";
-import { blogPosts } from "@/constants/blogPost";
 import { getPostById } from "@/api/posts";
 import { toast } from "@/components/custom/Toast";
 
@@ -24,39 +21,22 @@ const PostContent = ({ content, introduction }) => {
 
 const PostDetail = () => {
   const [post, setPost] = useState();
-  const [user, setUser] = useState();
   const { id } = useParams();
 
   useEffect(() => {
     const fetchPost = async () => {
-      // mocking data from api
-      const testApiPost = await getPostById(id);
-      console.log(testApiPost);
-      const postData = blogPosts.find((post) => post.id === +id);
-      if (postData) {
-        setPost(postData);
+      try {
+        const { data: postData } = await getPostById(id);
+        if (postData) {
+          setPost(postData);
+        }
+      } catch (error) {
+        toast.error("Error fetching post", error);
       }
     };
 
     fetchPost();
   }, [id]);
-
-  useEffect(() => {
-    if (post?.user_id) {
-      const fetchUser = async () => {
-        try {
-          const userData = await getUserById(post.user_id);
-          if (userData) {
-            setUser(userData.data);
-          }
-        } catch (error) {
-          toast.error("Error fetching user", error);
-        }
-      };
-
-      fetchUser();
-    }
-  }, [post]);
 
   return (
     <article>
@@ -101,8 +81,14 @@ const PostDetail = () => {
                   content={post?.content}
                 />
 
-                {user && (
-                  <AuthorProfileCard className="md:hidden" user={user} />
+                {post?.author && (
+                  <AuthorProfileCard
+                    className="md:hidden"
+                    user={{
+                      name: post.author.name,
+                      bio: post.author.bio,
+                    }}
+                  />
                 )}
               </div>
 
@@ -112,12 +98,15 @@ const PostDetail = () => {
                 <PostCommentSection comments={post?.comments} />
               )}
             </div>
-            {user && (
+            {post?.author && (
               <div className="hidden md:block md:relative w-fit justify-self-end">
                 <AuthorProfileCard
                   className="my-12 sticky top-12 max-w-[305px] right-0"
                   isSticky={true}
-                  user={user}
+                  user={{
+                    name: post.author.name,
+                    bio: post.author.bio,
+                  }}
                 />
               </div>
             )}

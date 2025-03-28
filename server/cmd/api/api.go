@@ -127,17 +127,17 @@ func (app *application) mount() http.Handler {
 		r.Get("/swagger/*", httpSwagger.Handler(httpSwagger.URL(docsURL)))
 
 		r.Route("/posts", func(r chi.Router) {
-			r.Use(app.AuthTokenMiddleware)
-			r.Post("/", app.createPostHandler)
-
 			r.Route("/{postID}", func(r chi.Router) {
 				r.Use(app.postsContextMiddleware)
 
 				r.Get("/", app.getPostHandler)
-				r.Delete("/", app.checkPostOwnership("admin", app.deletePostHandler))
-				r.Patch("/", app.checkPostOwnership("moderator", app.updatePostHandler))
-				r.Post("/comments", app.createCommentHandler)
+
+				r.With(app.AuthTokenMiddleware).Delete("/", app.checkPostOwnership("admin", app.deletePostHandler))
+				r.With(app.AuthTokenMiddleware).Patch("/", app.checkPostOwnership("moderator", app.updatePostHandler))
+				r.With(app.AuthTokenMiddleware).Post("/comments", app.createCommentHandler)
 			})
+
+			r.With(app.AuthTokenMiddleware).Post("/", app.createPostHandler)
 		})
 
 		r.Route("/users", func(r chi.Router) {

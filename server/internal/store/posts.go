@@ -8,6 +8,11 @@ import (
 	"strings"
 )
 
+type Author struct {
+	Name string `json:"name"`
+	Bio  string `json:"bio"`
+}
+
 type Post struct {
 	ID             int64     `json:"id"`
 	Title          string    `json:"title"`
@@ -20,6 +25,8 @@ type Post struct {
 	UpdatedAt      string    `json:"updated_at"`
 	Version        int       `json:"version"`
 	Comments       []Comment `json:"comments"`
+	Author         *Author   `json:"author"`
+	Category       string    `json:"category"`
 }
 
 type FeedItem struct {
@@ -153,13 +160,19 @@ func (s *PostStore) Create(ctx context.Context, post *Post) error {
 
 func (s *PostStore) GetByID(ctx context.Context, id int64) (*Post, error) {
 	query := `
-		SELECT id, title, introduction, content, category_id, user_id, thumbnail_image, created_at, updated_at, version
-		FROM posts WHERE id = $1
+		SELECT p.id, p.title, p.introduction, p.content, p.category_id, 
+			   p.user_id, p.thumbnail_image, p.created_at, p.updated_at, p.version,
+			   u.name, u.bio, c.name as category
+		FROM posts p
+		LEFT JOIN users u ON p.user_id = u.id
+		LEFT JOIN categories c ON p.category_id = c.id
+		WHERE p.id = $1
 	`
 	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
 	defer cancel()
 
 	var post Post
+	var userName, userBio, category sql.NullString
 	err := s.db.QueryRowContext(ctx, query, id).Scan(
 		&post.ID,
 		&post.Title,
@@ -171,6 +184,9 @@ func (s *PostStore) GetByID(ctx context.Context, id int64) (*Post, error) {
 		&post.CreatedAt,
 		&post.UpdatedAt,
 		&post.Version,
+		&userName,
+		&userBio,
+		&category,
 	)
 	if err != nil {
 		switch {
@@ -179,6 +195,15 @@ func (s *PostStore) GetByID(ctx context.Context, id int64) (*Post, error) {
 		default:
 			return nil, err
 		}
+	}
+
+	post.Author = &Author{
+		Name: userName.String,
+		Bio:  userBio.String,
+	}
+
+	if category.Valid {
+		post.Category = category.String
 	}
 
 	return &post, nil
