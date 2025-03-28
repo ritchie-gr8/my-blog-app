@@ -1,21 +1,36 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {z} from "zod";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { z } from "zod";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import RegistrationSuccess from "@/components/custom/RegistrationSuccess";
+import { toast } from "@/components/custom/Toast";
+import { registerUser } from "@/api/users";
+import { useUser } from "@/hooks/useUser";
+import { Link, useNavigate } from "react-router-dom";
+import { Loader2 } from "lucide-react";
 
 const SignUp = () => {
   const [isRegistered, setIsRegistered] = useState(false);
-  
+  const [loading, setLoading] = useState(false);
+  const { login } = useUser();
+  const navigate = useNavigate();
+
   const formSchema = z.object({
-    name: z.string().min(2, {
-      message: "Name must be at least 2 characters.",
+    name: z.string().min(6, {
+      message: "Name must be at least 6 characters.",
     }),
-    username: z.string().min(2, {
-      message: "Username must be at least 2 characters.",
+    username: z.string().min(6, {
+      message: "Username must be at least 6 characters.",
     }),
     email: z.string().email({
       message: "Please enter a valid email address.",
@@ -37,14 +52,22 @@ const SignUp = () => {
 
   const formErrors = form.formState.errors;
 
-  function onSubmit(values) {
-    console.log(values);
-    
-    setIsRegistered(true);
+  async function onSubmit(values) {
+    try {
+      setLoading(true);
+      const res = await registerUser(values);
+      setIsRegistered(true);
+      login(res);
+      toast.success("User registered successfully");
+    } catch (error) {
+      toast.error(error?.message || "Failed to register user");
+    } finally {
+      setLoading(false);
+    }
   }
-  
+
   const handleContinue = () => {
-    console.log("Continuing to the next page");
+    navigate("/");
   };
 
   if (isRegistered) {
@@ -64,7 +87,7 @@ const SignUp = () => {
             className="space-y-6 flex flex-col"
           >
             <h2 className="text-center text-h2 font-semibold">Sign up</h2>
-            
+
             {/* Name Field */}
             <FormField
               control={form.control}
@@ -77,6 +100,7 @@ const SignUp = () => {
                   <FormControl>
                     <Input
                       placeholder="Full name"
+                      disabled={loading}
                       className={`bg-white px-4 py-3 !text-brown-400 font-medium
                         ${
                           formErrors.name
@@ -90,7 +114,7 @@ const SignUp = () => {
                 </FormItem>
               )}
             />
-            
+
             {/* Username Field */}
             <FormField
               control={form.control}
@@ -103,6 +127,7 @@ const SignUp = () => {
                   <FormControl>
                     <Input
                       placeholder="Username"
+                      disabled={loading}
                       className={`bg-white px-4 py-3 !text-brown-400 font-medium
                         ${
                           formErrors.username
@@ -116,7 +141,7 @@ const SignUp = () => {
                 </FormItem>
               )}
             />
-            
+
             {/* Email Field */}
             <FormField
               control={form.control}
@@ -130,6 +155,7 @@ const SignUp = () => {
                     <Input
                       placeholder="Email"
                       type="email"
+                      disabled={loading}
                       className={`bg-white px-4 py-3 !text-brown-400 font-medium
                         ${
                           formErrors.email
@@ -143,7 +169,7 @@ const SignUp = () => {
                 </FormItem>
               )}
             />
-            
+
             {/* Password Field */}
             <FormField
               control={form.control}
@@ -157,6 +183,7 @@ const SignUp = () => {
                     <Input
                       placeholder="Password"
                       type="password"
+                      disabled={loading}
                       className={`bg-white px-4 py-3 !text-brown-400 font-medium
                         ${
                           formErrors.password
@@ -170,19 +197,28 @@ const SignUp = () => {
                 </FormItem>
               )}
             />
-            
+
             <Button
               type="submit"
               className="w-fit self-center bg-brown-600 px-10 py-3 rounded-full cursor-pointer md:my-10"
+              disabled={loading}
             >
-              Sign up
+              {loading ? (
+                <span className="flex items-center">
+                  Signing up... <Loader2 className="animate-spin ml-2" />
+                </span>
+              ) : (
+                "Sign up"
+              )}
             </Button>
-            
+
             <p className="text-brown-400 font-medium self-center">
               Already have an account?
-              <span className="text-brown-600 ml-3 underline cursor-pointer">
-                Log in
-              </span>
+              <Link to="/login">
+                <span className="text-brown-600 ml-3 underline cursor-pointer">
+                  Log in
+                </span>
+              </Link>
             </p>
           </form>
         </Form>

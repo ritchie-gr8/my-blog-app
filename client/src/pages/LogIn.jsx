@@ -15,7 +15,7 @@ import { Button } from "../components/ui/button";
 import { toast } from "../components/custom/Toast";
 import { login as loginApi } from "@/api/auth";
 import { Loader2 } from "lucide-react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useUser } from "@/hooks/useUser";
 
 const LogIn = () => {
@@ -135,9 +135,11 @@ const LogIn = () => {
 
             <p className="text-brown-400 font-medium self-center">
               Don't have any account?
-              <span className="text-brown-600 ml-3 underline cursor-pointer">
-                Sign up
-              </span>
+              <Link to="/signup">
+                <span className="text-brown-600 ml-3 underline cursor-pointer">
+                  Sign up
+                </span>
+              </Link>
             </p>
           </form>
         </Form>

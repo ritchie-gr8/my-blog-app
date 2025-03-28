@@ -22,3 +22,9 @@ export const resetPassword = async (id, passwordData) => {
   if (res.status !== 204) throw new Error("Error updating password.");
   return { success: true };
 };
+
+export const registerUser = async (userData) => {
+  const res = await api.post('/authentication/user', userData)
+  if (res.status !== 201 || !res?.data?.data) throw new Error("Error registering user.");
+  return res.data.data
+}
