@@ -31,6 +31,7 @@ type Service struct {
 		Activate(ctx context.Context, token string) error
 		GetByEmail(ctx context.Context, email string) (*store.User, error)
 		CreateUserWithInvitation(ctx context.Context, user *store.User, hashToken string, exp time.Duration) error
+		UpdatePassword(ctx context.Context, user *store.User) error
 	}
 
 	Posts interface {

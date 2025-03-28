@@ -105,3 +105,18 @@ func (s *UserService) CreateUserWithInvitation(ctx context.Context, user *store.
 
 	return nil
 }
+
+func (s *UserService) UpdatePassword(ctx context.Context, user *store.User) error {
+	err := s.store.Users.UpdatePassword(ctx, user)
+	if err != nil {
+		return err
+	}
+
+	// Invalidate user cache after password change
+	err = s.cacheStore.Users.Delete(ctx, user.ID)
+	if err != nil && err != cache.ErrRedisNotInit {
+		s.logger.Warnw("error deleting cache data", "error", err, "userID", user.ID)
+	}
+
+	return nil
+}

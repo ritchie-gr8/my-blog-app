@@ -730,6 +730,52 @@ paths:
       summary: Update an existing user
       tags:
       - users
+  /users/{userID}/password:
+    patch:
+      consumes:
+      - application/json
+      description: Reset password for authenticated user
+      parameters:
+      - description: User ID
+        in: path
+        name: userID
+        required: true
+        type: integer
+      - description: Current password
+        in: body
+        minLength: 6
+        name: current_password
+        required: true
+        schema:
+          type: string
+      - description: New password
+        in: body
+        minLength: 6
+        name: new_password
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Password updated successfully
+          schema:
+            type: string
+        "400":
+          description: Invalid request, incorrect current password
+          schema: {}
+        "404":
+          description: User not found
+          schema: {}
+        "500":
+          description: Internal server error
+          schema: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Reset user password
+      tags:
+      - users
   /users/activate/{token}:
     put:
       consumes:

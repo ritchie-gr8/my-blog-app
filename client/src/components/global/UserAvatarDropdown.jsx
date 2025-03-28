@@ -67,7 +67,7 @@ const UserAvatarDropdown = () => {
       <ChevronDown className="size-4 group-hover:scale-125 transition-transform" />
       {isOpen && (
         <Card className="absolute right-0 top-8 mt-2 w-64 p-4 bg-white rounded-lg shadow-lg z-50 !gap-0">
-          <div className="flex items-center gap-3 mb-4">
+          <div className="flex items-center gap-3 mb-4 cursor-default">
             <Avatar className="h-10 w-10">
               <AvatarImage src={profile_picture} />
               <AvatarFallback className="bg-brown-600 text-white">

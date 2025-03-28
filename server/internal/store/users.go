@@ -58,10 +58,11 @@ func (s *UserStore) Create(ctx context.Context, tx *sql.Tx, user *User) error {
 	// set default role to user for now
 	user.Role = "user"
 	user.IsActive = false
+	user.ProfilePicture = ""
 
 	query := `
-		INSERT INTO users (name, username, password, email, role, bio, is_active)
-		VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id, created_at
+		INSERT INTO users (name, username, password, email, role, bio, is_active, profile_picture)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id, created_at
 	`
 
 	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
@@ -77,6 +78,7 @@ func (s *UserStore) Create(ctx context.Context, tx *sql.Tx, user *User) error {
 		user.Role,
 		user.Bio,
 		user.IsActive,
+		user.ProfilePicture,
 	).Scan(
 		&user.ID,
 		&user.CreatedAt,
@@ -328,6 +330,24 @@ func (s *UserStore) delete(ctx context.Context, tx *sql.Tx, userID int64) error 
 	defer cancel()
 
 	_, err := tx.ExecContext(ctx, query, userID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *UserStore) UpdatePassword(ctx context.Context, user *User) error {
+	query := `
+        UPDATE users 
+        SET password = $1
+        WHERE id = $2
+    `
+
+	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
+	defer cancel()
+
+	_, err := s.db.ExecContext(ctx, query, user.Password.hash, user.ID)
 	if err != nil {
 		return err
 	}

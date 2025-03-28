@@ -16,3 +16,9 @@ export const updateUser = async (id, data) => {
   if (res.status !== 200) throw new Error("Error updating user.");
   return res.data;
 };
+
+export const resetPassword = async (id, passwordData) => {
+  const res = await api.patch(`/users/${id}/password`, passwordData);
+  if (res.status !== 204) throw new Error("Error updating password.");
+  return { success: true };
+};

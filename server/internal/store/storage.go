@@ -30,6 +30,7 @@ type Storage struct {
 		Delete(context.Context, int64) error
 		GetByEmail(context.Context, string) (*User, error)
 		GetByID(context.Context, int64) (*User, error)
+		UpdatePassword(ctx context.Context, user *User) error
 	}
 
 	Comments interface {

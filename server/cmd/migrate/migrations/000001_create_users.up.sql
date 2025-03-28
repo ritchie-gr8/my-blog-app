@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS users (
     email citext UNIQUE NOT NULL,
     username varchar(255) UNIQUE NOT NULL,
     password bytea NOT NULL,
-    profile_picture bytea,
+    profile_picture varchar(255) DEFAULT '',
     role user_role NOT NULL DEFAULT 'user',
     created_at timestamp(0) with time zone NOT NULL DEFAULT NOW()
 );

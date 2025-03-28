@@ -41,3 +41,7 @@ func (m *MockUserStore) GetByEmail(context.Context, string) (*User, error) {
 func (m *MockUserStore) GetByID(ctx context.Context, id int64) (*User, error) {
 	return nil, nil
 }
+
+func (m *MockUserStore) UpdatePassword(ctx context.Context, user *User) error {
+	return nil
+}
