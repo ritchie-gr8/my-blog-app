@@ -90,6 +90,49 @@ func (app *application) AuthTokenMiddleware(next http.Handler) http.Handler {
 	})
 }
 
+func (app *application) OptionalAuthMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		authHeader := r.Header.Get("Authorization")
+		if authHeader == "" {
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		parts := strings.Split(authHeader, " ")
+		if len(parts) != 2 || parts[0] != "Bearer" {
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		token := parts[1]
+
+		jwtToken, err := app.authenticator.ValidateToken(token)
+		if err != nil {
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		claims := jwtToken.Claims.(jwt.MapClaims)
+		sub, ok := claims["sub"].(float64)
+		if !ok {
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		userID := int64(sub)
+		ctx := r.Context()
+
+		user, err := app.service.Users.Get(ctx, userID)
+		if err != nil {
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		ctx = context.WithValue(ctx, userCtx, user)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
+
 func (app *application) checkPostOwnership(requiredRole string, next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		user := getUserFromCtx(r)

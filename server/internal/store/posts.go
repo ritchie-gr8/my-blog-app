@@ -27,6 +27,8 @@ type Post struct {
 	Comments       []Comment `json:"comments"`
 	Author         *Author   `json:"author"`
 	Category       string    `json:"category"`
+	LikesCount     int64     `json:"likes_count"`
+	UserHasLiked   bool      `json:"user_has_liked"`
 }
 
 type FeedItem struct {
@@ -158,22 +160,44 @@ func (s *PostStore) Create(ctx context.Context, post *Post) error {
 	return nil
 }
 
-func (s *PostStore) GetByID(ctx context.Context, id int64) (*Post, error) {
-	query := `
-		SELECT p.id, p.title, p.introduction, p.content, p.category_id, 
-			   p.user_id, p.thumbnail_image, p.created_at, p.updated_at, p.version,
-			   u.name, u.bio, c.name as category
-		FROM posts p
-		LEFT JOIN users u ON p.user_id = u.id
-		LEFT JOIN categories c ON p.category_id = c.id
-		WHERE p.id = $1
-	`
+func (s *PostStore) GetByID(ctx context.Context, id int64, currentUserID int64) (*Post, error) {
+	var query string
+	var args []any
+
+	if currentUserID > 0 {
+		query = `
+			SELECT p.id, p.title, p.introduction, p.content, p.category_id, 
+				p.user_id, p.thumbnail_image, p.created_at, p.updated_at, p.version,
+				u.name, u.bio, c.name as category,
+				(SELECT COUNT(*) FROM post_likes pl WHERE pl.post_id = p.id) AS likes_count,
+				EXISTS(SELECT 1 FROM post_likes pl WHERE pl.post_id = p.id AND pl.user_id = $2) AS user_has_liked
+			FROM posts p
+			LEFT JOIN users u ON p.user_id = u.id
+			LEFT JOIN categories c ON p.category_id = c.id
+			WHERE p.id = $1
+		`
+		args = []any{id, currentUserID}
+	} else {
+		query = `
+			SELECT p.id, p.title, p.introduction, p.content, p.category_id, 
+				p.user_id, p.thumbnail_image, p.created_at, p.updated_at, p.version,
+				u.name, u.bio, c.name as category,
+				(SELECT COUNT(*) FROM post_likes pl WHERE pl.post_id = p.id) AS likes_count,
+				false AS user_has_liked
+			FROM posts p
+			LEFT JOIN users u ON p.user_id = u.id
+			LEFT JOIN categories c ON p.category_id = c.id
+			WHERE p.id = $1
+		`
+		args = []any{id}
+	}
+
 	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
 	defer cancel()
 
 	var post Post
 	var userName, userBio, category sql.NullString
-	err := s.db.QueryRowContext(ctx, query, id).Scan(
+	err := s.db.QueryRowContext(ctx, query, args...).Scan(
 		&post.ID,
 		&post.Title,
 		&post.Introduction,
@@ -187,6 +211,8 @@ func (s *PostStore) GetByID(ctx context.Context, id int64) (*Post, error) {
 		&userName,
 		&userBio,
 		&category,
+		&post.LikesCount,
+		&post.UserHasLiked,
 	)
 	if err != nil {
 		switch {

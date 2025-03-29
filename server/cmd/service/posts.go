@@ -18,8 +18,8 @@ func (s *PostService) Create(ctx context.Context, post *store.Post) error {
 	return nil
 }
 
-func (s *PostService) Get(ctx context.Context, postID int64) (*store.Post, error) {
-	post, err := s.store.Posts.GetByID(ctx, postID)
+func (s *PostService) Get(ctx context.Context, postID int64, userID int64) (*store.Post, error) {
+	post, err := s.store.Posts.GetByID(ctx, postID, userID)
 	if err != nil {
 		return nil, err
 	}

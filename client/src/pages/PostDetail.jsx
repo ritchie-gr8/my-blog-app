@@ -92,7 +92,11 @@ const PostDetail = () => {
                 )}
               </div>
 
-              <PostShareMenu />
+              <PostShareMenu 
+                likes={post?.likes_count} 
+                postId={post.id}
+                userHasLiked={post?.user_has_liked} 
+              />
 
               {post?.comments && post?.comments.length > 0 && (
                 <PostCommentSection comments={post?.comments} />

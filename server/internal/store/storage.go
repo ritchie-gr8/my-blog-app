@@ -15,7 +15,7 @@ var (
 
 type Storage struct {
 	Posts interface {
-		GetByID(context.Context, int64) (*Post, error)
+		GetByID(context.Context, int64, int64) (*Post, error)
 		Create(context.Context, *Post) error
 		Update(context.Context, *Post) error
 		Delete(context.Context, int64) error
@@ -45,6 +45,13 @@ type Storage struct {
 		Delete(context.Context, int64) error
 		Update(context.Context, *Category) error
 	}
+
+	PostLike interface {
+		LikePost(ctx context.Context, postID, userID int64) error
+		UnlikePost(ctx context.Context, postID, userID int64) error
+		GetLikesCount(ctx context.Context, postID int64) (int64, error)
+		HasUserLiked(ctx context.Context, postID, userID int64) (bool, error)
+	}
 }
 
 func NewStorage(db *sql.DB) Storage {
@@ -53,6 +60,7 @@ func NewStorage(db *sql.DB) Storage {
 		Users:      &UserStore{db},
 		Comments:   &CommentStore{db},
 		Categories: &CategoryStore{db},
+		PostLike:   &PostLikeStore{db},
 	}
 }
 

@@ -129,12 +129,13 @@ func (app *application) mount() http.Handler {
 		r.Route("/posts", func(r chi.Router) {
 			r.Route("/{postID}", func(r chi.Router) {
 				r.Use(app.postsContextMiddleware)
-
-				r.Get("/", app.getPostHandler)
+				r.With(app.OptionalAuthMiddleware).Get("/", app.getPostHandler)
 
 				r.With(app.AuthTokenMiddleware).Delete("/", app.checkPostOwnership("admin", app.deletePostHandler))
 				r.With(app.AuthTokenMiddleware).Patch("/", app.checkPostOwnership("moderator", app.updatePostHandler))
 				r.With(app.AuthTokenMiddleware).Post("/comments", app.createCommentHandler)
+				r.With(app.AuthTokenMiddleware).Post("/like", app.likePostHandler)
+				r.With(app.AuthTokenMiddleware).Delete("/like", app.unlikePostHandler)
 			})
 
 			r.With(app.AuthTokenMiddleware).Post("/", app.createPostHandler)

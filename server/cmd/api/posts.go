@@ -100,6 +100,18 @@ func (app *application) createPostHandler(w http.ResponseWriter, r *http.Request
 func (app *application) getPostHandler(w http.ResponseWriter, r *http.Request) {
 	post := getPostFromCtx(r)
 
+	var userID int64 = 0
+	user := getUserFromCtx(r)
+	if user != nil {
+		userID = user.ID
+	}
+
+	post, err := app.service.Posts.Get(r.Context(), post.ID, userID)
+	if err != nil {
+		app.internalServerError(w, r, err)
+		return
+	}
+
 	comments, err := app.service.Comments.GetByPostID(r.Context(), post.ID)
 	if err != nil {
 		app.internalServerError(w, r, err)
@@ -228,7 +240,7 @@ func (app *application) postsContextMiddleware(next http.Handler) http.Handler {
 
 		ctx := r.Context()
 
-		post, err := app.service.Posts.Get(ctx, id)
+		post, err := app.service.Posts.Get(ctx, id, 0)
 		if err != nil {
 			switch err {
 			case store.ErrNotFound:

@@ -36,7 +36,7 @@ type Service struct {
 
 	Posts interface {
 		Create(ctx context.Context, post *store.Post) error
-		Get(ctx context.Context, postID int64) (*store.Post, error)
+		Get(ctx context.Context, postID int64, userID int64) (*store.Post, error)
 		Delete(ctx context.Context, postID int64) error
 		Update(ctx context.Context, post *store.Post) error
 		GetFeed(context.Context, store.PaginatedFeedQuery) ([]store.FeedItem, error)
@@ -61,6 +61,14 @@ type Service struct {
 		GetAll(ctx context.Context) ([]*store.Category, error)
 		Delete(ctx context.Context, id int64) error
 		Update(ctx context.Context, category *store.Category) error
+	}
+
+	PostLikes interface {
+		// Post likes methods
+		LikePost(ctx context.Context, postID, userID int64) error
+		UnlikePost(ctx context.Context, postID, userID int64) error
+		GetLikesCount(ctx context.Context, postID int64) (int64, error)
+		HasUserLiked(ctx context.Context, postID, userID int64) (bool, error)
 	}
 }
 
@@ -87,6 +95,9 @@ func NewService(store store.Storage, cacheStore cache.Storage,
 			logger: logger,
 		},
 		Categories: &CategoryService{
+			store: store,
+		},
+		PostLikes: &PostLikeService{
 			store: store,
 		},
 	}
