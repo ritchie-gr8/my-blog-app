@@ -36,6 +36,7 @@ type application struct {
 	authenticator auth.Authenticator
 	service       service.Service
 	rateLimiter   ratelimiter.Limiter
+	sseManager    *SSEManager
 }
 
 type config struct {
@@ -114,59 +115,73 @@ func (app *application) mount() http.Handler {
 	}))
 	r.Use(app.RateLimiterMiddleware)
 
-	// Set a timeout value on the request context (ctx), that will signal
-	// through ctx.Done() that the request has timed out and further
-	// processing should be stopped.
-	r.Use(middleware.Timeout(60 * time.Second))
-
 	r.Route("/v1", func(r chi.Router) {
-		r.Get("/health", app.healthCheckHandler)
-		r.With(app.BasicAuthMiddleware()).Get("/metrics", expvar.Handler().ServeHTTP)
+		r.With(app.SSEAuthMiddleware).Get("/notifications/stream", app.notificationStreamHandler)
 
-		docsURL := fmt.Sprintf("%s/swagger/doc.json", app.config.addr)
-		r.Get("/swagger/*", httpSwagger.Handler(httpSwagger.URL(docsURL)))
+		r.Group(func(r chi.Router) {
 
-		r.Route("/posts", func(r chi.Router) {
-			r.Route("/{postID}", func(r chi.Router) {
-				r.Use(app.postsContextMiddleware)
-				r.With(app.OptionalAuthMiddleware).Get("/", app.getPostHandler)
+			// Set a timeout value on the request context (ctx), that will signal
+			// through ctx.Done() that the request has timed out and further
+			// processing should be stopped.
+			r.Use(middleware.Timeout(60 * time.Second))
 
-				r.With(app.AuthTokenMiddleware).Delete("/", app.checkPostOwnership("admin", app.deletePostHandler))
-				r.With(app.AuthTokenMiddleware).Patch("/", app.checkPostOwnership("moderator", app.updatePostHandler))
-				r.With(app.AuthTokenMiddleware).Post("/comments", app.createCommentHandler)
-				r.With(app.AuthTokenMiddleware).Post("/like", app.likePostHandler)
-				r.With(app.AuthTokenMiddleware).Delete("/like", app.unlikePostHandler)
+			r.Get("/health", app.healthCheckHandler)
+			r.With(app.BasicAuthMiddleware()).Get("/metrics", expvar.Handler().ServeHTTP)
+
+			docsURL := fmt.Sprintf("%s/swagger/doc.json", app.config.addr)
+			r.Get("/swagger/*", httpSwagger.Handler(httpSwagger.URL(docsURL)))
+
+			r.Route("/posts", func(r chi.Router) {
+				r.Route("/{postID}", func(r chi.Router) {
+					r.Use(app.postsContextMiddleware)
+					r.With(app.OptionalAuthMiddleware).Get("/", app.getPostHandler)
+
+					r.With(app.AuthTokenMiddleware).Delete("/", app.checkPostOwnership("admin", app.deletePostHandler))
+					r.With(app.AuthTokenMiddleware).Patch("/", app.checkPostOwnership("moderator", app.updatePostHandler))
+					r.With(app.AuthTokenMiddleware).Post("/comments", app.createCommentHandler)
+					r.With(app.AuthTokenMiddleware).Post("/like", app.likePostHandler)
+					r.With(app.AuthTokenMiddleware).Delete("/like", app.unlikePostHandler)
+				})
+
+				r.With(app.AuthTokenMiddleware).Post("/", app.createPostHandler)
 			})
 
-			r.With(app.AuthTokenMiddleware).Post("/", app.createPostHandler)
-		})
+			r.Route("/users", func(r chi.Router) {
+				r.Put("/activate/{token}", app.activeUserHandler)
 
-		r.Route("/users", func(r chi.Router) {
-			r.Put("/activate/{token}", app.activeUserHandler)
+				r.Route("/{userID}", func(r chi.Router) {
+					r.Use(app.AuthTokenMiddleware)
+					r.Get("/", app.getUserHandler)
+					r.Patch("/", app.updateUserHandler)
+					r.Patch("/password", app.resetPasswordHandler)
+				})
+			})
 
-			r.Route("/{userID}", func(r chi.Router) {
+			r.Get("/feed", app.getFeedHandler)
+
+			r.Route("/authentication", func(r chi.Router) {
+				r.Post("/user", app.registerUserHandler)
+				r.Post("/token", app.createTokenHandler)
+			})
+
+			r.Route("/categories", func(r chi.Router) {
+				r.Get("/", app.getCategoriesHandler)
+
+				r.With(app.AuthTokenMiddleware, app.checkRole("admin")).Route("/", func(r chi.Router) {
+					r.Post("/", app.createCategoryHandler)
+					r.Delete("/{categoryID}", app.deleteCategoryHandler)
+					r.Patch("/{categoryID}", app.updateCategoryHandler)
+				})
+			})
+
+			r.Route("/notifications", func(r chi.Router) {
 				r.Use(app.AuthTokenMiddleware)
-				r.Get("/", app.getUserHandler)
-				r.Patch("/", app.updateUserHandler)
-				r.Patch("/password", app.resetPasswordHandler)
+				r.Get("/", app.getNotificationsHandler)
+				r.Get("/unread-count", app.getUnreadCountHandler)
+				r.Put("/{notificationID}/read", app.markNotificationReadHandler)
+				r.Put("/read-all", app.markAllNotificationsReadHandler)
 			})
-		})
 
-		r.Get("/feed", app.getFeedHandler)
-
-		r.Route("/authentication", func(r chi.Router) {
-			r.Post("/user", app.registerUserHandler)
-			r.Post("/token", app.createTokenHandler)
-		})
-
-		r.Route("/categories", func(r chi.Router) {
-			r.Get("/", app.getCategoriesHandler)
-
-			r.With(app.AuthTokenMiddleware, app.checkRole("admin")).Route("/", func(r chi.Router) {
-				r.Post("/", app.createCategoryHandler)
-				r.Delete("/{categoryID}", app.deleteCategoryHandler)
-				r.Patch("/{categoryID}", app.updateCategoryHandler)
-			})
 		})
 	})
 
@@ -182,7 +197,7 @@ func (app *application) run(mux http.Handler) error {
 	server := &http.Server{
 		Addr:         app.config.addr,
 		Handler:      mux,
-		WriteTimeout: time.Second * 30,
+		WriteTimeout: time.Minute * 2,
 		ReadTimeout:  time.Second * 10,
 		IdleTimeout:  time.Minute,
 	}

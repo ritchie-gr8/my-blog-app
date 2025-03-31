@@ -36,7 +36,7 @@ func (app *application) likePostHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	_, err = app.service.Posts.Get(r.Context(), postID, user.ID)
+	post, err := app.service.Posts.Get(r.Context(), postID, user.ID)
 	if err != nil {
 		switch {
 		case errors.Is(err, store.ErrNotFound):
@@ -61,6 +61,28 @@ func (app *application) likePostHandler(w http.ResponseWriter, r *http.Request) 
 	if err := app.service.PostLikes.LikePost(r.Context(), postID, user.ID); err != nil {
 		app.internalServerError(w, r, err)
 		return
+	}
+
+	// Create notification
+	if err := app.service.Notifications.CreateLikeNotification(r.Context(), postID, user.ID); err != nil {
+		app.logger.Warnw("failed to create notification", "error", err)
+	} else {
+		notification := &store.Notification{
+			UserID:    post.UserID,
+			Type:      "like",
+			RelatedID: postID,
+			ActorID:   user.ID,
+			Message:   fmt.Sprintf("%s liked your post", user.Name),
+			Actor: &store.User{
+				ID:             user.ID,
+				Name:           user.Name,
+				Username:       user.Username,
+				ProfilePicture: user.ProfilePicture,
+			},
+		}
+		app.logger.Infof("sending notification to user %d", post.UserID)
+		app.logger.Infof("notification: %+v", notification)
+		app.sseManager.SendToUser(post.UserID, notification)
 	}
 
 	w.WriteHeader(http.StatusCreated)

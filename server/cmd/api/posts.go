@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -300,6 +301,27 @@ func (app *application) createCommentHandler(w http.ResponseWriter, r *http.Requ
 	if err := app.service.Comments.Create(ctx, comment); err != nil {
 		app.internalServerError(w, r, err)
 		return
+	}
+
+	// Create notification
+	user := getUserFromCtx(r)
+	if err := app.service.Notifications.CreateCommentNotification(r.Context(), post.ID, comment.ID, user.ID); err != nil {
+		app.logger.Warnw("failed to create notification", "error", err)
+	} else {
+		notification := &store.Notification{
+			UserID:    post.UserID,
+			Type:      "comment",
+			RelatedID: comment.ID,
+			ActorID:   user.ID,
+			Message:   fmt.Sprintf("%s commented on your post", user.Name),
+			Actor: &store.User{
+				ID:             user.ID,
+				Name:           user.Name,
+				Username:       user.Username,
+				ProfilePicture: user.ProfilePicture,
+			},
+		}
+		app.sseManager.SendToUser(post.UserID, notification)
 	}
 
 	if err := app.jsonResponse(w, http.StatusCreated, comment); err != nil {

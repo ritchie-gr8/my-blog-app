@@ -137,6 +137,8 @@ func main() {
 
 	jwtAuthenticator := auth.NewJWTAuthenticator(cfg.auth.token.secret, cfg.auth.token.issue, cfg.auth.token.issue)
 
+	sseManager := NewSSEManager()
+
 	app := &application{
 		config:        cfg,
 		store:         store,
@@ -146,6 +148,7 @@ func main() {
 		authenticator: jwtAuthenticator,
 		service:       service,
 		rateLimiter:   rateLimiter,
+		sseManager:    sseManager,
 	}
 
 	expvar.NewString("version").Set(version)

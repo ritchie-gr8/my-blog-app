@@ -46,21 +46,31 @@ type Storage struct {
 		Update(context.Context, *Category) error
 	}
 
-	PostLike interface {
+	PostLikes interface {
 		LikePost(ctx context.Context, postID, userID int64) error
 		UnlikePost(ctx context.Context, postID, userID int64) error
 		GetLikesCount(ctx context.Context, postID int64) (int64, error)
 		HasUserLiked(ctx context.Context, postID, userID int64) (bool, error)
 	}
+
+	Notifications interface {
+		Create(ctx context.Context, notification *Notification) error
+		Get(ctx context.Context, id int64) (*Notification, error)
+		GetByUserID(ctx context.Context, userID int64, limit, offset int) ([]*Notification, error)
+		CountUnread(ctx context.Context, userID int64) (int64, error)
+		MarkAsRead(ctx context.Context, id int64, userID int64) error
+		MarkAllAsRead(ctx context.Context, userID int64) error
+	}
 }
 
 func NewStorage(db *sql.DB) Storage {
 	return Storage{
-		Posts:      &PostStore{db},
-		Users:      &UserStore{db},
-		Comments:   &CommentStore{db},
-		Categories: &CategoryStore{db},
-		PostLike:   &PostLikeStore{db},
+		Posts:         &PostStore{db},
+		Users:         &UserStore{db},
+		Comments:      &CommentStore{db},
+		Categories:    &CategoryStore{db},
+		PostLikes:     &PostLikeStore{db},
+		Notifications: &NotificationStore{db},
 	}
 }
 

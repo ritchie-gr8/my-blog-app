@@ -16,7 +16,6 @@ type PostLikeStore struct {
 	db *sql.DB
 }
 
-// LikePost adds a like to a post from a user
 func (s *PostLikeStore) LikePost(ctx context.Context, postID, userID int64) error {
 	query := `
 		INSERT INTO post_likes (post_id, user_id)
@@ -34,7 +33,6 @@ func (s *PostLikeStore) LikePost(ctx context.Context, postID, userID int64) erro
 	return nil
 }
 
-// UnlikePost removes a like from a post
 func (s *PostLikeStore) UnlikePost(ctx context.Context, postID, userID int64) error {
 	query := `
 		DELETE FROM post_likes
@@ -60,7 +58,6 @@ func (s *PostLikeStore) UnlikePost(ctx context.Context, postID, userID int64) er
 	return nil
 }
 
-// GetLikesCount returns the number of likes for a post
 func (s *PostLikeStore) GetLikesCount(ctx context.Context, postID int64) (int64, error) {
 	query := `
 		SELECT COUNT(*) FROM post_likes
@@ -78,7 +75,6 @@ func (s *PostLikeStore) GetLikesCount(ctx context.Context, postID int64) (int64,
 	return count, nil
 }
 
-// HasUserLiked checks if a user has liked a post
 func (s *PostLikeStore) HasUserLiked(ctx context.Context, postID, userID int64) (bool, error) {
 	query := `
 		SELECT EXISTS(

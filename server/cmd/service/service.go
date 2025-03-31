@@ -64,11 +64,21 @@ type Service struct {
 	}
 
 	PostLikes interface {
-		// Post likes methods
 		LikePost(ctx context.Context, postID, userID int64) error
 		UnlikePost(ctx context.Context, postID, userID int64) error
 		GetLikesCount(ctx context.Context, postID int64) (int64, error)
 		HasUserLiked(ctx context.Context, postID, userID int64) (bool, error)
+	}
+
+	Notifications interface {
+		CreateNotification(ctx context.Context, notification *store.Notification) error
+		CreateLikeNotification(ctx context.Context, postID, actorID int64) error
+		CreateCommentNotification(ctx context.Context, postID, commentID, actorID int64) error
+		GetUserNotifications(ctx context.Context, userID int64, limit, offset int) ([]*store.Notification, error)
+		GetNotification(ctx context.Context, id int64) (*store.Notification, error)
+		CountUnreadNotifications(ctx context.Context, userID int64) (int64, error)
+		MarkNotificationAsRead(ctx context.Context, id int64, userID int64) error
+		MarkAllNotificationsAsRead(ctx context.Context, userID int64) error
 	}
 }
 
@@ -98,6 +108,9 @@ func NewService(store store.Storage, cacheStore cache.Storage,
 			store: store,
 		},
 		PostLikes: &PostLikeService{
+			store: store,
+		},
+		Notifications: &NotificationService{
 			store: store,
 		},
 	}

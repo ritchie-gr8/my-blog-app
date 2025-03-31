@@ -39,7 +39,7 @@ const PostCommentSection = ({ comments }) => {
         </Button>
       </div>
 
-      <div className="mt-5">
+      <div className="mt-5" id="comments">
         {comments.map((comment) => (
           <Comment key={comment.id} comment={comment} />
         ))}

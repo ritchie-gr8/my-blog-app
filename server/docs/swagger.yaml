@@ -109,6 +109,28 @@ definitions:
       user_id:
         type: integer
     type: object
+  store.Notification:
+    properties:
+      actor:
+        $ref: '#/definitions/store.User'
+      actor_id:
+        type: integer
+      created_at:
+        type: string
+      id:
+        type: integer
+      is_read:
+        type: boolean
+      message:
+        type: string
+      related_id:
+        type: integer
+      type:
+        description: '"like", "comment", etc.'
+        type: string
+      user_id:
+        type: integer
+    type: object
   store.Post:
     properties:
       author:
@@ -471,6 +493,144 @@ paths:
       summary: Health check
       tags:
       - health
+  /notifications:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves notifications for the authenticated user
+      parameters:
+      - default: 20
+        description: Limit results
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: Offset results
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/store.Notification'
+            type: array
+        "401":
+          description: User not authenticated
+          schema: {}
+        "500":
+          description: Internal server error
+          schema: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Get user notifications
+      tags:
+      - notifications
+  /notifications/{notificationID}/read:
+    put:
+      consumes:
+      - application/json
+      description: Marks a specific notification as read
+      parameters:
+      - description: Notification ID
+        in: path
+        name: notificationID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No content
+          schema:
+            type: string
+        "400":
+          description: Invalid notification ID
+          schema: {}
+        "401":
+          description: User not authenticated
+          schema: {}
+        "404":
+          description: Notification not found
+          schema: {}
+        "500":
+          description: Internal server error
+          schema: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Mark notification as read
+      tags:
+      - notifications
+  /notifications/read-all:
+    put:
+      consumes:
+      - application/json
+      description: Marks all of the authenticated user's notifications as read
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No content
+          schema:
+            type: string
+        "401":
+          description: User not authenticated
+          schema: {}
+        "500":
+          description: Internal server error
+          schema: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Mark all notifications as read
+      tags:
+      - notifications
+  /notifications/stream:
+    get:
+      description: Open an SSE connection to receive real-time notifications
+      produces:
+      - text/event-stream
+      responses:
+        "200":
+          description: SSE stream established
+          schema:
+            type: string
+        "401":
+          description: User not authenticated
+          schema: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Stream notifications
+      tags:
+      - notifications
+  /notifications/unread-count:
+    get:
+      consumes:
+      - application/json
+      description: Returns the number of unread notifications for the authenticated
+        user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: integer
+            type: object
+        "401":
+          description: User not authenticated
+          schema: {}
+        "500":
+          description: Internal server error
+          schema: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Get unread notification count
+      tags:
+      - notifications
   /posts:
     post:
       consumes:

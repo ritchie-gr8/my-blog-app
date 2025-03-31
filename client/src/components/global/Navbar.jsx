@@ -4,6 +4,7 @@ import { Menu } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useUser } from "../../hooks/useUser";
 import UserAvatarDropdown from "./UserAvatarDropdown";
+import NotificationBell from "./NotificationBell";
 
 const Navbar = () => {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
@@ -27,7 +28,10 @@ const Navbar = () => {
           />
           <div className="hidden sm:flex gap-2">
             {user ? (
-              <UserAvatarDropdown />
+              <>
+                <NotificationBell />
+                <UserAvatarDropdown />
+              </>
             ) : (
               <>
                 <Link to={"/login"}>

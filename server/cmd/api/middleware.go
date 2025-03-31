@@ -211,3 +211,41 @@ func (app *application) RateLimiterMiddleware(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r)
 	})
 }
+
+func (app *application) SSEAuthMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		token := r.URL.Query().Get("auth_token")
+		if token == "" {
+			app.unauthorizeResponse(w, r, fmt.Errorf("unauthorized: missing auth token"))
+			return
+		}
+
+		// Validate token
+		jwtToken, err := app.authenticator.ValidateToken(token)
+		if err != nil {
+			app.unauthorizeResponse(w, r, err)
+			return
+		}
+
+		// Extract user ID from token
+		claims := jwtToken.Claims.(jwt.MapClaims)
+		sub, ok := claims["sub"].(float64)
+		if !ok {
+			app.unauthorizeResponse(w, r, fmt.Errorf("invalid user ID format"))
+			return
+		}
+		userID := int64(sub)
+
+		ctx := r.Context()
+
+		// Get user and add to context
+		user, err := app.service.Users.Get(ctx, userID)
+		if err != nil {
+			app.unauthorizeResponse(w, r, err)
+			return
+		}
+
+		ctx = context.WithValue(ctx, userCtx, user)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
+}

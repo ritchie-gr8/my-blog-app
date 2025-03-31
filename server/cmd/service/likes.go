@@ -12,20 +12,20 @@ type PostLikeService struct {
 
 // LikePost adds a like to a post
 func (s *PostLikeService) LikePost(ctx context.Context, postID, userID int64) error {
-	return s.store.PostLike.LikePost(ctx, postID, userID)
+	return s.store.PostLikes.LikePost(ctx, postID, userID)
 }
 
 // UnlikePost removes a like from a post
 func (s *PostLikeService) UnlikePost(ctx context.Context, postID, userID int64) error {
-	return s.store.PostLike.UnlikePost(ctx, postID, userID)
+	return s.store.PostLikes.UnlikePost(ctx, postID, userID)
 }
 
 // GetLikesCount returns the number of likes for a post
 func (s *PostLikeService) GetLikesCount(ctx context.Context, postID int64) (int64, error) {
-	return s.store.PostLike.GetLikesCount(ctx, postID)
+	return s.store.PostLikes.GetLikesCount(ctx, postID)
 }
 
 // HasUserLiked checks if a user has liked a post
 func (s *PostLikeService) HasUserLiked(ctx context.Context, postID, userID int64) (bool, error) {
-	return s.store.PostLike.HasUserLiked(ctx, postID, userID)
+	return s.store.PostLikes.HasUserLiked(ctx, postID, userID)
 }
