@@ -305,13 +305,20 @@ func (app *application) createCommentHandler(w http.ResponseWriter, r *http.Requ
 
 	// Create notification
 	user := getUserFromCtx(r)
-	if err := app.service.Notifications.CreateCommentNotification(r.Context(), post.ID, comment.ID, user.ID); err != nil {
+	comment.User = store.User{
+		ID:             user.ID,
+		Name:           user.Name,
+		Username:       user.Username,
+		ProfilePicture: user.ProfilePicture,
+	}
+
+	if err := app.service.Notifications.CreateCommentNotification(r.Context(), post.ID, user.ID); err != nil {
 		app.logger.Warnw("failed to create notification", "error", err)
 	} else {
 		notification := &store.Notification{
 			UserID:    post.UserID,
 			Type:      "comment",
-			RelatedID: comment.ID,
+			RelatedID: post.ID,
 			ActorID:   user.ID,
 			Message:   fmt.Sprintf("%s commented on your post", user.Name),
 			Actor: &store.User{
@@ -321,6 +328,7 @@ func (app *application) createCommentHandler(w http.ResponseWriter, r *http.Requ
 				ProfilePicture: user.ProfilePicture,
 			},
 		}
+		app.logger.Info("post id", post.ID, "related id", notification.RelatedID)
 		app.sseManager.SendToUser(post.UserID, notification)
 	}
 

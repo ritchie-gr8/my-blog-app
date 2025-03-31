@@ -3,6 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { Heart, MessageSquare } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { useNotifications } from '@/hooks/useNotification';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+
+dayjs.extend(relativeTime);
 
 const NotificationItem = ({ notification }) => {
   const navigate = useNavigate();
@@ -17,11 +21,15 @@ const NotificationItem = ({ notification }) => {
       navigate(`/posts/${notification.related_id}#comments`);
     }
   };
-  
+
+  const formattedDate = dayjs(notification?.created_at).isAfter(dayjs().subtract(1, 'day'))
+    ? dayjs(notification.created_at).fromNow()
+    : dayjs(notification.created_at).format('DD MMMM YYYY [at] HH:mm');
+
   return (
     <div 
-      className={`p-3 hover:bg-brown-50 cursor-pointer flex items-center gap-3 ${
-        !notification.is_read ? 'bg-brown-50' : ''
+      className={`p-3 hover:bg-brown-300 cursor-pointer flex items-center gap-3 ${
+        !notification.is_read ? 'bg-brown-200' : ''
       }`}
       onClick={handleClick}
     >
@@ -36,12 +44,12 @@ const NotificationItem = ({ notification }) => {
         <div className="flex items-center gap-2">
           <p className="text-sm font-medium">{notification.message}</p>
           {notification.type === 'like' && <Heart size={14} className="text-red-500" />}
-          {notification.type === 'comment' && <MessageSquare size={14} className="text-blue-500" />}
+          {notification.type === 'comment' && <MessageSquare size={20} className="text-blue-500" />}
         </div>
         
-        {/* <p className="text-xs text-gray-500 mt-1">
-          {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })}
-        </p> */}
+        <p className="text-xs text-gray-500 mt-1">
+          {formattedDate}
+        </p>
       </div>
       
       {!notification.is_read && (

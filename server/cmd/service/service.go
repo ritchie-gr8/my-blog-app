@@ -73,7 +73,7 @@ type Service struct {
 	Notifications interface {
 		CreateNotification(ctx context.Context, notification *store.Notification) error
 		CreateLikeNotification(ctx context.Context, postID, actorID int64) error
-		CreateCommentNotification(ctx context.Context, postID, commentID, actorID int64) error
+		CreateCommentNotification(ctx context.Context, postID, actorID int64) error
 		GetUserNotifications(ctx context.Context, userID int64, limit, offset int) ([]*store.Notification, error)
 		GetNotification(ctx context.Context, id int64) (*store.Notification, error)
 		CountUnreadNotifications(ctx context.Context, userID int64) (int64, error)

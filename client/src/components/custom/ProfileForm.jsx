@@ -71,7 +71,7 @@ const ProfileForm = () => {
       updateUserData(data);
       toast.success("Profile updated successfully");
     } catch (error) {
-      toast.error("Failed to update profile", error);
+      toast.error("Failed to update profile", error?.message || "Failed to update profile");
     } finally {
       setLoading(false);
     }

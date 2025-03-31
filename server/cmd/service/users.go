@@ -25,7 +25,7 @@ type RegisterUserPayload struct {
 
 func (s *UserService) Get(ctx context.Context, id int64) (*store.User, error) {
 	user, err := s.cacheStore.Users.Get(ctx, id)
-	if err == nil {
+	if err == nil && user != nil {
 		return user, nil
 	}
 

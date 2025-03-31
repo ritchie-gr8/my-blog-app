@@ -174,7 +174,7 @@ func (app *application) notificationStreamHandler(w http.ResponseWriter, r *http
 		return
 	}
 
-	app.logger.Info("Notification stream called", "user_id", user.ID)
+	app.logger.Infow("Notification stream called", "user_id", user.ID)
 
 	w.Header().Set("Content-Type", "text/event-stream")
 	w.Header().Set("Cache-Control", "no-cache")

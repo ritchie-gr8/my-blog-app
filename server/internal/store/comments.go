@@ -20,7 +20,7 @@ type CommentStore struct {
 
 func (s *CommentStore) GetByPostID(ctx context.Context, postID int64) ([]Comment, error) {
 	query := `
-		SELECT c.id, c.post_id, c.user_id, c.content, c.created_at, users.username, users.id
+		SELECT c.id, c.post_id, c.user_id, c.content, c.created_at, users.username, users.id, users.profile_picture
 		FROM comments c
 		JOIN users ON users.id = c.user_id
 		WHERE c.post_id = $1
@@ -49,6 +49,7 @@ func (s *CommentStore) GetByPostID(ctx context.Context, postID int64) ([]Comment
 			&c.CreatedAt,
 			&c.User.Username,
 			&c.User.ID,
+			&c.User.ProfilePicture,
 		)
 
 		if err != nil {

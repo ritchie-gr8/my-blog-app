@@ -35,7 +35,7 @@ const LikeButton = ({ postId, initialLikeCount, userHasLiked }) => {
     } catch (error) {
       setIsLiked(!newIsLiked);
       setLikeCount(likeCount);
-      toast.error("Failed to update like status", error);
+      toast.error("Failed to update like status", error?.message || "Failed to update like status");
     } finally {
       setIsLoading(false);
     }

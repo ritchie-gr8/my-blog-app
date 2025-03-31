@@ -23,6 +23,22 @@ const PostDetail = () => {
   const [post, setPost] = useState();
   const { id } = useParams();
 
+  const handleNewComment = (newComment) => {
+    setPost((prev) => ({
+      ...prev,
+      comments: [newComment, ...prev.comments],
+    }));
+  };
+
+  const handleCommentError = (id) => {
+    const newComment = post.comments.filter((comment) => comment.id !== id);
+
+    setPost((prev) => ({
+      ...prev,
+      comments: newComment,
+    }));
+  };
+
   useEffect(() => {
     const fetchPost = async () => {
       try {
@@ -31,7 +47,7 @@ const PostDetail = () => {
           setPost(postData);
         }
       } catch (error) {
-        toast.error("Error fetching post", error);
+        toast.error("Error fetching post", error?.message || "Failed to fetch post");
       }
     };
 
@@ -92,14 +108,19 @@ const PostDetail = () => {
                 )}
               </div>
 
-              <PostShareMenu 
-                likes={post?.likes_count} 
+              <PostShareMenu
+                likes={post?.likes_count}
                 postId={post.id}
-                userHasLiked={post?.user_has_liked} 
+                userHasLiked={post?.user_has_liked}
               />
 
               {post?.comments && post?.comments.length > 0 && (
-                <PostCommentSection comments={post?.comments} />
+                <PostCommentSection
+                  comments={post?.comments}
+                  postId={post?.id}
+                  onNewComment={handleNewComment}
+                  onCommentError={handleCommentError}
+                />
               )}
             </div>
             {post?.author && (

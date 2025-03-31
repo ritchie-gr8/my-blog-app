@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { getPosts } from "@/api/posts";
 import { toast } from "./custom/Toast";
 import { getCategories } from "@/api/categories";
+import dayjs from "dayjs";
 
 const LIMIT = 6;
 
@@ -16,7 +17,7 @@ const PostsSection = () => {
 
   const handleError = (error) => {
     console.error(error);
-    toast.error("Error", error);
+    toast.error("Error", error?.message || "Internal server error");
   };
 
   const fetchPosts = useCallback(async (offset, limit, categoryName = null) => {
@@ -84,12 +85,8 @@ const PostsSection = () => {
               category={category}
               title={title}
               description={introduction}
-              author={author}
-              date={new Date(updated_at).toLocaleDateString("en-GB", {
-                day: "numeric",
-                month: "long",
-                year: "numeric",
-              })}
+              author={author} 
+              date={dayjs(updated_at).format('DD MMMM YYYY')}
             />
           </Link>
         ))}
