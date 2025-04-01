@@ -53,7 +53,7 @@ const NotificationItem = ({ notification }) => {
       </div>
       
       {!notification.is_read && (
-        <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+        <div className="w-2 h-2 rounded-full bg-blue-500" />
       )}
     </div>
   );

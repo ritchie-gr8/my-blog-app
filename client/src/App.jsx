@@ -11,47 +11,57 @@ import { UserProvider } from "./context/UserContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import PublicRoute from "./components/PublicRoute";
 import { NotificationProvider } from "./context/NotificationContext";
+import Dashboard from "./pages/admin/Dashboard";
+import AdminLayout from "./layouts/AdminLayout";
+import StandardLayout from "./layouts/StandardLayout";
 
 function App() {
   return (
     <BrowserRouter>
       <UserProvider>
         <NotificationProvider>
-          <div className="flex flex-col min-h-screen">
-            <Navbar />
-            <main className="flex-grow">
-              <Routes>
-                <Route path="/" element={<Landing />} />
-                <Route
-                  path="/login"
-                  element={
-                    <PublicRoute>
-                      <LogIn />
-                    </PublicRoute>
-                  }
-                />
-                <Route
-                  path="/signup"
-                  element={
-                    <PublicRoute>
-                      <SignUp />
-                    </PublicRoute>
-                  }
-                />
-                <Route path="/posts/:id" element={<PostDetail />} />
-                <Route
-                  path="/member"
-                  element={
-                    <ProtectedRoute>
-                      <Member />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </main>
-            <Footer />
-          </div>
+          <Routes>
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <AdminLayout>
+                    <Dashboard />
+                  </AdminLayout>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route element={<StandardLayout />}>
+              <Route path="/" element={<Landing />} />
+              <Route
+                path="/login"
+                element={
+                  <PublicRoute>
+                    <LogIn />
+                  </PublicRoute>
+                }
+              />
+              <Route
+                path="/signup"
+                element={
+                  <PublicRoute>
+                    <SignUp />
+                  </PublicRoute>
+                }
+              />
+              <Route path="/posts/:id" element={<PostDetail />} />
+              <Route
+                path="/member"
+                element={
+                  <ProtectedRoute>
+                    <Member />
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="*" element={<NotFound />} />
+            </Route>
+          </Routes>
         </NotificationProvider>
       </UserProvider>
     </BrowserRouter>
