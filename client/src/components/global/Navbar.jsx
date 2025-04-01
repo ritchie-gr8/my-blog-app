@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Button from "./Button";
-import { Menu } from "lucide-react";
+import { LayoutDashboard, Menu } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useUser } from "../../hooks/useUser";
 import UserAvatarDropdown from "./UserAvatarDropdown";
@@ -12,6 +12,7 @@ const Navbar = () => {
 
   const handleShowMobileMenu = () => setShowMobileMenu((prev) => !prev);
 
+  console.log(user)
   return (
     <header className="border-b border-brown-300 relative">
       <div className="flex items-center justify-between px-6 py-3 md:px-32">
@@ -26,9 +27,17 @@ const Navbar = () => {
             onClick={() => handleShowMobileMenu()}
             className="sm:hidden cursor-pointer"
           />
-          <div className="hidden sm:flex gap-2">
+          <div className="hidden sm:flex gap-2 items-center">
             {user ? (
               <>
+                {user.role === "admin" && (
+                  <Link to="/dashboard">
+                    <Button className="flex items-center gap-2">
+                      <LayoutDashboard size={16} />
+                      Dashboard
+                    </Button>
+                  </Link>
+                )}
                 <NotificationBell />
                 <UserAvatarDropdown />
               </>

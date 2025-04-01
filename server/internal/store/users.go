@@ -149,7 +149,7 @@ func (s *UserStore) GetByID(ctx context.Context, userID int64) (*User, error) {
 
 func (s *UserStore) GetByEmail(ctx context.Context, email string) (*User, error) {
 	query := `
-		SELECT id, username, name, email, password, profile_picture, created_at FROM users
+		SELECT id, username, name, email, password, profile_picture, created_at, role FROM users
 		WHERE email = $1
 	`
 
@@ -165,6 +165,7 @@ func (s *UserStore) GetByEmail(ctx context.Context, email string) (*User, error)
 		&user.Password.hash,
 		&user.ProfilePicture,
 		&user.CreatedAt,
+		&user.Role,
 	)
 	if err != nil {
 		switch err {

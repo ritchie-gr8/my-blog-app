@@ -46,6 +46,7 @@ const LogIn = () => {
     setLoading(true);
     try {
       const res = await loginApi(values);
+      console.log(res)
       if (res.code !== 201) throw new Error("error logging in...");
 
       login(res.data);

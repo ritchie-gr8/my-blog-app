@@ -10,7 +10,7 @@ const NotificationBell = () => {
 
   return (
     <div
-      className="relative bg-white rounded-full text-brown-400"
+      className="relative bg-white rounded-full text-brown-400 flex items-center justify-center size-10"
       ref={dropdownRef}
       onClick={toggleDropdown}
     >
