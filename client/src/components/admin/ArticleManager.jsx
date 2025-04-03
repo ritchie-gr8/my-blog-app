@@ -1,5 +1,5 @@
 import React from "react";
-import { Search, Plus, Trash, Pencil } from "lucide-react";
+import { Search, Plus, Trash, Pencil, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -11,12 +11,10 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 
-const ArticleManager = ({ setMode, articles }) => {
-
-
+const ArticleManager = ({ setMode, articles, isLoading }) => {
   return (
     <>
-      <div className="flex justify-between items-center mb-6  border-b border-brown-300 px-16 py-8">
+      <div className="flex justify-between items-center mb-6 border-b border-brown-300 px-16 py-8">
         <h1 className="text-h3 font-semibold text-brown-600">
           Article management
         </h1>
@@ -80,39 +78,56 @@ const ArticleManager = ({ setMode, articles }) => {
               </tr>
             </thead>
             <tbody>
-              {articles.map((article) => (
-                <tr
-                  key={article.id}
-                  className="border-b border-gray-200 hover:bg-gray-50 font-medium text-b1 text-brown-500"
-                >
-                  <td className="py-4 px-6">{article.title}</td>
-                  <td className="py-4 px-6">{article.category}</td>
-                  <td className="py-4 px-6">
-                    <div className="flex items-center gap-2 text-brand-green">
-                      <div className="bg-brand-green size-1.5 rounded-full animate-pulse" />
-                      Published
-                    </div>
-                  </td>
-                  <td className="py-4 px-6 text-right text-brown-400">
-                    <div className="flex justify-end gap-2">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="cursor-pointer"
-                      >
-                        <Pencil size={16} />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="cursor-pointer"
-                      >
-                        <Trash size={16} />
-                      </Button>
+              {isLoading ? (
+                <tr>
+                  <td colSpan="4" className="py-20 text-center">
+                    <div className="flex justify-center items-center text-brown-400">
+                      <Loader2 className="mr-2 h-6 w-6 animate-spin" />
+                      Loading articles...
                     </div>
                   </td>
                 </tr>
-              ))}
+              ) : articles.length === 0 ? (
+                <tr>
+                  <td colSpan="4" className="py-20 text-center text-brown-400">
+                    No articles found
+                  </td>
+                </tr>
+              ) : (
+                articles.map((article) => (
+                  <tr
+                    key={article.id}
+                    className="border-b border-gray-200 hover:bg-gray-50 font-medium text-b1 text-brown-500"
+                  >
+                    <td className="py-4 px-6">{article.title}</td>
+                    <td className="py-4 px-6">{article.category}</td>
+                    <td className="py-4 px-6">
+                      <div className="flex items-center gap-2 text-brand-green">
+                        <div className="bg-brand-green size-1.5 rounded-full animate-pulse" />
+                        Published
+                      </div>
+                    </td>
+                    <td className="py-4 px-6 text-right text-brown-400">
+                      <div className="flex justify-end gap-2">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="cursor-pointer"
+                        >
+                          <Pencil size={16} />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="cursor-pointer"
+                        >
+                          <Trash size={16} />
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </CardContent>

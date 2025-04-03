@@ -6,14 +6,7 @@ import { getPostsByPage } from "@/api/posts";
 import { toast } from "./custom/Toast";
 import { getCategories } from "@/api/categories";
 import dayjs from "dayjs";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
+import TablePagination from "@/components/custom/TablePagination";
 
 const LIMIT = 6;
 
@@ -80,54 +73,6 @@ const PostsSection = () => {
     fetchPosts(1, LIMIT);
   }, [fetchCategories, fetchPosts]);
 
-  const getPageNumbers = () => {
-    const pageNumbers = [];
-    const maxPagesToShow = 5;
-    
-    if (totalPages <= maxPagesToShow) {
-      // Show all pages if there are few
-      for (let i = 1; i <= totalPages; i++) {
-        pageNumbers.push(i);
-      }
-    } else {
-      // Always include page 1
-      pageNumbers.push(1);
-      
-      // Calculate start and end pages
-      let startPage = Math.max(2, page - 1);
-      let endPage = Math.min(totalPages - 1, page + 1);
-      
-      // Adjust if we're near the beginning or end
-      if (page <= 2) {
-        endPage = 3;
-      } else if (page >= totalPages - 1) {
-        startPage = totalPages - 2;
-      }
-      
-      // Add ellipsis before middle pages if needed
-      if (startPage > 2) {
-        pageNumbers.push('ellipsis1');
-      }
-      
-      // Add middle pages
-      for (let i = startPage; i <= endPage; i++) {
-        pageNumbers.push(i);
-      }
-      
-      // Add ellipsis after middle pages if needed
-      if (endPage < totalPages - 1) {
-        pageNumbers.push('ellipsis2');
-      }
-      
-      // Always include the last page
-      if (totalPages > 1) {
-        pageNumbers.push(totalPages);
-      }
-    }
-    
-    return pageNumbers;
-  };
-
   return (
     <section className="md:mx-32">
       <h3 className="text-h3 m-4">Latest articles</h3>
@@ -153,39 +98,14 @@ const PostsSection = () => {
       </article>
       
       {totalPages > 1 && (
-        <Pagination className="my-8">
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious 
-                onClick={() => handlePageChange(page - 1)}
-                className={`select-none ${page <= 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}`}
-              />
-            </PaginationItem>
-            
-            {getPageNumbers().map((pageNum, index) => (
-              <PaginationItem key={`page-${pageNum}-${index}`}>
-                {pageNum === 'ellipsis1' || pageNum === 'ellipsis2' ? (
-                  <span className="flex h-10 w-10 items-center justify-center select-none">...</span>
-                ) : (
-                  <PaginationLink
-                    isActive={page === pageNum}
-                    onClick={() => handlePageChange(pageNum)}
-                    className="cursor-pointer select-none"
-                  >
-                    {pageNum}
-                  </PaginationLink>
-                )}
-              </PaginationItem>
-            ))}
-            
-            <PaginationItem>
-              <PaginationNext 
-                onClick={() => handlePageChange(page + 1)}
-                className={`select-none ${page >= totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}`}
-              />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
+        <div className="my-8">
+          <TablePagination
+            currentPage={page}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+            isLoading={isLoading}
+          />
+        </div>
       )}
     </section>
   );
