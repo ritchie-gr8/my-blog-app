@@ -2,9 +2,9 @@ import api from "./axios";
 
 export const getNotifications = async (limit = 20, offset = 0) => {
   const res = await api.get(`/notifications?limit=${limit}&offset=${offset}`);
-  if (res.status !== 200 || !res?.data?.data)
+  if (res.status !== 200 || !res?.data)
     throw new Error("Failed to fetch notifications");
-  return res.data.data;
+  return res.data.data || [];
 };
 
 export const getUnreadCount = async () => {

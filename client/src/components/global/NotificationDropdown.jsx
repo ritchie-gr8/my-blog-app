@@ -11,7 +11,7 @@ const NotificationDropdown = () => {
   }, [refreshNotifications]);
   
   return (
-    <div className="absolute right-0 mt-2 w-80 bg-brown-100 rounded-md shadow-xl z-50">
+    <div className="absolute right-0 top-10 mt-2 w-80 bg-brown-100 rounded-md shadow-xl z-50">
       <div className="p-3 border-b flex justify-between items-center">
         <h3 className="font-semibold">Notifications</h3>
         {notifications.length > 0 && (

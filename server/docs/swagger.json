@@ -373,17 +373,18 @@
                 "summary": "Get post feed",
                 "parameters": [
                     {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "Page number for pagination (default is 1)",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
                         "maximum": 20,
                         "minimum": 1,
                         "type": "integer",
                         "description": "Number of posts to retrieve (default is 6, max is 20)",
                         "name": "limit",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Offset for pagination (default is 0)",
-                        "name": "offset",
                         "in": "query"
                     },
                     {
@@ -409,10 +410,7 @@
                     "200": {
                         "description": "Successfully retrieved the posts feed",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/store.FeedItem"
-                            }
+                            "$ref": "#/definitions/service.FeedResponse"
                         }
                     },
                     "400": {
@@ -1380,6 +1378,29 @@
                 },
                 "username": {
                     "type": "string"
+                }
+            }
+        },
+        "service.FeedResponse": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/store.FeedItem"
+                    }
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "page_size": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                },
+                "total_pages": {
+                    "type": "integer"
                 }
             }
         },

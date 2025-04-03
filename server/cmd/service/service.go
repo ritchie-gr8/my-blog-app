@@ -39,7 +39,7 @@ type Service struct {
 		Get(ctx context.Context, postID int64, userID int64) (*store.Post, error)
 		Delete(ctx context.Context, postID int64) error
 		Update(ctx context.Context, post *store.Post) error
-		GetFeed(context.Context, store.PaginatedFeedQuery) ([]store.FeedItem, error)
+		GetFeed(context.Context, store.PaginatedFeedQuery) (*FeedResponse, error)
 	}
 
 	Comments interface {

@@ -58,7 +58,7 @@ func getFeedQuery(fq *PaginatedFeedQuery, sort string) (string, []any) {
 	whereConditions := []string{}
 	var queryParams = []any{
 		fq.Limit,
-		fq.Offset,
+		fq.GetOffset(),
 	}
 
 	if fq.Search != "" {
@@ -84,7 +84,15 @@ func getFeedQuery(fq *PaginatedFeedQuery, sort string) (string, []any) {
 	return finalQuery, queryParams
 }
 
-func (s *PostStore) GetFeed(ctx context.Context, fq PaginatedFeedQuery) ([]FeedItem, error) {
+func (s *PostStore) GetFeed(ctx context.Context, fq PaginatedFeedQuery) ([]FeedItem, int64, error) {
+	countQuery, countParams := getFeedCountQuery(&fq)
+
+	var total int64
+	err := s.db.QueryRowContext(ctx, countQuery, countParams...).Scan(&total)
+	if err != nil {
+		return nil, 0, err
+	}
+
 	sort := strings.ToUpper(fq.Sort)
 	if sort != "ASC" && sort != "DESC" {
 		sort = "DESC"
@@ -101,7 +109,7 @@ func (s *PostStore) GetFeed(ctx context.Context, fq PaginatedFeedQuery) ([]FeedI
 		queryParams...,
 	)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 	defer rows.Close()
 
@@ -120,13 +128,13 @@ func (s *PostStore) GetFeed(ctx context.Context, fq PaginatedFeedQuery) ([]FeedI
 			&item.Author,
 		)
 		if err != nil {
-			return nil, err
+			return nil, 0, err
 		}
 
 		feed = append(feed, item)
 	}
 
-	return feed, nil
+	return feed, total, nil
 }
 
 func (s *PostStore) Create(ctx context.Context, post *Post) error {
@@ -287,4 +295,36 @@ func (s *PostStore) Delete(ctx context.Context, id int64) error {
 	}
 
 	return nil
+}
+
+func getFeedCountQuery(fq *PaginatedFeedQuery) (string, []any) {
+	baseQuery := `
+		SELECT COUNT(*)
+		FROM posts p
+		LEFT JOIN users u ON u.id = p.user_id
+		LEFT JOIN categories c ON c.id = p.category_id
+	`
+
+	whereConditions := []string{}
+	var queryParams = []any{}
+
+	if fq.Search != "" {
+		whereConditions = append(whereConditions, fmt.Sprintf("(p.title ILIKE '%%' || $%d || '%%' OR p.introduction ILIKE '%%' || $%d || '%%')",
+			len(queryParams)+1,
+			len(queryParams)+1,
+		))
+		queryParams = append(queryParams, fq.Search)
+	}
+
+	if fq.Category != "" {
+		whereConditions = append(whereConditions, fmt.Sprintf("c.name = $%d", len(queryParams)+1))
+		queryParams = append(queryParams, fq.Category)
+	}
+
+	finalQuery := baseQuery
+	if len(whereConditions) > 0 {
+		finalQuery += " WHERE " + strings.Join(whereConditions, " AND ")
+	}
+
+	return finalQuery, queryParams
 }

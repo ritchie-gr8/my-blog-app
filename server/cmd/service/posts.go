@@ -10,6 +10,14 @@ type PostService struct {
 	store store.Storage
 }
 
+type FeedResponse struct {
+	Items      []store.FeedItem `json:"items"`
+	Total      int64            `json:"total"`
+	Page       int              `json:"page"`
+	PageSize   int              `json:"page_size"`
+	TotalPages int              `json:"total_pages"`
+}
+
 func (s *PostService) Create(ctx context.Context, post *store.Post) error {
 	if err := s.store.Posts.Create(ctx, post); err != nil {
 		return err
@@ -41,12 +49,22 @@ func (s *PostService) Update(ctx context.Context, post *store.Post) error {
 	return nil
 }
 
-func (s *PostService) GetFeed(ctx context.Context, fq store.PaginatedFeedQuery) ([]store.FeedItem, error) {
-	feed, err := s.store.Posts.GetFeed(ctx, fq)
+func (s *PostService) GetFeed(ctx context.Context, fq store.PaginatedFeedQuery) (*FeedResponse, error) {
+	feed, total, err := s.store.Posts.GetFeed(ctx, fq)
 	if err != nil {
-
 		return nil, err
 	}
 
-	return feed, nil
+	totalPages := int(total) / fq.Limit
+	if int(total)%fq.Limit > 0 {
+		totalPages++
+	}
+
+	return &FeedResponse{
+		Items:      feed,
+		Total:      total,
+		Page:       fq.Page,
+		PageSize:   fq.Limit,
+		TotalPages: totalPages,
+	}, nil
 }

@@ -19,7 +19,7 @@ type Storage struct {
 		Create(context.Context, *Post) error
 		Update(context.Context, *Post) error
 		Delete(context.Context, int64) error
-		GetFeed(context.Context, PaginatedFeedQuery) ([]FeedItem, error)
+		GetFeed(context.Context, PaginatedFeedQuery) ([]FeedItem, int64, error)
 	}
 
 	Users interface {

@@ -2,10 +2,18 @@ import React, { useEffect, useState, useCallback } from "react";
 import SearchBox from "./custom/SearchBox";
 import ArticleCard from "./custom/PostCard";
 import { Link } from "react-router-dom";
-import { getPosts } from "@/api/posts";
+import { getPostsByPage } from "@/api/posts";
 import { toast } from "./custom/Toast";
 import { getCategories } from "@/api/categories";
 import dayjs from "dayjs";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 const LIMIT = 6;
 
@@ -13,19 +21,26 @@ const PostsSection = () => {
   const [posts, setPosts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
-  const [offset, setOffset] = useState(0);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleError = (error) => {
     console.error(error);
     toast.error("Error", error?.message || "Internal server error");
   };
 
-  const fetchPosts = useCallback(async (offset, limit, categoryName = null) => {
+  const fetchPosts = useCallback(async (pageNum, limit, categoryName = null) => {
     try {
-      const { data } = await getPosts(offset, limit, categoryName);
-      setPosts(data);
+      setIsLoading(true);
+      const { items, page: currentPage, total_pages: totalPages } = await getPostsByPage(pageNum, limit, categoryName);
+      setPosts(items);
+      setPage(currentPage);
+      setTotalPages(totalPages);
     } catch (error) {
       handleError(error);
+    } finally {
+      setIsLoading(false);
     }
   }, []);
 
@@ -45,28 +60,73 @@ const PostsSection = () => {
       return;
     }
 
-    const newOffset = categoryName === "Highlight" ? 0 : offset;
-    await fetchPosts(newOffset, LIMIT, categoryName === "Highlight" ? null : categoryName);
-  }, [selectedCategory, offset, fetchPosts]);
+    await fetchPosts(1, LIMIT, categoryName === "Highlight" ? null : categoryName);
+  }, [selectedCategory, fetchPosts]);
 
-  const handleViewMore = useCallback(async () => {
-    try {
-      const { data } = await getPosts(
-        offset + LIMIT,
-        LIMIT,
-        selectedCategory?.name === "Highlight" ? null : selectedCategory?.name
-      );
-      setPosts((prevPosts) => [...prevPosts, ...data]);
-      setOffset((prevOffset) => prevOffset + LIMIT);
-    } catch (error) {
-      handleError(error);
+  const handlePageChange = useCallback((newPage) => {
+    if (newPage < 1 || newPage > totalPages || newPage === page || isLoading) {
+      return;
     }
-  }, [offset, selectedCategory]);
+    
+    fetchPosts(
+      newPage, 
+      LIMIT, 
+      selectedCategory?.name === "Highlight" ? null : selectedCategory?.name
+    );
+  }, [page, totalPages, selectedCategory, fetchPosts, isLoading]);
 
   useEffect(() => {
     fetchCategories();
-    fetchPosts(0, LIMIT);
+    fetchPosts(1, LIMIT);
   }, [fetchCategories, fetchPosts]);
+
+  const getPageNumbers = () => {
+    const pageNumbers = [];
+    const maxPagesToShow = 5;
+    
+    if (totalPages <= maxPagesToShow) {
+      // Show all pages if there are few
+      for (let i = 1; i <= totalPages; i++) {
+        pageNumbers.push(i);
+      }
+    } else {
+      // Always include page 1
+      pageNumbers.push(1);
+      
+      // Calculate start and end pages
+      let startPage = Math.max(2, page - 1);
+      let endPage = Math.min(totalPages - 1, page + 1);
+      
+      // Adjust if we're near the beginning or end
+      if (page <= 2) {
+        endPage = 3;
+      } else if (page >= totalPages - 1) {
+        startPage = totalPages - 2;
+      }
+      
+      // Add ellipsis before middle pages if needed
+      if (startPage > 2) {
+        pageNumbers.push('ellipsis1');
+      }
+      
+      // Add middle pages
+      for (let i = startPage; i <= endPage; i++) {
+        pageNumbers.push(i);
+      }
+      
+      // Add ellipsis after middle pages if needed
+      if (endPage < totalPages - 1) {
+        pageNumbers.push('ellipsis2');
+      }
+      
+      // Always include the last page
+      if (totalPages > 1) {
+        pageNumbers.push(totalPages);
+      }
+    }
+    
+    return pageNumbers;
+  };
 
   return (
     <section className="md:mx-32">
@@ -78,7 +138,7 @@ const PostsSection = () => {
         onFilterChange={handleFilterChange}
       />
       <article className="flex flex-col sm:grid sm:grid-cols-2 lg:grid-cols-3">
-        {posts.map(({ id, image, category, title, introduction, author, updated_at }) => (
+        {posts?.map(({ id, image, category, title, introduction, author, updated_at }) => (
           <Link to={`/posts/${id}`} key={id}>
             <ArticleCard
               image={image}
@@ -91,12 +151,42 @@ const PostsSection = () => {
           </Link>
         ))}
       </article>
-      <button
-        className="w-full font-medium text-brown-600 underline text-center mt-6 mb-14 cursor-pointer sm:mt-14 sm:mb-28"
-        onClick={handleViewMore}
-      >
-        View more
-      </button>
+      
+      {totalPages > 1 && (
+        <Pagination className="my-8">
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious 
+                onClick={() => handlePageChange(page - 1)}
+                className={`select-none ${page <= 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}`}
+              />
+            </PaginationItem>
+            
+            {getPageNumbers().map((pageNum, index) => (
+              <PaginationItem key={`page-${pageNum}-${index}`}>
+                {pageNum === 'ellipsis1' || pageNum === 'ellipsis2' ? (
+                  <span className="flex h-10 w-10 items-center justify-center select-none">...</span>
+                ) : (
+                  <PaginationLink
+                    isActive={page === pageNum}
+                    onClick={() => handlePageChange(pageNum)}
+                    className="cursor-pointer select-none"
+                  >
+                    {pageNum}
+                  </PaginationLink>
+                )}
+              </PaginationItem>
+            ))}
+            
+            <PaginationItem>
+              <PaginationNext 
+                onClick={() => handlePageChange(page + 1)}
+                className={`select-none ${page >= totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}`}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      )}
     </section>
   );
 };

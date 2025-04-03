@@ -7,12 +7,13 @@ import (
 
 type PaginatedFeedQuery struct {
 	Limit    int    `json:"limit" validate:"gte=1,lte=20"`
-	Offset   int    `json:"offset" validate:"gte=0"`
+	Page     int    `json:"page" validate:"gte=1"`
 	Sort     string `json:"sort" validate:"oneof=asc desc"`
 	Category string `json:"category" validat:"omitempty"`
 	Search   string `json:"search" validate:"omitempty,max=100"`
 }
 
+// Parse extracts pagination parameters from the request query string
 func (fq PaginatedFeedQuery) Parse(r *http.Request) (PaginatedFeedQuery, error) {
 	queryString := r.URL.Query()
 
@@ -30,9 +31,10 @@ func (fq PaginatedFeedQuery) Parse(r *http.Request) (PaginatedFeedQuery, error) 
 		fq.Limit = parseIntParam(limit, fq.Limit)
 	}
 
-	offset := queryString.Get("offset")
-	if offset != "" {
-		fq.Offset = parseIntParam(offset, fq.Offset)
+	page := queryString.Get("page")
+	if page != "" {
+		// Page is 1-indexed (first page is 1, not 0)
+		fq.Page = parseIntParam(page, 1)
 	}
 
 	if sort := queryString.Get("sort"); sort != "" {
@@ -48,4 +50,9 @@ func (fq PaginatedFeedQuery) Parse(r *http.Request) (PaginatedFeedQuery, error) 
 	}
 
 	return fq, nil
+}
+
+// GetOffset calculates the offset for SQL LIMIT/OFFSET pagination from the page number
+func (fq PaginatedFeedQuery) GetOffset() int {
+	return (fq.Page - 1) * fq.Limit
 }

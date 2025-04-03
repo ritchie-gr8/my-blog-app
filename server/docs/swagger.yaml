@@ -57,6 +57,21 @@ definitions:
       username:
         type: string
     type: object
+  service.FeedResponse:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/store.FeedItem'
+        type: array
+      page:
+        type: integer
+      page_size:
+        type: integer
+      total:
+        type: integer
+      total_pages:
+        type: integer
+    type: object
   store.Author:
     properties:
       bio:
@@ -431,15 +446,16 @@ paths:
       description: Retrieve a paginated feed of posts with optional filters for category
         and search
       parameters:
+      - description: Page number for pagination (default is 1)
+        in: query
+        minimum: 1
+        name: page
+        type: integer
       - description: Number of posts to retrieve (default is 6, max is 20)
         in: query
         maximum: 20
         minimum: 1
         name: limit
-        type: integer
-      - description: Offset for pagination (default is 0)
-        in: query
-        name: offset
         type: integer
       - description: Sort order (default is 'desc', options are 'asc' or 'desc')
         in: query
@@ -459,9 +475,7 @@ paths:
         "200":
           description: Successfully retrieved the posts feed
           schema:
-            items:
-              $ref: '#/definitions/store.FeedItem'
-            type: array
+            $ref: '#/definitions/service.FeedResponse'
         "400":
           description: Invalid request, the request data was incorrect or malformed
           schema: {}

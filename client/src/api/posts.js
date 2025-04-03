@@ -6,13 +6,20 @@ export const getPostById = async (id) => {
   return res.data;
 };
 
-export const getPosts = async (offset = 0, limit = 6, category = null) => {
-  const categoryQuery = category ? `&category=${category}` : "";
-  const res = await api.get(
-    `/feed?offset=${offset}&limit=${limit}${categoryQuery}`
-  );
-  if (res.status !== 200) throw new Error("Error fetching posts.");
-  return res.data;
+export const getPostsByPage = async (page = 1, limit = 6, category = null, search = null) => {
+  let queryParams = `page=${page}&limit=${limit}`;
+  
+  if (category) {
+    queryParams += `&category=${encodeURIComponent(category)}`;
+  }
+  
+  if (search) {
+    queryParams += `&search=${encodeURIComponent(search)}`;
+  }
+  
+  const res = await api.get(`/feed?${queryParams}`);
+  if (res.status !== 200 || !res?.data?.data) throw new Error("Error fetching posts.");
+  return res.data.data;
 };
 
 export const likePost = async (postId) => {
