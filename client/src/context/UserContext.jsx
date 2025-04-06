@@ -1,4 +1,5 @@
 import React, { createContext, useEffect, useState } from "react";
+import { isTokenExpired } from "../lib/utils";
 
 const UserContext = createContext();
 
@@ -30,9 +31,25 @@ export const UserProvider = ({ children }) => {
 
     if (userData) {
       const parsedData = JSON.parse(userData);
-      setUser(parsedData);
+
+      if (parsedData.token && !isTokenExpired(parsedData.token)) {
+        setUser(parsedData);
+      } else {
+        logout();
+      }
     }
     setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    const handleStorageChange = (e) => {
+      if (e.key === 'userData' && !e.newValue) {
+        setUser(null);
+      }
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
   return (
