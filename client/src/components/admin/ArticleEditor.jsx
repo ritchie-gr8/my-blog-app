@@ -22,7 +22,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { getPostById } from "@/api/posts";
+import { createPost, getPostById, updatePost } from "@/api/posts";
 import { toast } from "../custom/Toast";
 import {
   Dialog,
@@ -34,35 +34,42 @@ import {
   DialogFooter,
   DialogClose,
 } from "@/components/ui/dialog";
+import PostThumbnailUploader from "./PostThumbnailUploader";
+import { uploadImage } from "@/api/uploadcare";
 
 const formSchema = z.object({
   title: z.string().min(1, { message: "Title is required" }),
-  category: z.string().min(1, { message: "Please select a category" }),
+  category: z.number().min(1, { message: "Please select a category" }),
+  thumbnailImage: z.string().optional(),
   authorName: z.string().optional(),
   introduction: z
     .string()
+    .min(1, { message: "Introduction is required" })
     .max(120, { message: "Introduction must be 120 characters or less" }),
   content: z.string().min(1, { message: "Content is required" }),
 });
 
 const ArticleEditor = ({
   setMode,
-  articles,
-  setArticles,
   articleId,
   setArticleId,
   categories,
   refreshList,
   handleDeleteArticle,
+  authorName,
 }) => {
   const isEditMode = articleId !== null;
   const [isLoading, setIsLoading] = useState(false);
+  const [imageFile, setImageFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
+  const [categoryList, setCategoryList] = useState([]);
 
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: "",
       category: "",
+      thumbnailImage: "",
       authorName: "",
       introduction: "",
       content: "",
@@ -70,15 +77,19 @@ const ArticleEditor = ({
   });
 
   useEffect(() => {
-    const resetForm = () => {
+    const resetForm = (authorName) => {
       form.reset({
         title: "",
-        category: "",
-        authorName: "",
+        category: 0,
+        thumbnailImage: "",
+        authorName: authorName || "",
         introduction: "",
         content: "",
       });
     };
+
+    const newCategories = categories.slice(1);
+    setCategoryList(newCategories);
 
     const loadArticleData = async () => {
       if (isEditMode && articleId) {
@@ -90,11 +101,14 @@ const ArticleEditor = ({
           if (articleData) {
             form.reset({
               title: articleData.title || "",
-              category: articleData.category || "",
-              authorName: articleData.author_name || "",
+              category: articleData.category_id || 0,
+              thumbnailImage: articleData.thumbnail_image || "",
+              authorName: articleData.author.name || "",
               introduction: articleData.introduction || "",
               content: articleData.content || "",
             });
+
+            setPreviewUrl(articleData.thumbnail_image);
           }
         } catch (error) {
           toast.error(error.message || "Failed to fetch article");
@@ -102,43 +116,77 @@ const ArticleEditor = ({
         } finally {
           setIsLoading(false);
         }
-      } else {
-        resetForm();
+      } else if (authorName) {
+        resetForm(authorName);
       }
     };
 
     loadArticleData();
-  }, [articleId, form, isEditMode]);
+  }, [articleId, form, isEditMode, categories, authorName]);
 
-  const handleSaveAsDraft = (data) => {
-    if (isEditMode) {
-      // Update existing article
-      const updatedArticles = articles.map((article) =>
-        article.id === articleId
-          ? { ...article, ...data, status: "Draft" }
-          : article
-      );
-      setArticles(updatedArticles);
-    } else {
-      // Create new article
-      const newId =
-        articles.length > 0 ? Math.max(...articles.map((a) => a.id)) + 1 : 1;
-      setArticles([
-        ...articles,
-        {
-          id: newId,
-          title: data.title,
-          category: data.category,
-          status: "Draft",
-          introduction: data.introduction,
-          content: data.content,
-          author_name: data.authorName,
-        },
-      ]);
+  const handleSaveArticle = async (data, status) => {
+    setIsLoading(true);
+    try {
+      let uploadedUrl = null;
+      if (imageFile) {
+        uploadedUrl = await handleUploadImage(imageFile);
+      } else {
+        uploadedUrl = data.thumbnailImage;
+      }
+
+      const articleData = {
+        title: data.title,
+        category_id: data.category,
+        status: status,
+        introduction: data.introduction,
+        content: data.content,
+        thumbnail_image: uploadedUrl,
+      };
+
+      if (isEditMode) {
+        await updatePost(articleId, articleData);
+        toast.success(
+          `Edit article and ${
+            status.toLowerCase() === "published"
+              ? "published"
+              : "saved as draft"
+          }`,
+          `${
+            status.toLowerCase() === "published"
+              ? "Your article has been successfully published"
+              : "You can publish article later"
+          }`
+        );
+      } else {
+        await createPost(articleData);
+        toast.success(
+          `Create article and ${
+            status.toLowerCase() === "published"
+              ? "published"
+              : "saved as draft"
+          }`,
+          `${
+            status.toLowerCase() === "published"
+              ? "Your article has been successfully published"
+              : "You can publish article later"
+          }`
+        );
+      }
+    } catch (error) {
+      toast.error(error.message || `Failed to ${status.toLowerCase()} article`);
+    } finally {
+      setIsLoading(false);
     }
 
-    // Reset editor state and return to list
     cleanupAndExit();
+  };
+
+  const handleSaveAsDraft = async (data) => {
+    await handleSaveArticle(data, "Draft");
+  };
+
+  const handlePublish = async (data) => {
+    await handleSaveArticle(data, "Published");
   };
 
   const handleDelete = () => {
@@ -146,34 +194,16 @@ const ArticleEditor = ({
     cleanupAndExit();
   };
 
-  const handlePublish = (data) => {
-    if (isEditMode) {
-      // Update existing article
-      const updatedArticles = articles.map((article) =>
-        article.id === articleId
-          ? { ...article, ...data, status: "Published" }
-          : article
-      );
-      setArticles(updatedArticles);
-    } else {
-      // Create new article
-      const newId =
-        articles.length > 0 ? Math.max(...articles.map((a) => a.id)) + 1 : 1;
-      setArticles([
-        ...articles,
-        {
-          id: newId,
-          title: data.title,
-          category: data.category,
-          status: "Published",
-          introduction: data.introduction,
-          content: data.content,
-          author_name: data.authorName,
-        },
-      ]);
-    }
+  const handleImageChange = ({ url, file }) => {
+    setPreviewUrl(url);
+    setImageFile(file);
+  };
 
-    cleanupAndExit();
+  const handleUploadImage = async (imageFile) => {
+    const { fileId } = await uploadImage(imageFile);
+    const uploadedUrl = `https://ucarecdn.com/${fileId}/${imageFile.name}`;
+    form.setValue("thumbnailImage", uploadedUrl);
+    return uploadedUrl;
   };
 
   const cleanupAndExit = () => {
@@ -189,9 +219,7 @@ const ArticleEditor = ({
         <div className="absolute inset-0 bg-white/80 z-10 flex justify-center items-center">
           <div className="flex items-center gap-2 bg-white p-4 rounded-md shadow-md">
             <Loader2 className="h-6 w-6 animate-spin text-brown-600" />
-            <span className="text-brown-600 font-medium">
-              Loading article data...
-            </span>
+            <span className="text-brown-600 font-medium">Loading...</span>
           </div>
         </div>
       )}
@@ -236,19 +264,11 @@ const ArticleEditor = ({
             <h2 className="text-b1 font-medium text-brown-600 mb-2">
               Thumbnail image
             </h2>
-            <div className="flex items-end gap-4">
-              <div className="border border-gray-200 rounded-md bg-gray-50 h-64 w-[460px] flex items-center justify-center">
-                <Image size={24} className="text-gray-400" />
-              </div>
-              <Button
-                variant="outline"
-                type="button"
-                className="rounded-md px-4 py-2 text-sm border-brown-300 text-brown-600"
-                disabled={isLoading}
-              >
-                Upload thumbnail image
-              </Button>
-            </div>
+            <PostThumbnailUploader
+              imageUrl={previewUrl}
+              onImageChange={handleImageChange}
+              isLoading={isLoading}
+            />
           </div>
 
           {/* Category */}
@@ -261,9 +281,8 @@ const ArticleEditor = ({
                   Category
                 </FormLabel>
                 <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                  value={field.value}
+                  onValueChange={(value) => field.onChange(Number(value))}
+                  value={field.value?.toString()}
                   disabled={isLoading}
                 >
                   <FormControl>
@@ -272,8 +291,11 @@ const ArticleEditor = ({
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {categories.map((category) => (
-                      <SelectItem value={category.name} key={category.id}>
+                    {categoryList.map((category) => (
+                      <SelectItem
+                        key={category.id}
+                        value={category.id.toString()}
+                      >
                         {category.name}
                       </SelectItem>
                     ))}
@@ -296,7 +318,7 @@ const ArticleEditor = ({
                 <FormControl>
                   <Input
                     className="w-[480px] bg-white"
-                    placeholder="Thompson P."
+                    placeholder="Author name"
                     disabled={true}
                     {...field}
                   />
@@ -375,30 +397,32 @@ const ArticleEditor = ({
           />
         </form>
       </Form>
-      <Dialog>
-        <DialogTrigger asChild>
-          <div className="flex items-center gap-2 mt-7 underline cursor-pointer text-brown-600 text-b1 font-medium">
-            <Trash size={16} />
-            Delete article
-          </div>
-        </DialogTrigger>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Delete article</DialogTitle>
-            <DialogDescription>
-              Do you want to delete this article?
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <DialogClose asChild>
-              <Button variant="outline">Cancel</Button>
-            </DialogClose>
-            <DialogClose asChild>
-              <Button onClick={handleDelete}>Delete</Button>
-            </DialogClose>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {isEditMode && (
+        <Dialog>
+          <DialogTrigger asChild>
+            <div className="flex items-center gap-2 mt-7 underline cursor-pointer text-brown-600 text-b1 font-medium">
+              <Trash size={16} />
+              Delete article
+            </div>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Delete article</DialogTitle>
+              <DialogDescription>
+                Do you want to delete this article?
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button variant="outline">Cancel</Button>
+              </DialogClose>
+              <DialogClose asChild>
+                <Button onClick={handleDelete}>Delete</Button>
+              </DialogClose>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 };

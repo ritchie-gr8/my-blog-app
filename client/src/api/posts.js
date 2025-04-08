@@ -38,6 +38,20 @@ export const getPostsByPage = async (
   return res.data.data;
 };
 
+export const createPost = async (payload) => {
+  const res = await api.post("/posts", payload);
+  if (res.status !== 201 || !res?.data?.data)
+    throw new Error("Error creating post.");
+  return res.data.data;
+};
+
+export const updatePost = async (postId, payload) => {
+  const res = await api.patch(`/posts/${postId}`, payload);
+  if (res.status !== 200 || !res?.data?.data)
+    throw new Error("Error updating post.");
+  return res.data.data;
+};
+
 export const deletePost = async (postId) => {
   const res = await api.delete(`/posts/${postId}`);
   if (res.status !== 204) throw new Error("Failed to delete post");

@@ -7,6 +7,7 @@ import TablePagination from "@/components/custom/TablePagination";
 import { getCategories } from "@/api/categories";
 import { v4 as uuidv4 } from "uuid";
 import { useDebounce } from "@/hooks/useDebouce";
+import { useUser } from "@/hooks/useUser";
 
 const LIMIT = 10;
 
@@ -22,6 +23,7 @@ const ArticleManagement = () => {
   const [categoryFilter, setCategoryFilter] = useState();
   const [searchTerm, setSearchTerm] = useState("");
   const debouncedSearch = useDebounce(searchTerm, 500);
+  const { user } = useUser();
 
   const handleError = (error) => {
     console.error(error);
@@ -199,12 +201,11 @@ const ArticleManagement = () => {
         <ArticleEditor
           categories={categories}
           setMode={setMode}
-          articles={articles}
-          setArticles={setArticles}
           articleId={currentArticleId}
           setArticleId={setCurrentArticleId}
           refreshList={() => fetchArticles(page, LIMIT)}
           handleDeleteArticle={handleDeleteArticle}
+          authorName={user?.name}
         />
       )}
     </div>
