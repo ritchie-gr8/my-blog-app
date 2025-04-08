@@ -368,7 +368,7 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Retrieve a paginated feed of posts with optional filters for category and search",
+                "description": "Retrieve a paginated feed of posts with optional filters for category, search and status",
                 "consumes": [
                     "application/json"
                 ],
@@ -411,6 +411,12 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Search term to filter posts by (max length is 100)",
                         "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Status to filter posts by (default will fetch all status, options are 'published' or 'draft')",
+                        "name": "status",
                         "in": "query"
                     }
                 ],
@@ -1473,6 +1479,9 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "introduction": {
+                    "type": "string"
+                },
+                "status": {
                     "type": "string"
                 },
                 "thumbnail_image": {

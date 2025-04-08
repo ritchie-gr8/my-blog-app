@@ -11,6 +11,7 @@ type PaginatedFeedQuery struct {
 	Sort     string `json:"sort" validate:"oneof=asc desc"`
 	Category string `json:"category" validat:"omitempty"`
 	Search   string `json:"search" validate:"omitempty,max=100"`
+	Status   string `json:"status" validate:"omitempty,oneof=published draft"`
 }
 
 // Parse extracts pagination parameters from the request query string
@@ -47,6 +48,10 @@ func (fq PaginatedFeedQuery) Parse(r *http.Request) (PaginatedFeedQuery, error) 
 
 	if search := queryString.Get("search"); search != "" {
 		fq.Search = search
+	}
+
+	if status := queryString.Get("status"); status != "" {
+		fq.Status = status
 	}
 
 	return fq, nil

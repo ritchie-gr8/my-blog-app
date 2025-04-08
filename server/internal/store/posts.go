@@ -41,6 +41,7 @@ type FeedItem struct {
 	ThumbnailImage []byte `json:"thumbnail_image"`
 	UserID         int64  `json:"user_id"`
 	Author         string `json:"author"`
+	Status         string `json:"status"`
 }
 
 type PostStore struct {
@@ -49,7 +50,7 @@ type PostStore struct {
 
 func getFeedQuery(fq *PaginatedFeedQuery, sort string) (string, []any) {
 	baseQuery := `
-		SELECT p.id, p.title, p.introduction, p.category_id, c.name AS category, p.updated_at, p.thumbnail_image, p.user_id, u.name
+		SELECT p.id, p.title, p.introduction, p.category_id, c.name AS category, p.updated_at, p.thumbnail_image, p.user_id, u.name, p.status
 		FROM posts p
 		LEFT JOIN users u ON u.id = p.user_id
 		LEFT JOIN categories c ON c.id = p.category_id
@@ -72,6 +73,11 @@ func getFeedQuery(fq *PaginatedFeedQuery, sort string) (string, []any) {
 	if fq.Category != "" {
 		whereConditions = append(whereConditions, fmt.Sprintf("c.name = $%d", len(queryParams)+1))
 		queryParams = append(queryParams, fq.Category)
+	}
+
+	if fq.Status != "" {
+		whereConditions = append(whereConditions, fmt.Sprintf("p.status ILIKE $%d", len(queryParams)+1))
+		queryParams = append(queryParams, fq.Status)
 	}
 
 	finalQuery := baseQuery
@@ -126,6 +132,7 @@ func (s *PostStore) GetFeed(ctx context.Context, fq PaginatedFeedQuery) ([]FeedI
 			&item.ThumbnailImage,
 			&item.UserID,
 			&item.Author,
+			&item.Status,
 		)
 		if err != nil {
 			return nil, 0, err
@@ -319,6 +326,11 @@ func getFeedCountQuery(fq *PaginatedFeedQuery) (string, []any) {
 	if fq.Category != "" {
 		whereConditions = append(whereConditions, fmt.Sprintf("c.name = $%d", len(queryParams)+1))
 		queryParams = append(queryParams, fq.Category)
+	}
+
+	if fq.Status != "" {
+		whereConditions = append(whereConditions, fmt.Sprintf("p.status ILIKE $%d", len(queryParams)+1))
+		queryParams = append(queryParams, fq.Status)
 	}
 
 	finalQuery := baseQuery

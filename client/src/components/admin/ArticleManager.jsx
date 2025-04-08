@@ -10,8 +10,31 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog";
 
-const ArticleManager = ({ setMode, articles, isLoading }) => {
+const ArticleManager = ({
+  articles,
+  isLoading,
+  onEditArticle,
+  onCreateArticle,
+  categories,
+  handleDeleteArticle,
+  statusFilter,
+  handleStatusFilterChange,
+  categoryFilter,
+  handleCategoryFilterChange,
+  searchTerm,
+  handleSearchChange,
+}) => {
   return (
     <>
       <div className="flex justify-between items-center mb-6 border-b border-brown-300 px-16 py-8">
@@ -22,7 +45,7 @@ const ArticleManager = ({ setMode, articles, isLoading }) => {
           className="cursor-pointer !text-b1 
               font-medium bg-brown-600 
               text-white !px-10 !py-3 rounded-full"
-          onClick={() => setMode("editor")}
+          onClick={onCreateArticle}
         >
           <Plus size={16} className="mr-2" />
           Create article
@@ -36,11 +59,20 @@ const ArticleManager = ({ setMode, articles, isLoading }) => {
             className="absolute left-3 top-1/2 transform -translate-y-1/2"
             size={16}
           />
-          <Input className="pl-10 bg-white" placeholder="Search..." />
+          <Input
+            className="pl-10 bg-white"
+            placeholder="Search..."
+            value={searchTerm}
+            onChange={(e) => handleSearchChange(e.target.value)}
+          />
         </div>
 
         <div className="flex gap-4">
-          <Select>
+          <Select
+            placeholder={"Status"}
+            value={statusFilter}
+            onValueChange={handleStatusFilterChange}
+          >
             <SelectTrigger className="w-40 bg-white">
               <SelectValue placeholder="Status" />
             </SelectTrigger>
@@ -51,15 +83,21 @@ const ArticleManager = ({ setMode, articles, isLoading }) => {
             </SelectContent>
           </Select>
 
-          <Select>
+          <Select
+            placeholder={"Category"}
+            value={categoryFilter}
+            onValueChange={handleCategoryFilterChange}
+          >
             <SelectTrigger className="w-40 bg-white">
               <SelectValue placeholder="Category" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All</SelectItem>
-              <SelectItem value="cat">Cat</SelectItem>
-              <SelectItem value="general">General</SelectItem>
-              <SelectItem value="inspiration">Inspiration</SelectItem>
+              {categories &&
+                categories.map((category) => (
+                  <SelectItem value={category.name} key={category.id}>
+                    {category.name}
+                  </SelectItem>
+                ))}
             </SelectContent>
           </Select>
         </div>
@@ -87,14 +125,14 @@ const ArticleManager = ({ setMode, articles, isLoading }) => {
                     </div>
                   </td>
                 </tr>
-              ) : articles.length === 0 ? (
+              ) : !articles || articles?.length === 0 ? (
                 <tr>
                   <td colSpan="4" className="py-20 text-center text-brown-400">
                     No articles found
                   </td>
                 </tr>
               ) : (
-                articles.map((article) => (
+                articles?.map((article) => (
                   <tr
                     key={article.id}
                     className="border-b border-gray-200 hover:bg-gray-50 font-medium text-b1 text-brown-500"
@@ -102,9 +140,21 @@ const ArticleManager = ({ setMode, articles, isLoading }) => {
                     <td className="py-4 px-6">{article.title}</td>
                     <td className="py-4 px-6">{article.category}</td>
                     <td className="py-4 px-6">
-                      <div className="flex items-center gap-2 text-brand-green">
-                        <div className="bg-brand-green size-1.5 rounded-full animate-pulse" />
-                        Published
+                      <div
+                        className={`flex items-center gap-2 ${
+                          article.status === "Published"
+                            ? "text-brand-green"
+                            : "text-brown-400"
+                        }`}
+                      >
+                        <div
+                          className={`${
+                            article.status === "Published"
+                              ? "bg-brand-green animate-pulse"
+                              : "bg-brown-400"
+                          } size-1.5 rounded-full`}
+                        />
+                        {article.status}
                       </div>
                     </td>
                     <td className="py-4 px-6 text-right text-brown-400">
@@ -113,16 +163,43 @@ const ArticleManager = ({ setMode, articles, isLoading }) => {
                           variant="ghost"
                           size="icon"
                           className="cursor-pointer"
+                          onClick={() => onEditArticle(article.id)}
                         >
                           <Pencil size={16} />
                         </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="cursor-pointer"
-                        >
-                          <Trash size={16} />
-                        </Button>
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="cursor-pointer"
+                            >
+                              <Trash size={16} />
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>Delete article</DialogTitle>
+                              <DialogDescription>
+                                Do you want to delete this article?
+                              </DialogDescription>
+                            </DialogHeader>
+                            <DialogFooter>
+                              <DialogClose asChild>
+                                <Button variant="outline">Cancel</Button>
+                              </DialogClose>
+                              <DialogClose asChild>
+                                <Button
+                                  onClick={() =>
+                                    handleDeleteArticle(article.id)
+                                  }
+                                >
+                                  Delete
+                                </Button>
+                              </DialogClose>
+                            </DialogFooter>
+                          </DialogContent>
+                        </Dialog>
                       </div>
                     </td>
                   </tr>

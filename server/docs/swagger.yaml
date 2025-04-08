@@ -113,6 +113,8 @@ definitions:
         type: integer
       introduction:
         type: string
+      status:
+        type: string
       thumbnail_image:
         items:
           type: integer
@@ -443,8 +445,8 @@ paths:
     get:
       consumes:
       - application/json
-      description: Retrieve a paginated feed of posts with optional filters for category
-        and search
+      description: Retrieve a paginated feed of posts with optional filters for category,
+        search and status
       parameters:
       - description: Page number for pagination (default is 1)
         in: query
@@ -468,6 +470,11 @@ paths:
       - description: Search term to filter posts by (max length is 100)
         in: query
         name: search
+        type: string
+      - description: Status to filter posts by (default will fetch all status, options
+          are 'published' or 'draft')
+        in: query
+        name: status
         type: string
       produces:
       - application/json

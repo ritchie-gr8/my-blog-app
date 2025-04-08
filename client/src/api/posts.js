@@ -6,20 +6,42 @@ export const getPostById = async (id) => {
   return res.data;
 };
 
-export const getPostsByPage = async (page = 1, limit = 6, category = null, search = null) => {
+export const getPostsByPage = async (
+  page = 1,
+  limit = 6,
+  category = null,
+  search = null,
+  status = null,
+  searchTerm = null
+) => {
   let queryParams = `page=${page}&limit=${limit}`;
-  
+
   if (category) {
     queryParams += `&category=${encodeURIComponent(category)}`;
   }
-  
+
   if (search) {
     queryParams += `&search=${encodeURIComponent(search)}`;
   }
-  
+
+  if (status) {
+    queryParams += `&status=${encodeURIComponent(status.toLowerCase())}`;
+  }
+
+  if (searchTerm) {
+    queryParams += `&search=${encodeURIComponent(searchTerm)}`;
+  }
+
   const res = await api.get(`/feed?${queryParams}`);
-  if (res.status !== 200 || !res?.data?.data) throw new Error("Error fetching posts.");
+  if (res.status !== 200 || !res?.data?.data)
+    throw new Error("Error fetching posts.");
   return res.data.data;
+};
+
+export const deletePost = async (postId) => {
+  const res = await api.delete(`/posts/${postId}`);
+  if (res.status !== 204) throw new Error("Failed to delete post");
+  return true;
 };
 
 export const likePost = async (postId) => {
