@@ -67,6 +67,7 @@ const TablePagination = ({
       <PaginationContent>
         <PaginationItem>
           <PaginationPrevious 
+            disabled={currentPage <= 1 || isLoading}
             onClick={() => onPageChange(currentPage - 1)}
             className={`select-none ${currentPage <= 1 || isLoading ? "pointer-events-none opacity-50" : "cursor-pointer"}`}
           />
@@ -78,6 +79,7 @@ const TablePagination = ({
               <span className="flex h-10 w-10 items-center justify-center select-none">...</span>
             ) : (
               <PaginationLink
+                disabled={isLoading}
                 isActive={currentPage === pageNum}
                 onClick={() => onPageChange(pageNum)}
                 className="cursor-pointer select-none"
@@ -90,6 +92,7 @@ const TablePagination = ({
         
         <PaginationItem>
           <PaginationNext 
+            disabled={currentPage >= totalPages || isLoading}
             onClick={() => onPageChange(currentPage + 1)}
             className={`select-none ${currentPage >= totalPages || isLoading ? "pointer-events-none opacity-50" : "cursor-pointer"}`}
           />

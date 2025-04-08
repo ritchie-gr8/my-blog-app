@@ -32,6 +32,44 @@ func (app *application) getCategoriesHandler(w http.ResponseWriter, r *http.Requ
 	}
 }
 
+// @Summary		Get paginated categories
+// @Description	Retrieve paginated categories
+// @Tags			categories
+// @Accept			json
+// @Produce		json
+// @Success		200		{array}		store.Category	"Successfully fetched categories"
+// @Param			page	query		int				false	"Page number for pagination (default is 1)"
+// @Param			limit	query		int				false	"Number of categories to retrieve (default is 10, max is 20)"
+// @Param			name	query		string			false	"Search term to filter categories by (max length is 100)"
+// @Failure		500		{object}	error			"Internal server error, the server encountered a problem"
+// @Router			/categories [get]
+func (app *application) getPaginatedCategoriesHandler(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	query := &store.PaginatedCategoryQuery{
+		Page:  1,
+		Limit: 10,
+		Name:  "",
+	}
+
+	query, err := query.Parse(r)
+	if err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	categories, err := app.service.Categories.Get(ctx, query)
+	if err != nil {
+		app.internalServerError(w, r, err)
+		return
+	}
+
+	if err := app.jsonResponse(w, http.StatusOK, categories); err != nil {
+		app.internalServerError(w, r, err)
+		return
+	}
+}
+
 // @Summary		Create a category
 // @Description	Creates a new category with the provided name
 // @Tags			categories

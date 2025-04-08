@@ -279,7 +279,20 @@ paths:
     get:
       consumes:
       - application/json
-      description: Retrieve all categories
+      description: Retrieve paginated categories
+      parameters:
+      - description: Page number for pagination (default is 1)
+        in: query
+        name: page
+        type: integer
+      - description: Number of categories to retrieve (default is 10, max is 20)
+        in: query
+        name: limit
+        type: integer
+      - description: Search term to filter categories by (max length is 100)
+        in: query
+        name: name
+        type: string
       produces:
       - application/json
       responses:
@@ -292,7 +305,7 @@ paths:
         "500":
           description: Internal server error, the server encountered a problem
           schema: {}
-      summary: Get all categories
+      summary: Get paginated categories
       tags:
       - categories
     post:

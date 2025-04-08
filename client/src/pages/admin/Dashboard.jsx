@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { LogOut, ExternalLink } from "lucide-react";
 import { adminMenu } from "@/constants/adminMenu";
 import ArticleManagement from "@/components/admin/ArticleManagement";
+import CategoryManagement from "@/components/admin/CategoryManagement";
+import { Link } from "react-router-dom";
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("article");
@@ -37,14 +39,15 @@ const Dashboard = () => {
           </div>
 
           <div className="mt-auto pt-12">
-            <div
-              className="flex items-center gap-3 px-6 py-5 text-b1 font-medium
+            <Link to="http://localhost:5173" target="_blank">
+              <div
+                className="flex items-center gap-3 px-6 py-5 text-b1 font-medium
                cursor-pointer text-brown-500 hover:bg-brown-300"
-            >
-              <ExternalLink size={18} />
-              <span>hh. website</span>
-            </div>
-
+              >
+                <ExternalLink size={18} />
+                <span>hh. website</span>
+              </div>
+            </Link>
             <div
               className="flex items-center gap-3 px-6 py-5 text-b1 font-medium
                cursor-pointer text-brown-500 hover:bg-brown-300"
@@ -59,6 +62,7 @@ const Dashboard = () => {
       {/* Main content */}
       <main className="flex-1 overflow-y-auto h-full">
         {activeTab === "article" && <ArticleManagement />}
+        {activeTab === "category" && <CategoryManagement />}
       </main>
     </div>
   );

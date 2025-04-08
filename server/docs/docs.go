@@ -114,7 +114,7 @@ const docTemplate = `{
         },
         "/categories": {
             "get": {
-                "description": "Retrieve all categories",
+                "description": "Retrieve paginated categories",
                 "consumes": [
                     "application/json"
                 ],
@@ -124,7 +124,27 @@ const docTemplate = `{
                 "tags": [
                     "categories"
                 ],
-                "summary": "Get all categories",
+                "summary": "Get paginated categories",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page number for pagination (default is 1)",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Number of categories to retrieve (default is 10, max is 20)",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search term to filter categories by (max length is 100)",
+                        "name": "name",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Successfully fetched categories",

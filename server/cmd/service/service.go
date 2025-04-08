@@ -59,6 +59,7 @@ type Service struct {
 	Categories interface {
 		Create(ctx context.Context, category *store.Category) error
 		GetAll(ctx context.Context) ([]*store.Category, error)
+		Get(ctx context.Context, query *store.PaginatedCategoryQuery) (*PaginatedCategoryResponse, error)
 		Delete(ctx context.Context, id int64) error
 		Update(ctx context.Context, category *store.Category) error
 	}

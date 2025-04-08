@@ -41,6 +41,7 @@ type Storage struct {
 	Categories interface {
 		Create(context.Context, *Category) error
 		GetAll(context.Context) ([]*Category, error)
+		Get(context.Context, *PaginatedCategoryQuery) ([]Category, int64, error)
 		GetByID(context.Context, int64) (*Category, error)
 		Delete(context.Context, int64) error
 		Update(context.Context, *Category) error

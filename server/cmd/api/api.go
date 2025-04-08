@@ -168,6 +168,7 @@ func (app *application) mount() http.Handler {
 				r.Get("/", app.getCategoriesHandler)
 
 				r.With(app.AuthTokenMiddleware, app.checkRole("admin")).Route("/", func(r chi.Router) {
+					r.Get("/paginated", app.getPaginatedCategoriesHandler)
 					r.Post("/", app.createCategoryHandler)
 					r.Delete("/{categoryID}", app.deleteCategoryHandler)
 					r.Patch("/{categoryID}", app.updateCategoryHandler)
