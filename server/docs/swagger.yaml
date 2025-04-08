@@ -116,9 +116,7 @@ definitions:
       status:
         type: string
       thumbnail_image:
-        items:
-          type: integer
-        type: array
+        type: string
       title:
         type: string
       updated_at:
@@ -170,10 +168,10 @@ definitions:
         type: string
       likes_count:
         type: integer
+      status:
+        type: string
       thumbnail_image:
-        items:
-          type: integer
-        type: array
+        type: string
       title:
         type: string
       updated_at:
@@ -690,6 +688,11 @@ paths:
         name: thumbnail_image
         schema:
           type: string
+      - description: Post Status
+        in: body
+        name: status
+        schema:
+          type: string
       produces:
       - application/json
       responses:
@@ -805,6 +808,11 @@ paths:
       - description: Thumbnail Image
         in: body
         name: thumbnail_image
+        schema:
+          type: string
+      - description: Post Status
+        in: body
+        name: status
         schema:
           type: string
       produces:

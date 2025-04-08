@@ -745,6 +745,14 @@ const docTemplate = `{
                         "schema": {
                             "type": "string"
                         }
+                    },
+                    {
+                        "description": "Post Status",
+                        "name": "status",
+                        "in": "body",
+                        "schema": {
+                            "type": "string"
+                        }
                     }
                 ],
                 "responses": {
@@ -920,6 +928,14 @@ const docTemplate = `{
                     {
                         "description": "Thumbnail Image",
                         "name": "thumbnail_image",
+                        "in": "body",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "description": "Post Status",
+                        "name": "status",
                         "in": "body",
                         "schema": {
                             "type": "string"
@@ -1485,10 +1501,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "thumbnail_image": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
+                    "type": "string"
                 },
                 "title": {
                     "type": "string"
@@ -1567,11 +1580,11 @@ const docTemplate = `{
                 "likes_count": {
                     "type": "integer"
                 },
+                "status": {
+                    "type": "string"
+                },
                 "thumbnail_image": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
+                    "type": "string"
                 },
                 "title": {
                     "type": "string"

@@ -16,10 +16,12 @@ type postKey string
 const postCtx postKey = "post"
 
 type CreatePostPayload struct {
-	Title        string `json:"title" validate:"required,max=100"`
-	Introduction string `json:"introduction" validate:"required,max=120"`
-	Content      string `json:"content" validate:"required,max=1000"`
-	CategoryID   int64  `json:"category_id" validate:"required"`
+	Title          string `json:"title" validate:"required,max=100"`
+	Introduction   string `json:"introduction" validate:"required,max=120"`
+	Content        string `json:"content" validate:"required,max=1000"`
+	CategoryID     int64  `json:"category_id" validate:"required"`
+	ThumbnailImage string `json:"thumbnail_image" validate:"omitempty"`
+	Status         string `json:"status" validate:"omitempty"`
 }
 
 type UpdatePostPayload struct {
@@ -27,7 +29,8 @@ type UpdatePostPayload struct {
 	Introduction   *string `json:"introduction" validate:"omitempty,max=120"`
 	Content        *string `json:"content" validate:"omitempty,max=1000"`
 	CategoryID     *int64  `json:"category_id" validate:"omitempty"`
-	ThumbnailImage *[]byte `json:"thumbnail_image" validate:"omitempty"`
+	ThumbnailImage *string `json:"thumbnail_image" validate:"omitempty"`
+	Status         *string `json:"status" validate:"omitempty"`
 }
 
 type CreateCommentPayload struct {
@@ -46,6 +49,7 @@ type CreateCommentPayload struct {
 // @Param			content			body		string		true	"Post Content"		maxLength(1000)
 // @Param			category_id		body		int64		true	"Post Category ID"
 // @Param			thumbnail_image	body		string		false	"Thumbnail Image"
+// @Param			status			body		string		false	"Post Status"
 // @Success		201				{object}	store.Post	"Successfully created post"
 // @Failure		400				{object}	error		"Invalid request, the request data was incorrect or malformed"
 // @Failure		500				{object}	error		"Internal server error, the server encountered a problem"
@@ -66,11 +70,13 @@ func (app *application) createPostHandler(w http.ResponseWriter, r *http.Request
 	user := getUserFromCtx(r)
 
 	post := &store.Post{
-		Title:        payload.Title,
-		Introduction: payload.Introduction,
-		Content:      payload.Content,
-		CategoryID:   payload.CategoryID,
-		UserID:       user.ID,
+		Title:          payload.Title,
+		Introduction:   payload.Introduction,
+		Content:        payload.Content,
+		CategoryID:     payload.CategoryID,
+		UserID:         user.ID,
+		ThumbnailImage: payload.ThumbnailImage,
+		Status:         payload.Status,
 	}
 
 	ctx := r.Context()
@@ -173,6 +179,7 @@ func (app *application) deletePostHandler(w http.ResponseWriter, r *http.Request
 // @Param			content			body		string		false	"Post Content"		maxLength(1000)
 // @Param			category_id		body		int64		false	"Post Category ID"
 // @Param			thumbnail_image	body		string		false	"Thumbnail Image"
+// @Param			status			body		string		false	"Post Status"
 // @Success		200				{object}	store.Post	"Successfully updated post"
 // @Failure		400				{object}	error		"Invalid request, the request data was incorrect or malformed"
 // @Failure		404				{object}	error		"Post not found"
@@ -212,6 +219,10 @@ func (app *application) updatePostHandler(w http.ResponseWriter, r *http.Request
 
 	if payload.ThumbnailImage != nil {
 		post.ThumbnailImage = *payload.ThumbnailImage
+	}
+
+	if payload.Status != nil {
+		post.Status = *payload.Status
 	}
 
 	if err := app.service.Posts.Update(r.Context(), post); err != nil {

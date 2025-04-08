@@ -20,7 +20,7 @@ type Post struct {
 	Content        string    `json:"content"`
 	CategoryID     int64     `json:"category_id"`
 	UserID         int64     `json:"user_id"`
-	ThumbnailImage []byte    `json:"thumbnail_image"`
+	ThumbnailImage string    `json:"thumbnail_image"`
 	CreatedAt      string    `json:"created_at"`
 	UpdatedAt      string    `json:"updated_at"`
 	Version        int       `json:"version"`
@@ -29,6 +29,7 @@ type Post struct {
 	Category       string    `json:"category"`
 	LikesCount     int64     `json:"likes_count"`
 	UserHasLiked   bool      `json:"user_has_liked"`
+	Status         string    `json:"status"`
 }
 
 type FeedItem struct {
@@ -38,7 +39,7 @@ type FeedItem struct {
 	CategoryID     int64  `json:"category_id"`
 	Category       string `json:"category"`
 	UpdatedAt      string `json:"updated_at"`
-	ThumbnailImage []byte `json:"thumbnail_image"`
+	ThumbnailImage string `json:"thumbnail_image"`
 	UserID         int64  `json:"user_id"`
 	Author         string `json:"author"`
 	Status         string `json:"status"`
@@ -147,8 +148,8 @@ func (s *PostStore) GetFeed(ctx context.Context, fq PaginatedFeedQuery) ([]FeedI
 func (s *PostStore) Create(ctx context.Context, post *Post) error {
 	query := `
 		INSERT INTO posts 
-		(title, introduction, content, category_id, user_id, thumbnail_image)
-		VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, created_at, updated_at
+		(title, introduction, content, category_id, user_id, thumbnail_image, status)
+		VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id, created_at, updated_at
 	`
 	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
 	defer cancel()
@@ -162,6 +163,7 @@ func (s *PostStore) Create(ctx context.Context, post *Post) error {
 		post.CategoryID,
 		post.UserID,
 		post.ThumbnailImage,
+		post.Status,
 	).Scan(
 		&post.ID,
 		&post.CreatedAt,
@@ -181,7 +183,7 @@ func (s *PostStore) GetByID(ctx context.Context, id int64, currentUserID int64) 
 
 	if currentUserID > 0 {
 		query = `
-			SELECT p.id, p.title, p.introduction, p.content, p.category_id, 
+			SELECT p.id, p.title, p.introduction, p.content, p.category_id, p.status,
 				p.user_id, p.thumbnail_image, p.created_at, p.updated_at, p.version,
 				u.name, u.bio, c.name as category,
 				(SELECT COUNT(*) FROM post_likes pl WHERE pl.post_id = p.id) AS likes_count,
@@ -194,7 +196,7 @@ func (s *PostStore) GetByID(ctx context.Context, id int64, currentUserID int64) 
 		args = []any{id, currentUserID}
 	} else {
 		query = `
-			SELECT p.id, p.title, p.introduction, p.content, p.category_id, 
+			SELECT p.id, p.title, p.introduction, p.content, p.category_id, p.status,
 				p.user_id, p.thumbnail_image, p.created_at, p.updated_at, p.version,
 				u.name, u.bio, c.name as category,
 				(SELECT COUNT(*) FROM post_likes pl WHERE pl.post_id = p.id) AS likes_count,
@@ -218,6 +220,7 @@ func (s *PostStore) GetByID(ctx context.Context, id int64, currentUserID int64) 
 		&post.Introduction,
 		&post.Content,
 		&post.CategoryID,
+		&post.Status,
 		&post.UserID,
 		&post.ThumbnailImage,
 		&post.CreatedAt,
@@ -253,9 +256,9 @@ func (s *PostStore) GetByID(ctx context.Context, id int64, currentUserID int64) 
 func (s *PostStore) Update(ctx context.Context, post *Post) error {
 	query := `
 		UPDATE posts
-		SET title = $1, introduction = $2, content = $3, category_id = $4, thumbnail_image = $5,
+		SET title = $1, introduction = $2, content = $3, category_id = $4, thumbnail_image = $5, status = $6,
 		updated_at = NOW(), version = version + 1
-		WHERE id = $6 AND version = $7
+		WHERE id = $7 AND version = $8
 		RETURNING version
 	`
 
@@ -266,8 +269,8 @@ func (s *PostStore) Update(ctx context.Context, post *Post) error {
 		ctx, query,
 		post.Title, post.Introduction,
 		post.Content, post.CategoryID,
-		post.ThumbnailImage, post.ID,
-		post.Version).Scan(&post.Version)
+		post.ThumbnailImage, post.Status,
+		post.ID, post.Version).Scan(&post.Version)
 	if err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):

@@ -737,6 +737,14 @@
                         "schema": {
                             "type": "string"
                         }
+                    },
+                    {
+                        "description": "Post Status",
+                        "name": "status",
+                        "in": "body",
+                        "schema": {
+                            "type": "string"
+                        }
                     }
                 ],
                 "responses": {
@@ -912,6 +920,14 @@
                     {
                         "description": "Thumbnail Image",
                         "name": "thumbnail_image",
+                        "in": "body",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "description": "Post Status",
+                        "name": "status",
                         "in": "body",
                         "schema": {
                             "type": "string"
@@ -1477,10 +1493,7 @@
                     "type": "string"
                 },
                 "thumbnail_image": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
+                    "type": "string"
                 },
                 "title": {
                     "type": "string"
@@ -1559,11 +1572,11 @@
                 "likes_count": {
                     "type": "integer"
                 },
+                "status": {
+                    "type": "string"
+                },
                 "thumbnail_image": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
+                    "type": "string"
                 },
                 "title": {
                     "type": "string"
