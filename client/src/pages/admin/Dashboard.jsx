@@ -4,10 +4,19 @@ import { adminMenu } from "@/constants/adminMenu";
 import ArticleManagement from "@/components/admin/ArticleManagement";
 import CategoryManagement from "@/components/admin/CategoryManagement";
 import ProfileManagement from "@/components/admin/ProfileManagement";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import PasswordManagement from "@/components/admin/PasswordManagement";
+import { useUser } from "@/hooks/useUser";
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("article");
+  const { logout } = useUser();
+  const navigate = useNavigate();
+
+  const handleSignOut = () => {
+    logout();
+    navigate("/");
+  };
 
   return (
     <div className="flex h-screen bg-brown-200">
@@ -52,6 +61,7 @@ const Dashboard = () => {
             <div
               className="flex items-center gap-3 px-6 py-5 text-b1 font-medium
                cursor-pointer text-brown-500 hover:bg-brown-300"
+              onClick={handleSignOut}
             >
               <LogOut size={18} />
               <span>Log out</span>
@@ -65,6 +75,7 @@ const Dashboard = () => {
         {activeTab === "article" && <ArticleManagement />}
         {activeTab === "category" && <CategoryManagement />}
         {activeTab === "profile" && <ProfileManagement />}
+        {activeTab === "reset-password" && <PasswordManagement />}
       </main>
     </div>
   );

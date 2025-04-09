@@ -1,7 +1,7 @@
-import api from './axios';
+import api from "./axios";
 
 export const checkHealth = async () => {
-  const res = await api.get('/health');
+  const res = await api.get("/health");
   return res.status;
 };
 
@@ -18,13 +18,19 @@ export const updateUser = async (id, data) => {
 };
 
 export const resetPassword = async (id, passwordData) => {
-  const res = await api.patch(`/users/${id}/password`, passwordData);
+  const payload = {
+    current_password: passwordData.currentPassword,
+    new_password: passwordData.newPassword,
+  };
+  console.log(payload);
+  const res = await api.patch(`/users/${id}/password`, payload);
   if (res.status !== 204) throw new Error("Error updating password.");
   return { success: true };
 };
 
 export const registerUser = async (userData) => {
-  const res = await api.post('/authentication/user', userData)
-  if (res.status !== 201 || !res?.data?.data) throw new Error("Error registering user.");
-  return res.data.data
-}
+  const res = await api.post("/authentication/user", userData);
+  if (res.status !== 201 || !res?.data?.data)
+    throw new Error("Error registering user.");
+  return res.data.data;
+};

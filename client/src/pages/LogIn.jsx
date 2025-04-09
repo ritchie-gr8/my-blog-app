@@ -42,12 +42,10 @@ const LogIn = () => {
   });
   const formErrors = form.formState.errors;
 
-  async function onSubmit(values) {
+  const onSubmit = async (values) => {
     setLoading(true);
     try {
       const res = await loginApi(values);
-      console.log(res)
-      if (res.code !== 201) throw new Error("error logging in...");
 
       login(res.data);
       toast.success("Login successful! Redirecting...");
@@ -55,12 +53,14 @@ const LogIn = () => {
       const destination = location.state?.from || "/";
       navigate(destination);
     } catch (error) {
-      console.log(error);
-      toast.error("Your password is incorrect or this email doesn't exist");
+      toast.error(
+        "Your password is incorrect or this email doesn't exist",
+        error?.message || "error logging in..."
+      );
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   return (
     <div className="flex items-center justify-center w-full">

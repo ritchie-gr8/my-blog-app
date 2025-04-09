@@ -27,6 +27,7 @@ func NewEmailConfig(env, frontendURL string, mailer mailer.Client) *emailConfig 
 type Service struct {
 	Users interface {
 		Get(ctx context.Context, id int64) (*store.User, error)
+		GetFromDB(ctx context.Context, id int64) (*store.User, error)
 		Update(ctx context.Context, user *store.User) error
 		Activate(ctx context.Context, token string) error
 		GetByEmail(ctx context.Context, email string) (*store.User, error)

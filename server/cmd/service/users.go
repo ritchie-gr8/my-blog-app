@@ -37,6 +37,15 @@ func (s *UserService) Get(ctx context.Context, id int64) (*store.User, error) {
 	return user, nil
 }
 
+func (s *UserService) GetFromDB(ctx context.Context, id int64) (*store.User, error) {
+	user, err := s.store.Users.GetByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
 func (s *UserService) Update(ctx context.Context, user *store.User) error {
 	rowsAffected, err := s.store.Users.Update(ctx, user)
 	if err != nil {

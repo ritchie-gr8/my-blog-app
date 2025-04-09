@@ -51,10 +51,7 @@ const ResetPasswordForm = () => {
   const onSubmit = async (values) => {
     try {
       setLoading(true);
-      await resetPassword(user.id, {
-        current_password: values.currentPassword,
-        new_password: values.newPassword,
-      });
+      await resetPassword(user.id, values);
 
       toast.success("Password updated successfully");
       form.reset();

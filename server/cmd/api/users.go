@@ -191,17 +191,6 @@ func (app *application) resetPasswordHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	user, err := app.service.Users.Get(r.Context(), userID)
-	if err != nil {
-		switch err {
-		case store.ErrNotFound:
-			app.notFoundResponse(w, r, err)
-		default:
-			app.internalServerError(w, r, err)
-		}
-		return
-	}
-
 	var payload ResetPasswordPayload
 	if err := readJSON(w, r, &payload); err != nil {
 		app.badRequestResponse(w, r, err)
@@ -210,6 +199,17 @@ func (app *application) resetPasswordHandler(w http.ResponseWriter, r *http.Requ
 
 	if err := Validate.Struct(payload); err != nil {
 		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	user, err := app.service.Users.GetFromDB(r.Context(), userID)
+	if err != nil {
+		switch err {
+		case store.ErrNotFound:
+			app.notFoundResponse(w, r, err)
+		default:
+			app.internalServerError(w, r, err)
+		}
 		return
 	}
 

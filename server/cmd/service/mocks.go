@@ -38,3 +38,7 @@ func (s *MockUserService) CreateUserWithInvitation(ctx context.Context, user *st
 func (s *MockUserService) UpdatePassword(ctx context.Context, user *store.User) error {
 	return nil
 }
+
+func (s *MockUserService) GetFromDB(ctx context.Context, id int64) (*store.User, error) {
+	return nil, nil
+}
