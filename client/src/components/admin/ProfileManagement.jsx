@@ -137,6 +137,7 @@ const ProfileManagement = () => {
                     className="w-full bg-white max-w-[480px]"
                     placeholder="Name"
                     {...field}
+                    disabled={isLoading}
                   />
                 </FormControl>
                 <FormMessage />
@@ -157,6 +158,7 @@ const ProfileManagement = () => {
                     className="w-full bg-white max-w-[480px]"
                     placeholder="Username"
                     {...field}
+                    disabled={isLoading}
                   />
                 </FormControl>
                 <FormMessage />
@@ -177,6 +179,7 @@ const ProfileManagement = () => {
                     className="w-full bg-white max-w-[480px]"
                     placeholder="Email"
                     {...field}
+                    disabled={isLoading}
                   />
                 </FormControl>
                 <FormMessage />
@@ -200,6 +203,7 @@ const ProfileManagement = () => {
                     className="w-full bg-white h-[120px]"
                     placeholder="Bio"
                     {...field}
+                    disabled={isLoading}
                   />
                 </FormControl>
                 <FormMessage />
