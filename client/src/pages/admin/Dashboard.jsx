@@ -3,6 +3,7 @@ import { LogOut, ExternalLink } from "lucide-react";
 import { adminMenu } from "@/constants/adminMenu";
 import ArticleManagement from "@/components/admin/ArticleManagement";
 import CategoryManagement from "@/components/admin/CategoryManagement";
+import ProfileManagement from "@/components/admin/ProfileManagement";
 import { Link } from "react-router-dom";
 
 const Dashboard = () => {
@@ -63,6 +64,7 @@ const Dashboard = () => {
       <main className="flex-1 overflow-y-auto h-full">
         {activeTab === "article" && <ArticleManagement />}
         {activeTab === "category" && <CategoryManagement />}
+        {activeTab === "profile" && <ProfileManagement />}
       </main>
     </div>
   );

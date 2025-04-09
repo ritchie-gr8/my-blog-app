@@ -3,7 +3,7 @@ import Button from "../global/Button";
 import { useUser } from "@/hooks/useUser";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
-const ImageUploader = ({ imageUrl, onImageChange }) => {
+const ImageUploader = ({ imageUrl, onImageChange, variant = "column", className = "" }) => {
   const { user } = useUser();
 
   const handleFileChange = (e) => {
@@ -16,8 +16,9 @@ const ImageUploader = ({ imageUrl, onImageChange }) => {
 
   return (
     <div
-      className="flex flex-col items-center w-full py-6
-    justify-center gap-6 border-b border-b-brown-300"
+      className={`flex ${
+        variant === "row" ? "flex-row" : "flex-col"
+      } items-center gap-6 ${className}`}
     >
       <Avatar className="size-[100px]">
         <AvatarImage src={imageUrl || user.profile_picture} />

@@ -37,16 +37,15 @@ const CategoryManagement = () => {
   const abortControllerRef = useRef(null);
 
   const handleError = (error) => {
-    if (error.name === 'AbortError') {
-      return;
-    }
+    if (error.name === 'AbortError' || error.name === "CanceledError") return;
+
     console.error(error);
     toast.error("Error", error?.message || "Internal server error");
   };
 
   const handleSearchChange = (value) => {
     setSearchTerm(value);
-    setCurrentPage(1); // Reset to first page when searching
+    setCurrentPage(1);
   };
 
   const onEditCategory = (id, name) => {
@@ -79,12 +78,10 @@ const CategoryManagement = () => {
   };
 
   const fetchCategories = useCallback(async () => {
-    // Cancel any ongoing request
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
     }
     
-    // Create new abort controller for this request
     abortControllerRef.current = new AbortController();
     
     try {
@@ -248,7 +245,7 @@ const CategoryManagement = () => {
           categoryName={categoryName}
         />
       )}
-      {totalPages > 1 && (
+      {totalPages > 1 && mode === "list" && (
         <div className="mx-16 mt-6 mb-10">
           <TablePagination
             currentPage={currentPage}

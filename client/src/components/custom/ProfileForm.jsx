@@ -93,6 +93,8 @@ const ProfileForm = () => {
                   <ImageUploader
                     imageUrl={previewUrl}
                     onImageChange={handleImageChange}
+                    variant="column"
+                    className='w-full py-6 justify-center gap-6 border-b border-b-brown-300'
                   />
                 </FormControl>
               </FormItem>
