@@ -323,7 +323,7 @@ func (app *application) createCommentHandler(w http.ResponseWriter, r *http.Requ
 		ProfilePicture: user.ProfilePicture,
 	}
 
-	if err := app.service.Notifications.CreateCommentNotification(r.Context(), post.ID, user.ID); err != nil {
+	if err := app.service.Notifications.CreateCommentNotification(r.Context(), post.ID, comment.ID, user.ID); err != nil {
 		app.logger.Warnw("failed to create notification", "error", err)
 	} else {
 		notification := &store.Notification{

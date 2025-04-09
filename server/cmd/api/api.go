@@ -181,6 +181,7 @@ func (app *application) mount() http.Handler {
 				r.Get("/unread-count", app.getUnreadCountHandler)
 				r.Put("/{notificationID}/read", app.markNotificationReadHandler)
 				r.Put("/read-all", app.markAllNotificationsReadHandler)
+				r.With(app.checkRole("admin")).Get("/admin", app.getAdminNotificationsHandler)
 			})
 
 		})

@@ -7,6 +7,7 @@ import ProfileManagement from "@/components/admin/ProfileManagement";
 import { Link, useNavigate } from "react-router-dom";
 import PasswordManagement from "@/components/admin/PasswordManagement";
 import { useUser } from "@/hooks/useUser";
+import NotificationManagement from "@/components/admin/NotificationManagement";
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("article");
@@ -75,6 +76,7 @@ const Dashboard = () => {
         {activeTab === "article" && <ArticleManagement />}
         {activeTab === "category" && <CategoryManagement />}
         {activeTab === "profile" && <ProfileManagement />}
+        {activeTab === "notification" && <NotificationManagement />}
         {activeTab === "reset-password" && <PasswordManagement />}
       </main>
     </div>

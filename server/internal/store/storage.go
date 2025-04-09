@@ -56,7 +56,7 @@ type Storage struct {
 
 	Notifications interface {
 		Create(ctx context.Context, notification *Notification) error
-		Get(ctx context.Context, id int64) (*Notification, error)
+		Get(ctx context.Context, userID int64, page, limit int) ([]Notification, int64, error)
 		GetByUserID(ctx context.Context, userID int64, limit, offset int) ([]*Notification, error)
 		CountUnread(ctx context.Context, userID int64) (int64, error)
 		MarkAsRead(ctx context.Context, id int64, userID int64) error

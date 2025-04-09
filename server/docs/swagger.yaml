@@ -130,6 +130,8 @@ definitions:
         $ref: '#/definitions/store.User'
       actor_id:
         type: integer
+      comment_content:
+        type: string
       created_at:
         type: string
       id:
@@ -138,6 +140,8 @@ definitions:
         type: boolean
       message:
         type: string
+      post_id:
+        type: integer
       related_id:
         type: integer
       type:
@@ -594,6 +598,42 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Mark notification as read
+      tags:
+      - notifications
+  /notifications/admin:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves notifications for the admin
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Limit results
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/store.Notification'
+            type: array
+        "401":
+          description: User not authenticated
+          schema: {}
+        "500":
+          description: Internal server error
+          schema: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Get admin notifications
       tags:
       - notifications
   /notifications/read-all:

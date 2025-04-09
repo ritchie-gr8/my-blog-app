@@ -3,10 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Heart, MessageSquare } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { useNotifications } from '@/hooks/useNotification';
-import dayjs from 'dayjs';
-import relativeTime from 'dayjs/plugin/relativeTime';
-
-dayjs.extend(relativeTime);
+import { formatDate } from '@/lib/utils';
 
 const NotificationItem = ({ notification }) => {
   const navigate = useNavigate();
@@ -22,9 +19,7 @@ const NotificationItem = ({ notification }) => {
     }
   };
 
-  const formattedDate = dayjs(notification?.created_at).isAfter(dayjs().subtract(1, 'day'))
-    ? dayjs(notification.created_at).fromNow()
-    : dayjs(notification.created_at).format('DD MMMM YYYY [at] HH:mm');
+  const formattedDate = formatDate(notification?.created_at);
 
   return (
     <div 

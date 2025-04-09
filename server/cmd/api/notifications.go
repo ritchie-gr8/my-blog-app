@@ -64,6 +64,56 @@ func (app *application) getNotificationsHandler(w http.ResponseWriter, r *http.R
 	}
 }
 
+// @Summary		Get admin notifications
+// @Description	Retrieves notifications for the admin
+// @Tags			notifications
+// @Accept			json
+// @Produce		json
+// @Param			page	query		int	false	"Page number"	default(1)
+// @Param			limit	query		int	false	"Limit results"	default(10)
+// @Success		200	{array}
+// @Failure		401	{object}	error	"User not authenticated"
+// @Failure		500	{object}	error	"Internal server error"
+// @Security		ApiKeyAuth
+// @Router			/notifications/admin [get]
+func (app *application) getAdminNotificationsHandler(w http.ResponseWriter, r *http.Request) {
+	user := getUserFromCtx(r)
+	if user == nil {
+		app.unauthorizeResponse(w, r, fmt.Errorf("user not authenticated"))
+		return
+	}
+
+	if user.Role != "admin" {
+		app.unauthorizeResponse(w, r, fmt.Errorf("user is not an admin"))
+		return
+	}
+
+	page := 1
+	limit := 10
+
+	if pageParam := r.URL.Query().Get("page"); pageParam != "" {
+		if parsedPage, err := strconv.Atoi(pageParam); err == nil && parsedPage > 0 {
+			page = parsedPage
+		}
+	}
+
+	if limitParam := r.URL.Query().Get("limit"); limitParam != "" {
+		if parsedLimit, err := strconv.Atoi(limitParam); err == nil && parsedLimit > 0 {
+			limit = parsedLimit
+		}
+	}
+
+	notifications, err := app.service.Notifications.GetNotification(r.Context(), user.ID, page, limit)
+	if err != nil {
+		app.internalServerError(w, r, err)
+		return
+	}
+
+	if err := app.jsonResponse(w, http.StatusOK, notifications); err != nil {
+		app.internalServerError(w, r, err)
+	}
+}
+
 // @Summary		Get unread notification count
 // @Description	Returns the number of unread notifications for the authenticated user
 // @Tags			notifications

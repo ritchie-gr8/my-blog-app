@@ -11,6 +11,14 @@ type NotificationService struct {
 	store store.Storage
 }
 
+type NotificationResponse struct {
+	Items      []store.Notification `json:"items"`
+	Total      int64                `json:"total"`
+	Page       int                  `json:"page"`
+	PageSize   int                  `json:"page_size"`
+	TotalPages int                  `json:"total_pages"`
+}
+
 // CreateNotification creates a generic notification
 func (s *NotificationService) CreateNotification(ctx context.Context, notification *store.Notification) error {
 	return s.store.Notifications.Create(ctx, notification)
@@ -48,7 +56,7 @@ func (s *NotificationService) CreateLikeNotification(ctx context.Context, postID
 }
 
 // CreateCommentNotification creates a notification when a post is commented on
-func (s *NotificationService) CreateCommentNotification(ctx context.Context, postID, actorID int64) error {
+func (s *NotificationService) CreateCommentNotification(ctx context.Context, postID, commentID, actorID int64) error {
 	// Get post to find the post owner
 	post, err := s.store.Posts.GetByID(ctx, postID, 0)
 	if err != nil {
@@ -69,7 +77,7 @@ func (s *NotificationService) CreateCommentNotification(ctx context.Context, pos
 	notification := &store.Notification{
 		UserID:    post.UserID,
 		Type:      "comment",
-		RelatedID: postID,
+		RelatedID: commentID,
 		ActorID:   actorID,
 		Message:   fmt.Sprintf("%s commented on your post", actor.Name),
 		IsRead:    false,
@@ -82,8 +90,24 @@ func (s *NotificationService) GetUserNotifications(ctx context.Context, userID i
 	return s.store.Notifications.GetByUserID(ctx, userID, limit, offset)
 }
 
-func (s *NotificationService) GetNotification(ctx context.Context, id int64) (*store.Notification, error) {
-	return s.store.Notifications.Get(ctx, id)
+func (s *NotificationService) GetNotification(ctx context.Context, userID int64, page, limit int) (*NotificationResponse, error) {
+	notifications, total, err := s.store.Notifications.Get(ctx, userID, page, limit)
+	if err != nil {
+		return nil, err
+	}
+
+	totalPages := int(total) / limit
+	if int(total)%limit > 0 {
+		totalPages++
+	}
+
+	return &NotificationResponse{
+		Items:      notifications,
+		Total:      total,
+		Page:       page,
+		PageSize:   limit,
+		TotalPages: totalPages,
+	}, nil
 }
 
 func (s *NotificationService) CountUnreadNotifications(ctx context.Context, userID int64) (int64, error) {

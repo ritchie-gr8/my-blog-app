@@ -543,6 +543,61 @@ const docTemplate = `{
                 }
             }
         },
+        "/notifications/admin": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Retrieves notifications for the admin",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "notifications"
+                ],
+                "summary": "Get admin notifications",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Limit results",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/store.Notification"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "User not authenticated",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {}
+                    }
+                }
+            }
+        },
         "/notifications/read-all": {
             "put": {
                 "security": [
@@ -1543,6 +1598,9 @@ const docTemplate = `{
                 "actor_id": {
                     "type": "integer"
                 },
+                "comment_content": {
+                    "type": "string"
+                },
                 "created_at": {
                     "type": "string"
                 },
@@ -1554,6 +1612,9 @@ const docTemplate = `{
                 },
                 "message": {
                     "type": "string"
+                },
+                "post_id": {
+                    "type": "integer"
                 },
                 "related_id": {
                     "type": "integer"
