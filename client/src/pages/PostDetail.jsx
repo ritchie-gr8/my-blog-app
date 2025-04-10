@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import articleImg from "../assets/article-placeholder.jpg";
 import Button from "../components/global/Button";
 import AuthorProfileCard from "../components/custom/AuthorProfileCard";
 import PostCommentSection from "../components/custom/PostCommentSection";
@@ -7,6 +6,9 @@ import PostShareMenu from "../components/custom/PostShareMenu";
 import { useParams } from "react-router-dom";
 import { getPostById } from "@/api/posts";
 import { toast } from "@/components/custom/Toast";
+import ReactMarkdown from "react-markdown";
+
+const placeholderImage = 'https://picsum.photos/587/800'
 
 const PostContent = ({ content, introduction }) => {
   return (
@@ -14,7 +16,9 @@ const PostContent = ({ content, introduction }) => {
       <h4 className="font-semibold text-h4 text-brown-600 mb-6">
         {introduction}
       </h4>
-      <p className="text-b1 font-medium text-brown-500">{content}</p>
+      <div className="markdown">
+        <ReactMarkdown>{content}</ReactMarkdown>
+      </div>
     </div>
   );
 };
@@ -61,7 +65,7 @@ const PostDetail = () => {
           {/* Image */}
           <div className="w-full md:px-36 md:pt-16">
             <img
-              src={articleImg}
+              src={post?.thumbnail_image?.trim() === "" ? placeholderImage : post?.thumbnail_image}
               alt="article image"
               className="w-full h-[184px] sm:h-auto max-h-[587px]  md:rounded-xl object-cover max-w-full"
             />
@@ -124,13 +128,14 @@ const PostDetail = () => {
               )}
             </div>
             {post?.author && (
-              <div className="hidden md:block md:relative w-fit justify-self-end">
+              <div className="hidden md:block md:relative w-full justify-self-end">
                 <AuthorProfileCard
                   className="my-12 sticky top-12 max-w-[305px] right-0"
                   isSticky={true}
                   user={{
                     name: post.author.name,
                     bio: post.author.bio,
+                    profilePicture: post.author.profile_picture,
                   }}
                 />
               </div>

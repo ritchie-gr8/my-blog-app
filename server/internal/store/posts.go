@@ -9,8 +9,9 @@ import (
 )
 
 type Author struct {
-	Name string `json:"name"`
-	Bio  string `json:"bio"`
+	Name           string `json:"name"`
+	Bio            string `json:"bio"`
+	ProfilePicture string `json:"profile_picture"`
 }
 
 type Post struct {
@@ -33,16 +34,17 @@ type Post struct {
 }
 
 type FeedItem struct {
-	ID             int64  `json:"id"`
-	Title          string `json:"title"`
-	Introduction   string `json:"introduction"`
-	CategoryID     int64  `json:"category_id"`
-	Category       string `json:"category"`
-	UpdatedAt      string `json:"updated_at"`
-	ThumbnailImage string `json:"thumbnail_image"`
-	UserID         int64  `json:"user_id"`
-	Author         string `json:"author"`
-	Status         string `json:"status"`
+	ID                   int64  `json:"id"`
+	Title                string `json:"title"`
+	Introduction         string `json:"introduction"`
+	CategoryID           int64  `json:"category_id"`
+	Category             string `json:"category"`
+	UpdatedAt            string `json:"updated_at"`
+	ThumbnailImage       string `json:"thumbnail_image"`
+	UserID               int64  `json:"user_id"`
+	AuthorName           string `json:"author_name"`
+	AuthorProfilePicture string `json:"author_profile_picture"`
+	Status               string `json:"status"`
 }
 
 type PostStore struct {
@@ -51,7 +53,8 @@ type PostStore struct {
 
 func getFeedQuery(fq *PaginatedFeedQuery, sort string) (string, []any) {
 	baseQuery := `
-		SELECT p.id, p.title, p.introduction, p.category_id, c.name AS category, p.updated_at, p.thumbnail_image, p.user_id, u.name, p.status
+		SELECT p.id, p.title, p.introduction, p.category_id, c.name AS category, p.updated_at, p.thumbnail_image,
+		 p.user_id, u.name, u.profile_picture, p.status
 		FROM posts p
 		LEFT JOIN users u ON u.id = p.user_id
 		LEFT JOIN categories c ON c.id = p.category_id
@@ -132,7 +135,8 @@ func (s *PostStore) GetFeed(ctx context.Context, fq PaginatedFeedQuery) ([]FeedI
 			&item.UpdatedAt,
 			&item.ThumbnailImage,
 			&item.UserID,
-			&item.Author,
+			&item.AuthorName,
+			&item.AuthorProfilePicture,
 			&item.Status,
 		)
 		if err != nil {
@@ -185,7 +189,7 @@ func (s *PostStore) GetByID(ctx context.Context, id int64, currentUserID int64) 
 		query = `
 			SELECT p.id, p.title, p.introduction, p.content, p.category_id, p.status,
 				p.user_id, p.thumbnail_image, p.created_at, p.updated_at, p.version,
-				u.name, u.bio, c.name as category,
+				u.name, u.bio, u.profile_picture, c.name as category,
 				(SELECT COUNT(*) FROM post_likes pl WHERE pl.post_id = p.id) AS likes_count,
 				EXISTS(SELECT 1 FROM post_likes pl WHERE pl.post_id = p.id AND pl.user_id = $2) AS user_has_liked
 			FROM posts p
@@ -198,7 +202,7 @@ func (s *PostStore) GetByID(ctx context.Context, id int64, currentUserID int64) 
 		query = `
 			SELECT p.id, p.title, p.introduction, p.content, p.category_id, p.status,
 				p.user_id, p.thumbnail_image, p.created_at, p.updated_at, p.version,
-				u.name, u.bio, c.name as category,
+				u.name, u.bio, u.profile_picture, c.name as category,
 				(SELECT COUNT(*) FROM post_likes pl WHERE pl.post_id = p.id) AS likes_count,
 				false AS user_has_liked
 			FROM posts p
@@ -213,7 +217,7 @@ func (s *PostStore) GetByID(ctx context.Context, id int64, currentUserID int64) 
 	defer cancel()
 
 	var post Post
-	var userName, userBio, category sql.NullString
+	var userName, userBio, userProfilePicture, category sql.NullString
 	err := s.db.QueryRowContext(ctx, query, args...).Scan(
 		&post.ID,
 		&post.Title,
@@ -228,6 +232,7 @@ func (s *PostStore) GetByID(ctx context.Context, id int64, currentUserID int64) 
 		&post.Version,
 		&userName,
 		&userBio,
+		&userProfilePicture,
 		&category,
 		&post.LikesCount,
 		&post.UserHasLiked,
@@ -242,8 +247,9 @@ func (s *PostStore) GetByID(ctx context.Context, id int64, currentUserID int64) 
 	}
 
 	post.Author = &Author{
-		Name: userName.String,
-		Bio:  userBio.String,
+		Name:           userName.String,
+		Bio:            userBio.String,
+		ProfilePicture: userProfilePicture.String,
 	}
 
 	if category.Valid {
