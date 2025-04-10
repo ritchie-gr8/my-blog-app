@@ -58,7 +58,7 @@ const ProfileForm = () => {
       if (imageFile) {
         // TODO: handle image upload error
         const { fileId } = await uploadImage(imageFile);
-        const uploadedUrl = `https://ucarecdn.com/${fileId}/${imageFile.name}`;
+        const uploadedUrl = `https://ucarecdn.com/${fileId}/-/scale_crop/48x48/`;
         imageUrl = uploadedUrl;
       }
 

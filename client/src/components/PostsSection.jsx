@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import { getPostsByPage } from "@/api/posts";
 import { toast } from "./custom/Toast";
 import { getCategories } from "@/api/categories";
-import dayjs from "dayjs";
+import { getFormatedDate } from "@/lib/utils";
 import TablePagination from "@/components/custom/TablePagination";
 import { useDebounce } from "@/hooks/useDebouce";
 
@@ -139,7 +139,7 @@ const PostsSection = () => {
                 description={introduction}
                 author_name={author_name}
                 author_profile_picture={author_profile_picture}
-                date={dayjs(updated_at).format("DD MMMM YYYY")}
+                date={getFormatedDate(updated_at)}
               />
             </Link>
           )

@@ -7,6 +7,7 @@ import { useParams } from "react-router-dom";
 import { getPostById } from "@/api/posts";
 import { toast } from "@/components/custom/Toast";
 import ReactMarkdown from "react-markdown";
+import { getFormatedDate } from "@/lib/utils";
 
 const placeholderImage = 'https://picsum.photos/587/800'
 
@@ -84,7 +85,7 @@ const PostDetail = () => {
                   </Button>
 
                   <p className="text-b1 font-medium text-brown-400">
-                    {new Date(post?.created_at).toLocaleString()}
+                    {getFormatedDate(post?.created_at)}
                   </p>
                 </div>
 

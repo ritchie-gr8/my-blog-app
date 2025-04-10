@@ -1,15 +1,23 @@
 import React, { useState } from "react";
 import Button from "../global/Button";
 import { Check, Copy } from "lucide-react";
-import facebookIcon from "../../assets/facebook-logo.svg";
-import linkedIcon from "../../assets/linkedin-logo.svg";
-import xTwitterIcon from "../../assets/x-twitter-logo.svg";
 import LikeButton from "./LikeButton";
+import { toast } from "./Toast";
+import {
+  FacebookIcon,
+  FacebookShareButton,
+  LinkedinIcon,
+  LinkedinShareButton,
+  TwitterShareButton,
+  XIcon,
+} from "react-share";
 
 const PostShareMenu = ({ likes = 0, postId, userHasLiked = false }) => {
   const [copied, setCopied] = useState(false);
 
   const copyLink = () => {
+    toast.success("Link copied to clipboard");
+
     navigator.clipboard.writeText(window.location.href);
     setCopied(true);
 
@@ -45,15 +53,15 @@ const PostShareMenu = ({ likes = 0, postId, userHasLiked = false }) => {
           {copied ? <Check /> : <Copy />}
         </Button>
         <div className="flex gap-2 md:items-center md:justify-center">
-          <a>
-            <img src={facebookIcon} alt="facebook icon" />
-          </a>
-          <a>
-            <img src={linkedIcon} alt="linkedin icon" />
-          </a>
-          <a>
-            <img src={xTwitterIcon} alt="twitter icon" />
-          </a>
+          <FacebookShareButton url={window.location.href}>
+            <FacebookIcon size={48} round />
+          </FacebookShareButton>
+          <LinkedinShareButton url={window.location.href}>
+            <LinkedinIcon size={48} round />
+          </LinkedinShareButton>
+          <TwitterShareButton url={window.location.href}>
+            <XIcon size={48} round />
+          </TwitterShareButton>
         </div>
       </div>
     </div>

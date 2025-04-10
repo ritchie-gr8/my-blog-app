@@ -74,7 +74,7 @@ const ProfileManagement = () => {
       let profilePictureUrl = data.profile_picture;
       if (imageFile) {
         const { fileId } = await uploadImage(imageFile);
-        profilePictureUrl = `https://ucarecdn.com/${fileId}/${imageFile.name}`;
+        profilePictureUrl = `https://ucarecdn.com/${fileId}/-/scale_crop/48x48/`;
       }
 
       const userData = {

@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import { Textarea } from "../ui/textarea";
 import Button from "../global/Button";
+import { Button as DialogButton } from "../ui/button";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -10,6 +11,8 @@ import { toast } from "./Toast";
 import { Form, FormControl, FormField, FormItem } from "../ui/form";
 import dayjs from "dayjs";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { getFormatedDateTime } from "@/lib/utils";
+import LoginDialog from "./LoginDialog";
 
 const Comment = ({ comment }) => {
   return (
@@ -26,7 +29,7 @@ const Comment = ({ comment }) => {
             {comment.user.username}
           </h4>
           <p className="text-b3 text-brown-400 font-medium">
-            {dayjs(comment.created_at).format('DD MMMM YYYY [at] HH:mm')}
+            {getFormatedDateTime(comment.created_at)}
           </p>
         </div>
       </div>
@@ -45,6 +48,7 @@ const PostCommentSection = ({
   onCommentError,
 }) => {
   const { user } = useUser();
+  const [isLoginDialogOpen, setIsLoginDialogOpen] = useState(false);
 
   const formSchema = z.object({
     content: z.string().min(1, {
@@ -58,6 +62,12 @@ const PostCommentSection = ({
       content: "",
     },
   });
+
+  const handleTextareaClick = () => {
+    if (!user) {
+      setIsLoginDialogOpen(true);
+    }
+  };
 
   const onSubmit = async (formData) => {
     const optimisticCommentId = "temp-" + dayjs();
@@ -91,11 +101,22 @@ const PostCommentSection = ({
 
   return (
     <div className="px-4 py-6 bg-brown-100 mb-7 md:ml-36 md:mr-20 md:px-0">
+      <LoginDialog
+        isOpen={isLoginDialogOpen}
+        onClose={() => setIsLoginDialogOpen(false)}
+      />
       <div className="flex flex-col">
         <p className="text-b1 font-medium text-brown-400">Comment</p>
         <Form {...form}>
           <form
-            onSubmit={form.handleSubmit(onSubmit)}
+            onSubmit={(e) => {
+              if (!user) {
+                e.preventDefault();
+                setIsLoginDialogOpen(true);
+                return;
+              }
+              form.handleSubmit(onSubmit)(e);
+            }}
             className="flex flex-col"
           >
             <FormField
@@ -108,6 +129,7 @@ const PostCommentSection = ({
                       {...field}
                       className="py-3 px-3 min-h-[102px] mt-1 mb-3 bg-white placeholder:text-brown-400 placeholder:font-medium placeholder:text-b1"
                       placeholder="What are your thoughts?"
+                      onClick={handleTextareaClick}
                     />
                   </FormControl>
                 </FormItem>
@@ -117,6 +139,7 @@ const PostCommentSection = ({
               type="submit"
               className="w-fit md:self-end"
               variant={"secondary"}
+              disabled={!user}
             >
               Send
             </Button>

@@ -201,7 +201,7 @@ const ArticleEditor = ({
 
   const handleUploadImage = async (imageFile) => {
     const { fileId } = await uploadImage(imageFile);
-    const uploadedUrl = `https://ucarecdn.com/${fileId}/${imageFile.name}`;
+    const uploadedUrl = `https://ucarecdn.com/${fileId}/-/format/auto/-/quality/smart/`;
     form.setValue("thumbnailImage", uploadedUrl);
     return uploadedUrl;
   };

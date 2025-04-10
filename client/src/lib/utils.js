@@ -24,6 +24,14 @@ export function isTokenExpired(token) {
   }
 }
 
+export function getFormatedDate(date) {
+  return dayjs(date).format('DD MMMM YYYY');
+}
+
+export function getFormatedDateTime(date) {
+  return dayjs(date).format('DD MMMM YYYY [at] HH:mm');
+}
+
 export function formatDate(date) {
     const formattedDate = dayjs(date).isAfter(dayjs().subtract(1, 'day'))
     ? dayjs(date).fromNow()

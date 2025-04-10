@@ -5,9 +5,15 @@ const Footer = () => {
   return (
     <footer className="bg-brown-200 py-10 flex flex-col gap-6 items-center sm:flex-row sm:justify-between sm:px-32">
       <div className="flex items-center gap-6 justify-center">
-        <p className="font-medium text-brown-500">Get in touch</p>
+        <p className="font-medium text-brown-500 select-none">Get in touch</p>
         <div className="flex gap-4">
-          <a className="cursor-pointer">
+          {/* LinkedIn */}
+          <a
+            className="cursor-pointer"
+            href="https://www.linkedin.com/in/yotsathon-rittisornthanoo-5a1211236/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             <svg
               width="24"
               height="24"
@@ -24,7 +30,14 @@ const Footer = () => {
               />
             </svg>
           </a>
-          <a className="cursor-pointer">
+
+          {/* GitHub */}
+          <a
+            className="cursor-pointer"
+            href="https://github.com/ritchie-gr8"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             <svg
               width="24"
               height="24"
@@ -90,7 +103,14 @@ const Footer = () => {
               />
             </svg>
           </a>
-          <a className="cursor-pointer">
+
+          {/* Email */}
+          <a
+            className="cursor-pointer"
+            href="mailto:rit.yotsathon@gmail.com"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             <svg
               width="24"
               height="24"
@@ -110,7 +130,7 @@ const Footer = () => {
         </div>
       </div>
       <Link to={"/"}>
-        <button className="cursor-pointer underline font-medium text-brown-600">
+        <button className="cursor-pointer underline select-none font-medium text-brown-600">
           Home page
         </button>
       </Link>
