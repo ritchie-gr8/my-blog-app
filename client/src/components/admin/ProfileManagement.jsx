@@ -17,8 +17,9 @@ import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 import { toast } from "../custom/Toast";
 import { updateUser } from "@/api/users";
-import { uploadImage } from "@/api/uploadcare";
+import { deleteImage, uploadImage } from "@/api/uploadcare";
 import { useUser } from "@/hooks/useUser";
+import { extractUploadcareUuid } from "@/lib/utils";
 
 const formSchema = z.object({
   name: z.string().min(1, { message: "Name is required" }),
@@ -68,12 +69,16 @@ const ProfileManagement = () => {
   };
 
   const handleSave = async (data) => {
+    let newFileId = null;
+
     try {
       setIsLoading(true);
 
       let profilePictureUrl = data.profile_picture;
+
       if (imageFile) {
         const { fileId } = await uploadImage(imageFile);
+        newFileId = fileId;
         profilePictureUrl = `https://ucarecdn.com/${fileId}/-/scale_crop/48x48/`;
       }
 
@@ -88,8 +93,23 @@ const ProfileManagement = () => {
         updateUserData(response.data);
       }
 
+      if (newFileId) {
+        const oldUUID = extractUploadcareUuid(data.profile_picture);
+        if (oldUUID) {
+          await deleteImage(oldUUID).catch((err) =>
+            console.error("Failed to delete old image:", err)
+          );
+        }
+      }
+
       toast.success("Profile updated successfully");
     } catch (error) {
+      if (newFileId) {
+        await deleteImage(newFileId).catch((err) => {
+          console.error("Failed to delete orphaned new image:", err);
+        });
+      }
+
       console.error("Error updating profile:", error);
       toast.error(error?.message || "Failed to update profile");
     } finally {

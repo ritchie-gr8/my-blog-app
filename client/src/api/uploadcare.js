@@ -1,6 +1,13 @@
+import { deleteFile, UploadcareAuthSchema } from "@uploadcare/rest-client";
 import axios from "axios";
 
 const uploadcarePublicKey = import.meta.env.VITE_UPLOADCARE_PUBLIC_KEY;
+const uploadcareSecretKey = import.meta.env.VITE_UPLOADCARE_SECRET_KEY;
+
+const uploadcareSimpleAuthSchema = new UploadcareAuthSchema({
+  publicKey: uploadcarePublicKey,
+  secretKey: uploadcareSecretKey,
+});
 
 export const uploadImage = async (file) => {
   try {
@@ -34,4 +41,15 @@ export const uploadImage = async (file) => {
       error: error.message,
     };
   }
+};
+
+export const deleteImage = async (uuid) => {
+  const result = deleteFile(
+    {
+      uuid: uuid,
+    },
+    { authSchema: uploadcareSimpleAuthSchema }
+  );
+
+  return result;
 };

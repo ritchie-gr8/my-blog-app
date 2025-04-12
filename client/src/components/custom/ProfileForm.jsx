@@ -14,9 +14,10 @@ import { Button } from "@/components/ui/button";
 import ImageUploader from "./ImageUploader";
 import { useUser } from "@/hooks/useUser";
 import { Loader2 } from "lucide-react";
-import { uploadImage } from "@/api/uploadcare";
+import { deleteImage, uploadImage } from "@/api/uploadcare";
 import { updateUser } from "@/api/users";
 import { toast } from "./Toast";
+import { extractUploadcareUuid } from "@/lib/utils";
 
 const ProfileForm = () => {
   const { user, updateUserData } = useUser();
@@ -51,15 +52,16 @@ const ProfileForm = () => {
   };
 
   const onSubmit = async (values) => {
+    let newFileId = null;
+
     try {
       setLoading(true);
       let imageUrl = user.profile_picture;
 
       if (imageFile) {
-        // TODO: handle image upload error
         const { fileId } = await uploadImage(imageFile);
-        const uploadedUrl = `https://ucarecdn.com/${fileId}/-/scale_crop/48x48/`;
-        imageUrl = uploadedUrl;
+        newFileId = fileId;
+        imageUrl = `https://ucarecdn.com/${fileId}/-/scale_crop/48x48/`;
       }
 
       const updateData = {
@@ -68,10 +70,29 @@ const ProfileForm = () => {
       };
 
       const { data } = await updateUser(user.id, updateData);
+
+      if (newFileId) {
+        const oldUUID = extractUploadcareUuid(user.profile_picture);
+        if (oldUUID) {
+          await deleteImage(oldUUID).catch((err) =>
+            console.error("Failed to delete old image:", err)
+          );
+        }
+      }
+
       updateUserData(data);
       toast.success("Profile updated successfully");
     } catch (error) {
-      toast.error("Failed to update profile", error?.message || "Failed to update profile");
+      if (newFileId) {
+        await deleteImage(newFileId).catch((err) => {
+          console.error("Failed to delete orphaned new image:", err);
+        });
+      }
+
+      toast.error(
+        "Failed to update profile",
+        error?.message || "Failed to update profile"
+      );
     } finally {
       setLoading(false);
     }
@@ -94,7 +115,7 @@ const ProfileForm = () => {
                     imageUrl={previewUrl}
                     onImageChange={handleImageChange}
                     variant="column"
-                    className='w-full py-6 justify-center gap-6 border-b border-b-brown-300'
+                    className="w-full py-6 justify-center gap-6 border-b border-b-brown-300"
                   />
                 </FormControl>
               </FormItem>

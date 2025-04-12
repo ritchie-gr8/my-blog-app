@@ -35,7 +35,8 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import PostThumbnailUploader from "./PostThumbnailUploader";
-import { uploadImage } from "@/api/uploadcare";
+import { deleteImage, uploadImage } from "@/api/uploadcare";
+import { extractUploadcareUuid } from "@/lib/utils";
 
 const formSchema = z.object({
   title: z.string().min(1, { message: "Title is required" }),
@@ -126,12 +127,20 @@ const ArticleEditor = ({
 
   const handleSaveArticle = async (data, status) => {
     setIsLoading(true);
+
+    let newFileId = null;
+    let oldUUID = null;
+
     try {
-      let uploadedUrl = null;
+      let uploadedUrl = data?.thumbnailImage;
+      oldUUID = extractUploadcareUuid(uploadedUrl);
+
       if (imageFile) {
-        uploadedUrl = await handleUploadImage(imageFile);
-      } else {
-        uploadedUrl = data.thumbnailImage;
+        const { fileId, uploadedUrl: newUploadedUrl } = await handleUploadImage(
+          imageFile
+        );
+        newFileId = fileId;
+        uploadedUrl = newUploadedUrl;
       }
 
       const articleData = {
@@ -172,7 +181,20 @@ const ArticleEditor = ({
           }`
         );
       }
+
+      if (newFileId && oldUUID) {
+        await deleteImage(oldUUID).catch((err) => {
+          console.error("Failed to delete orphaned new image:", err);
+        });
+      }
     } catch (error) {
+
+      if (newFileId) {
+        await deleteImage(newFileId).catch((err) => {
+          console.error("Failed to delete orphaned new image:", err);
+        });
+      }
+
       toast.error(error.message || `Failed to ${status.toLowerCase()} article`);
     } finally {
       setIsLoading(false);
@@ -203,7 +225,7 @@ const ArticleEditor = ({
     const { fileId } = await uploadImage(imageFile);
     const uploadedUrl = `https://ucarecdn.com/${fileId}/-/format/auto/-/quality/smart/`;
     form.setValue("thumbnailImage", uploadedUrl);
-    return uploadedUrl;
+    return { fileId, uploadedUrl };
   };
 
   const cleanupAndExit = () => {
