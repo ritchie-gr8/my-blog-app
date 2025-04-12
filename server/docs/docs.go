@@ -1517,6 +1517,9 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
+                },
+                "profile_picture": {
+                    "type": "string"
                 }
             }
         },
@@ -1557,7 +1560,10 @@ const docTemplate = `{
         "store.FeedItem": {
             "type": "object",
             "properties": {
-                "author": {
+                "author_name": {
+                    "type": "string"
+                },
+                "author_profile_picture": {
                     "type": "string"
                 },
                 "category": {

@@ -13,18 +13,18 @@ import (
 	"github.com/ritchie-gr8/my-blog-app/internal/store"
 )
 
-// @Summary		Get user notifications
-// @Description	Retrieves notifications for the authenticated user
-// @Tags			notifications
-// @Accept			json
-// @Produce		json
-// @Param			limit	query		int	false	"Limit results"		default(20)
-// @Param			offset	query		int	false	"Offset results"	default(0)
-// @Success		200		{array}		store.Notification
-// @Failure		401		{object}	error	"User not authenticated"
-// @Failure		500		{object}	error	"Internal server error"
-// @Security		ApiKeyAuth
-// @Router			/notifications [get]
+//	@Summary		Get user notifications
+//	@Description	Retrieves notifications for the authenticated user
+//	@Tags			notifications
+//	@Accept			json
+//	@Produce		json
+//	@Param			limit	query		int	false	"Limit results"		default(20)
+//	@Param			offset	query		int	false	"Offset results"	default(0)
+//	@Success		200		{array}		store.Notification
+//	@Failure		401		{object}	error	"User not authenticated"
+//	@Failure		500		{object}	error	"Internal server error"
+//	@Security		ApiKeyAuth
+//	@Router			/notifications [get]
 func (app *application) getNotificationsHandler(w http.ResponseWriter, r *http.Request) {
 	user := getUserFromCtx(r)
 	if user == nil {
@@ -64,18 +64,18 @@ func (app *application) getNotificationsHandler(w http.ResponseWriter, r *http.R
 	}
 }
 
-// @Summary		Get admin notifications
-// @Description	Retrieves notifications for the admin
-// @Tags			notifications
-// @Accept			json
-// @Produce		json
-// @Param			page	query		int	false	"Page number"	default(1)
-// @Param			limit	query		int	false	"Limit results"	default(10)
-// @Success		200	{array}
-// @Failure		401	{object}	error	"User not authenticated"
-// @Failure		500	{object}	error	"Internal server error"
-// @Security		ApiKeyAuth
-// @Router			/notifications/admin [get]
+//	@Summary		Get admin notifications
+//	@Description	Retrieves notifications for the admin
+//	@Tags			notifications
+//	@Accept			json
+//	@Produce		json
+//	@Param			page	query		int	false	"Page number"	default(1)
+//	@Param			limit	query		int	false	"Limit results"	default(10)
+//	@Success		200		{array}		store.Notification
+//	@Failure		401		{object}	error	"User not authenticated"
+//	@Failure		500		{object}	error	"Internal server error"
+//	@Security		ApiKeyAuth
+//	@Router			/notifications/admin [get]
 func (app *application) getAdminNotificationsHandler(w http.ResponseWriter, r *http.Request) {
 	user := getUserFromCtx(r)
 	if user == nil {
@@ -114,16 +114,16 @@ func (app *application) getAdminNotificationsHandler(w http.ResponseWriter, r *h
 	}
 }
 
-// @Summary		Get unread notification count
-// @Description	Returns the number of unread notifications for the authenticated user
-// @Tags			notifications
-// @Accept			json
-// @Produce		json
-// @Success		200	{object}	map[string]int64
-// @Failure		401	{object}	error	"User not authenticated"
-// @Failure		500	{object}	error	"Internal server error"
-// @Security		ApiKeyAuth
-// @Router			/notifications/unread-count [get]
+//	@Summary		Get unread notification count
+//	@Description	Returns the number of unread notifications for the authenticated user
+//	@Tags			notifications
+//	@Accept			json
+//	@Produce		json
+//	@Success		200	{object}	map[string]int64
+//	@Failure		401	{object}	error	"User not authenticated"
+//	@Failure		500	{object}	error	"Internal server error"
+//	@Security		ApiKeyAuth
+//	@Router			/notifications/unread-count [get]
 func (app *application) getUnreadCountHandler(w http.ResponseWriter, r *http.Request) {
 	user := getUserFromCtx(r)
 	if user == nil {
@@ -143,19 +143,19 @@ func (app *application) getUnreadCountHandler(w http.ResponseWriter, r *http.Req
 	}
 }
 
-// @Summary		Mark notification as read
-// @Description	Marks a specific notification as read
-// @Tags			notifications
-// @Accept			json
-// @Produce		json
-// @Param			notificationID	path		int		true	"Notification ID"
-// @Success		204				{string}	string	"No content"
-// @Failure		400				{object}	error	"Invalid notification ID"
-// @Failure		401				{object}	error	"User not authenticated"
-// @Failure		404				{object}	error	"Notification not found"
-// @Failure		500				{object}	error	"Internal server error"
-// @Security		ApiKeyAuth
-// @Router			/notifications/{notificationID}/read [put]
+//	@Summary		Mark notification as read
+//	@Description	Marks a specific notification as read
+//	@Tags			notifications
+//	@Accept			json
+//	@Produce		json
+//	@Param			notificationID	path		int		true	"Notification ID"
+//	@Success		204				{string}	string	"No content"
+//	@Failure		400				{object}	error	"Invalid notification ID"
+//	@Failure		401				{object}	error	"User not authenticated"
+//	@Failure		404				{object}	error	"Notification not found"
+//	@Failure		500				{object}	error	"Internal server error"
+//	@Security		ApiKeyAuth
+//	@Router			/notifications/{notificationID}/read [put]
 func (app *application) markNotificationReadHandler(w http.ResponseWriter, r *http.Request) {
 	user := getUserFromCtx(r)
 	if user == nil {
@@ -183,16 +183,16 @@ func (app *application) markNotificationReadHandler(w http.ResponseWriter, r *ht
 	w.WriteHeader(http.StatusNoContent)
 }
 
-// @Summary		Mark all notifications as read
-// @Description	Marks all of the authenticated user's notifications as read
-// @Tags			notifications
-// @Accept			json
-// @Produce		json
-// @Success		204	{string}	string	"No content"
-// @Failure		401	{object}	error	"User not authenticated"
-// @Failure		500	{object}	error	"Internal server error"
-// @Security		ApiKeyAuth
-// @Router			/notifications/read-all [put]
+//	@Summary		Mark all notifications as read
+//	@Description	Marks all of the authenticated user's notifications as read
+//	@Tags			notifications
+//	@Accept			json
+//	@Produce		json
+//	@Success		204	{string}	string	"No content"
+//	@Failure		401	{object}	error	"User not authenticated"
+//	@Failure		500	{object}	error	"Internal server error"
+//	@Security		ApiKeyAuth
+//	@Router			/notifications/read-all [put]
 func (app *application) markAllNotificationsReadHandler(w http.ResponseWriter, r *http.Request) {
 	user := getUserFromCtx(r)
 	if user == nil {
@@ -209,14 +209,14 @@ func (app *application) markAllNotificationsReadHandler(w http.ResponseWriter, r
 	w.WriteHeader(http.StatusNoContent)
 }
 
-// @Summary		Stream notifications
-// @Description	Open an SSE connection to receive real-time notifications
-// @Tags			notifications
-// @Produce		text/event-stream
-// @Success		200	{string}	string	"SSE stream established"
-// @Failure		401	{object}	error	"User not authenticated"
-// @Security		ApiKeyAuth
-// @Router			/notifications/stream [get]
+//	@Summary		Stream notifications
+//	@Description	Open an SSE connection to receive real-time notifications
+//	@Tags			notifications
+//	@Produce		text/event-stream
+//	@Success		200	{string}	string	"SSE stream established"
+//	@Failure		401	{object}	error	"User not authenticated"
+//	@Security		ApiKeyAuth
+//	@Router			/notifications/stream [get]
 func (app *application) notificationStreamHandler(w http.ResponseWriter, r *http.Request) {
 	user := getUserFromCtx(r)
 	if user == nil {

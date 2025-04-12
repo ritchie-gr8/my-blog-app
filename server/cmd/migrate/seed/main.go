@@ -6,6 +6,7 @@ import (
 	_ "github.com/lib/pq"
 	"github.com/ritchie-gr8/my-blog-app/internal/db"
 	"github.com/ritchie-gr8/my-blog-app/internal/env"
+	"github.com/ritchie-gr8/my-blog-app/internal/seed"
 	"github.com/ritchie-gr8/my-blog-app/internal/store"
 )
 
@@ -20,5 +21,5 @@ func main() {
 
 	store := store.NewStorage(conn)
 
-	db.Seed(store, conn)
+	seed.Seed(store, conn)
 }
