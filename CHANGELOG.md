@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.1](https://github.com/ritchie-gr8/my-blog-app/compare/v1.1.0...v1.1.1) (2025-04-12)
+
+
+### Bug Fixes
+
+* update api version script ([111f04b](https://github.com/ritchie-gr8/my-blog-app/commit/111f04b775a5b2581750d84f0566fc79f9c021fe))
+* update api version script ([f791e41](https://github.com/ritchie-gr8/my-blog-app/commit/f791e41510fbe1301ee4cf006243e153d7330b2c))
+
 ## [1.1.0](https://github.com/ritchie-gr8/my-blog-app/compare/v1.0.0...v1.1.0) (2025-04-12)
 
 
