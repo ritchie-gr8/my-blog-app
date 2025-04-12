@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.2](https://github.com/ritchie-gr8/my-blog-app/compare/v1.1.1...v1.1.2) (2025-04-12)
+
+
+### Bug Fixes
+
+* update api version change mismatch regex ([e5bfca3](https://github.com/ritchie-gr8/my-blog-app/commit/e5bfca3cb024ac77c95d3c6073151fbcbfa17a7d))
+* update api version change mismatch regex ([40b13b8](https://github.com/ritchie-gr8/my-blog-app/commit/40b13b800fa21394cda8cd6409f7732c76adafb5))
+
 ## [1.1.1](https://github.com/ritchie-gr8/my-blog-app/compare/v1.1.0...v1.1.1) (2025-04-12)
 
 
