@@ -1,31 +1,70 @@
-import { useEffect } from "react";
-import Article from "./components/Article";
-import ArticleSection from "./components/ArticleSection";
-import Hero from "./components/Hero";
 import Footer from "./components/global/Footer";
 import Navbar from "./components/global/Navbar";
-import { checkHealth } from "./api/user";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import Landing from "./pages/Landing";
+import LogIn from "./pages/LogIn";
+import SignUp from "./pages/SignUp";
+import PostDetail from "./pages/PostDetail";
+import NotFound from "./pages/NotFound";
+import Member from "./pages/Member";
+import { UserProvider } from "./context/UserContext";
+import ProtectedRoute from "./components/ProtectedRoute";
+import PublicRoute from "./components/PublicRoute";
+import { NotificationProvider } from "./context/NotificationContext";
+import Dashboard from "./pages/admin/Dashboard";
+import AdminLayout from "./layouts/AdminLayout";
+import StandardLayout from "./layouts/StandardLayout";
 
 function App() {
-  useEffect(() => {
-    const fetchHealth = async () => {
-      const res = await checkHealth();
-      console.log(res);
-    };
-
-    fetchHealth()
-  }, []);
-
   return (
-    <>
-      <Navbar />
-      <div>
-        <Hero />
-        <ArticleSection />
-        {/* <Article /> */}
-      </div>
-      <Footer />
-    </>
+    <BrowserRouter>
+      <UserProvider>
+        <NotificationProvider>
+          <Routes>
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <AdminLayout>
+                    <Dashboard />
+                  </AdminLayout>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route element={<StandardLayout />}>
+              <Route path="/" element={<Landing />} />
+              <Route
+                path="/login"
+                element={
+                  <PublicRoute>
+                    <LogIn />
+                  </PublicRoute>
+                }
+              />
+              <Route
+                path="/signup"
+                element={
+                  <PublicRoute>
+                    <SignUp />
+                  </PublicRoute>
+                }
+              />
+              <Route path="/posts/:id" element={<PostDetail />} />
+              <Route
+                path="/member"
+                element={
+                  <ProtectedRoute>
+                    <Member />
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="*" element={<NotFound />} />
+            </Route>
+          </Routes>
+        </NotificationProvider>
+      </UserProvider>
+    </BrowserRouter>
   );
 }
 

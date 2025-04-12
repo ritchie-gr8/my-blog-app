@@ -1,0 +1,1141 @@
+basePath: /v1
+definitions:
+  main.CreateUserTokenPayload:
+    properties:
+      email:
+        maxLength: 255
+        type: string
+      password:
+        maxLength: 72
+        minLength: 3
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  main.RegisterUserPayload:
+    properties:
+      email:
+        maxLength: 255
+        type: string
+      name:
+        maxLength: 100
+        type: string
+      password:
+        maxLength: 72
+        minLength: 3
+        type: string
+      username:
+        maxLength: 100
+        type: string
+    required:
+    - email
+    - name
+    - password
+    - username
+    type: object
+  main.UserWithToken:
+    properties:
+      bio:
+        type: string
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      is_active:
+        type: boolean
+      name:
+        type: string
+      profile_picture:
+        type: string
+      role:
+        type: string
+      token:
+        type: string
+      username:
+        type: string
+    type: object
+  service.FeedResponse:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/store.FeedItem'
+        type: array
+      page:
+        type: integer
+      page_size:
+        type: integer
+      total:
+        type: integer
+      total_pages:
+        type: integer
+    type: object
+  store.Author:
+    properties:
+      bio:
+        type: string
+      name:
+        type: string
+      profile_picture:
+        type: string
+    type: object
+  store.Category:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  store.Comment:
+    properties:
+      content:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      post_id:
+        type: integer
+      user:
+        $ref: '#/definitions/store.User'
+      user_id:
+        type: integer
+    type: object
+  store.FeedItem:
+    properties:
+      author_name:
+        type: string
+      author_profile_picture:
+        type: string
+      category:
+        type: string
+      category_id:
+        type: integer
+      id:
+        type: integer
+      introduction:
+        type: string
+      status:
+        type: string
+      thumbnail_image:
+        type: string
+      title:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  store.Notification:
+    properties:
+      actor:
+        $ref: '#/definitions/store.User'
+      actor_id:
+        type: integer
+      comment_content:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      is_read:
+        type: boolean
+      message:
+        type: string
+      post_id:
+        type: integer
+      related_id:
+        type: integer
+      type:
+        description: '"like", "comment", etc.'
+        type: string
+      user_id:
+        type: integer
+    type: object
+  store.Post:
+    properties:
+      author:
+        $ref: '#/definitions/store.Author'
+      category:
+        type: string
+      category_id:
+        type: integer
+      comments:
+        items:
+          $ref: '#/definitions/store.Comment'
+        type: array
+      content:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      introduction:
+        type: string
+      likes_count:
+        type: integer
+      status:
+        type: string
+      thumbnail_image:
+        type: string
+      title:
+        type: string
+      updated_at:
+        type: string
+      user_has_liked:
+        type: boolean
+      user_id:
+        type: integer
+      version:
+        type: integer
+    type: object
+  store.User:
+    properties:
+      bio:
+        type: string
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      is_active:
+        type: boolean
+      name:
+        type: string
+      profile_picture:
+        type: string
+      role:
+        type: string
+      username:
+        type: string
+    type: object
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: API for my blog post
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Blog Post API
+paths:
+  /authentication/token:
+    post:
+      consumes:
+      - application/json
+      description: Create a token
+      parameters:
+      - description: User credentials
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/main.CreateUserTokenPayload'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: User and token
+          schema:
+            $ref: '#/definitions/main.UserWithToken'
+        "400":
+          description: Bad Request
+          schema: {}
+        "401":
+          description: Unauthorized
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Create a token
+      tags:
+      - authentication
+  /authentication/user:
+    post:
+      consumes:
+      - application/json
+      description: Register a user
+      parameters:
+      - description: User credentials
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/main.RegisterUserPayload'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: User registered
+          schema:
+            $ref: '#/definitions/main.UserWithToken'
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Register a user
+      tags:
+      - authentication
+  /categories:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve paginated categories
+      parameters:
+      - description: Page number for pagination (default is 1)
+        in: query
+        name: page
+        type: integer
+      - description: Number of categories to retrieve (default is 10, max is 20)
+        in: query
+        name: limit
+        type: integer
+      - description: Search term to filter categories by (max length is 100)
+        in: query
+        name: name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully fetched categories
+          schema:
+            items:
+              $ref: '#/definitions/store.Category'
+            type: array
+        "500":
+          description: Internal server error, the server encountered a problem
+          schema: {}
+      summary: Get paginated categories
+      tags:
+      - categories
+    post:
+      consumes:
+      - application/json
+      description: Creates a new category with the provided name
+      parameters:
+      - description: Category Name
+        in: body
+        name: name
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Successfully created category
+          schema:
+            $ref: '#/definitions/store.Category'
+        "400":
+          description: Invalid request, the request data was incorrect or malformed
+          schema: {}
+        "409":
+          description: 'Conflict: Category with this name already exists'
+          schema: {}
+        "500":
+          description: Internal server error, the server encountered a problem
+          schema: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Create a category
+      tags:
+      - categories
+  /categories/{categoryID}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a category by its ID
+      parameters:
+      - description: Category ID
+        in: path
+        name: categoryID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: "No Content\"\t\"Successfully deleted category"
+        "400":
+          description: Invalid request
+          schema: {}
+        "404":
+          description: Category not found
+          schema: {}
+        "500":
+          description: Internal server error
+          schema: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Delete a category
+      tags:
+      - categories
+    patch:
+      consumes:
+      - application/json
+      description: Update a category's name
+      parameters:
+      - description: Category ID
+        in: path
+        name: categoryID
+        required: true
+        type: integer
+      - description: New Category Name
+        in: body
+        name: name
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully updated category
+          schema:
+            $ref: '#/definitions/store.Category'
+        "400":
+          description: Invalid request, the request data was incorrect or malformed
+          schema: {}
+        "404":
+          description: Category not found
+          schema: {}
+        "409":
+          description: 'Conflict: Category with this name already exists'
+          schema: {}
+        "500":
+          description: Internal server error, the server encountered a problem
+          schema: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Update a category
+      tags:
+      - categories
+  /comments:
+    post:
+      consumes:
+      - application/json
+      description: Create a new comment on a post with the provided details
+      parameters:
+      - description: Post ID
+        in: path
+        name: postID
+        required: true
+        type: integer
+      - description: User ID
+        in: body
+        name: user_id
+        required: true
+        schema:
+          type: integer
+      - description: Comment Content
+        in: body
+        maxLength: 300
+        name: content
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Successfully created comment
+          schema:
+            $ref: '#/definitions/store.Comment'
+        "400":
+          description: Invalid request, the request data was incorrect or malformed
+          schema: {}
+        "500":
+          description: Internal server error, the server encountered a problem
+          schema: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Create a new comment
+      tags:
+      - comments
+  /feed:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a paginated feed of posts with optional filters for category,
+        search and status
+      parameters:
+      - description: Page number for pagination (default is 1)
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - description: Number of posts to retrieve (default is 6, max is 20)
+        in: query
+        maximum: 20
+        minimum: 1
+        name: limit
+        type: integer
+      - description: Sort order (default is 'desc', options are 'asc' or 'desc')
+        in: query
+        name: sort
+        type: string
+      - description: Category to filter posts by
+        in: query
+        name: category
+        type: string
+      - description: Search term to filter posts by (max length is 100)
+        in: query
+        name: search
+        type: string
+      - description: Status to filter posts by (default will fetch all status, options
+          are 'published' or 'draft')
+        in: query
+        name: status
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully retrieved the posts feed
+          schema:
+            $ref: '#/definitions/service.FeedResponse'
+        "400":
+          description: Invalid request, the request data was incorrect or malformed
+          schema: {}
+        "500":
+          description: Internal server error, the server encountered a problem
+          schema: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Get post feed
+      tags:
+      - posts
+  /health:
+    get:
+      consumes:
+      - application/json
+      description: Check the health status of the server, environment, and version
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Returns server health status, environment, and version
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error, the server encountered a problem
+          schema: {}
+      summary: Health check
+      tags:
+      - health
+  /notifications:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves notifications for the authenticated user
+      parameters:
+      - default: 20
+        description: Limit results
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: Offset results
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/store.Notification'
+            type: array
+        "401":
+          description: User not authenticated
+          schema: {}
+        "500":
+          description: Internal server error
+          schema: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Get user notifications
+      tags:
+      - notifications
+  /notifications/{notificationID}/read:
+    put:
+      consumes:
+      - application/json
+      description: Marks a specific notification as read
+      parameters:
+      - description: Notification ID
+        in: path
+        name: notificationID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No content
+          schema:
+            type: string
+        "400":
+          description: Invalid notification ID
+          schema: {}
+        "401":
+          description: User not authenticated
+          schema: {}
+        "404":
+          description: Notification not found
+          schema: {}
+        "500":
+          description: Internal server error
+          schema: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Mark notification as read
+      tags:
+      - notifications
+  /notifications/admin:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves notifications for the admin
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Limit results
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/store.Notification'
+            type: array
+        "401":
+          description: User not authenticated
+          schema: {}
+        "500":
+          description: Internal server error
+          schema: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Get admin notifications
+      tags:
+      - notifications
+  /notifications/read-all:
+    put:
+      consumes:
+      - application/json
+      description: Marks all of the authenticated user's notifications as read
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No content
+          schema:
+            type: string
+        "401":
+          description: User not authenticated
+          schema: {}
+        "500":
+          description: Internal server error
+          schema: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Mark all notifications as read
+      tags:
+      - notifications
+  /notifications/stream:
+    get:
+      description: Open an SSE connection to receive real-time notifications
+      produces:
+      - text/event-stream
+      responses:
+        "200":
+          description: SSE stream established
+          schema:
+            type: string
+        "401":
+          description: User not authenticated
+          schema: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Stream notifications
+      tags:
+      - notifications
+  /notifications/unread-count:
+    get:
+      consumes:
+      - application/json
+      description: Returns the number of unread notifications for the authenticated
+        user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: integer
+            type: object
+        "401":
+          description: User not authenticated
+          schema: {}
+        "500":
+          description: Internal server error
+          schema: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Get unread notification count
+      tags:
+      - notifications
+  /posts:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new post with the provided details
+      parameters:
+      - description: Post Title
+        in: body
+        maxLength: 100
+        name: title
+        required: true
+        schema:
+          type: string
+      - description: Post Introduction
+        in: body
+        maxLength: 120
+        name: introduction
+        required: true
+        schema:
+          type: string
+      - description: Post Content
+        in: body
+        maxLength: 1000
+        name: content
+        required: true
+        schema:
+          type: string
+      - description: Post Category ID
+        in: body
+        name: category_id
+        required: true
+        schema:
+          type: integer
+      - description: Thumbnail Image
+        in: body
+        name: thumbnail_image
+        schema:
+          type: string
+      - description: Post Status
+        in: body
+        name: status
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Successfully created post
+          schema:
+            $ref: '#/definitions/store.Post'
+        "400":
+          description: Invalid request, the request data was incorrect or malformed
+          schema: {}
+        "500":
+          description: Internal server error, the server encountered a problem
+          schema: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Create a post
+      tags:
+      - posts
+  /posts/{postID}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a post by its ID
+      parameters:
+      - description: Post ID
+        in: path
+        name: postID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: "No Content\"\t\"Successfully deleted post, no content returned"
+        "400":
+          description: Invalid request, the request data was incorrect or malformed
+          schema: {}
+        "404":
+          description: Post not found
+          schema: {}
+        "500":
+          description: Internal server error, the server encountered a problem
+          schema: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Delete a post
+      tags:
+      - posts
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a post along with its comments
+      parameters:
+      - description: Post ID
+        in: path
+        name: postID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully fetched post
+          schema:
+            $ref: '#/definitions/store.Post'
+        "400":
+          description: Invalid request, the request data was incorrect or malformed
+          schema: {}
+        "404":
+          description: Post not found
+          schema: {}
+        "500":
+          description: Internal server error, the server encountered a problem
+          schema: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Get a post
+      tags:
+      - posts
+    patch:
+      consumes:
+      - application/json
+      description: Update an existing post with new details
+      parameters:
+      - description: Post ID
+        in: path
+        name: postID
+        required: true
+        type: integer
+      - description: Post Title
+        in: body
+        maxLength: 100
+        name: title
+        schema:
+          type: string
+      - description: Post Introduction
+        in: body
+        maxLength: 120
+        name: introduction
+        schema:
+          type: string
+      - description: Post Content
+        in: body
+        maxLength: 1000
+        name: content
+        schema:
+          type: string
+      - description: Post Category ID
+        in: body
+        name: category_id
+        schema:
+          type: integer
+      - description: Thumbnail Image
+        in: body
+        name: thumbnail_image
+        schema:
+          type: string
+      - description: Post Status
+        in: body
+        name: status
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully updated post
+          schema:
+            $ref: '#/definitions/store.Post'
+        "400":
+          description: Invalid request, the request data was incorrect or malformed
+          schema: {}
+        "404":
+          description: Post not found
+          schema: {}
+        "409":
+          description: 'Conflict: The request could not be completed due to a conflict'
+          schema: {}
+        "500":
+          description: Internal server error, the server encountered a problem
+          schema: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Update a post
+      tags:
+      - posts
+  /posts/{postID}/like:
+    delete:
+      consumes:
+      - application/json
+      description: Remove a like from a post for the current user
+      parameters:
+      - description: Post ID
+        in: path
+        name: postID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Like removed successfully
+          schema:
+            type: string
+        "400":
+          description: Invalid request
+          schema: {}
+        "404":
+          description: Post not found or like not found
+          schema: {}
+        "500":
+          description: Internal server error
+          schema: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Unlike a post
+      tags:
+      - likes
+    post:
+      consumes:
+      - application/json
+      description: Add a like to a post for the current user
+      parameters:
+      - description: Post ID
+        in: path
+        name: postID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Post already liked by user
+          schema:
+            type: string
+        "201":
+          description: Like added successfully
+          schema:
+            type: string
+        "400":
+          description: Invalid request
+          schema: {}
+        "404":
+          description: Post not found
+          schema: {}
+        "500":
+          description: Internal server error
+          schema: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Like a post
+      tags:
+      - likes
+  /users/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Fetch a user profile by ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/store.User'
+        "400":
+          description: Bad Request
+          schema: {}
+        "404":
+          description: Not Found
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Fetch a user profile
+      tags:
+      - users
+  /users/{userID}:
+    patch:
+      consumes:
+      - application/json
+      description: Update the details of an existing user (partial update)
+      parameters:
+      - description: User ID
+        in: path
+        name: userID
+        required: true
+        type: integer
+      - description: Name
+        in: body
+        maxLength: 72
+        name: name
+        schema:
+          type: string
+      - description: Username
+        in: body
+        maxLength: 72
+        name: username
+        schema:
+          type: string
+      - description: Email
+        format: email
+        in: body
+        maxLength: 120
+        name: email
+        schema:
+          type: string
+      - description: Bio
+        in: body
+        maxLength: 120
+        name: bio
+        schema:
+          type: string
+      - description: Profile Picture (base64 encoded)
+        in: body
+        maxLength: 1000000
+        name: profile_picture
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully updated user
+          schema:
+            $ref: '#/definitions/store.User'
+        "400":
+          description: Invalid request, the request data was incorrect or malformed
+          schema: {}
+        "404":
+          description: User not found
+          schema: {}
+        "500":
+          description: Internal server error, the server encountered a problem
+          schema: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Update an existing user
+      tags:
+      - users
+  /users/{userID}/password:
+    patch:
+      consumes:
+      - application/json
+      description: Reset password for authenticated user
+      parameters:
+      - description: User ID
+        in: path
+        name: userID
+        required: true
+        type: integer
+      - description: Current password
+        in: body
+        minLength: 6
+        name: current_password
+        required: true
+        schema:
+          type: string
+      - description: New password
+        in: body
+        minLength: 6
+        name: new_password
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Password updated successfully
+          schema:
+            type: string
+        "400":
+          description: Invalid request, incorrect current password
+          schema: {}
+        "404":
+          description: User not found
+          schema: {}
+        "500":
+          description: Internal server error
+          schema: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Reset user password
+      tags:
+      - users
+  /users/activate/{token}:
+    put:
+      consumes:
+      - application/json
+      description: Activate/Register a user by invitation token
+      parameters:
+      - description: Invitation token
+        in: path
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: User activated
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Activate/Register a user
+      tags:
+      - users
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
