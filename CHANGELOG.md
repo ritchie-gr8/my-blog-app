@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.0](https://github.com/ritchie-gr8/my-blog-app/compare/v1.0.0...v1.1.0) (2025-04-12)
+
+
+### Features
+
+* update api version automatically ([5d95276](https://github.com/ritchie-gr8/my-blog-app/commit/5d9527678388e2d6baf3cd7edbf2d9242869527c))
+* update api version automatically ([84599f1](https://github.com/ritchie-gr8/my-blog-app/commit/84599f1fac2e26b916244b1df7d2d01a224f6dc9))
+
 ## 1.0.0 (2025-04-12)
 
 
