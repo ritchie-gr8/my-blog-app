@@ -71,8 +71,9 @@ jobs:
     - name: Vulnerability check
       uses: golang/govulncheck-action@v1
       with:
+        work-dir: ./server
         go-version-input: '1.24.1'
-        go-package: ./server/...
+        go-package: ./...
 
     - name: Lint workflow file
       uses: reviewdog/action-actionlint@v1
