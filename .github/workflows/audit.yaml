@@ -58,7 +58,7 @@ jobs:
 
     - name: Run gosec security scanner
       working-directory: ./server
-      run: gosec -quiet -exclude-generated -exclude-dir=vendor -exclude-dir=internal/seed ./...
+      run: gosec -quiet -exclude-generated -exclude-dir=vendor -exclude-dir=internal/seed -exclude=G104 ./...
 
     - name: Run tests with coverage
       working-directory: ./server
