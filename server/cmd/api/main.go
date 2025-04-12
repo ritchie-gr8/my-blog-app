@@ -48,11 +48,6 @@ func main() {
 	defer zap.Sync()
 	logger := zap.Sugar()
 
-	// load env file
-	// if err := godotenv.Load(); err != nil {
-	// 	logger.Fatal("Error loading .env file")
-	// }
-
 	// setup config
 	cfg := config{
 		addr:        env.GetString("ADDR", ":8080"),

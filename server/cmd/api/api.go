@@ -19,7 +19,6 @@ import (
 	"github.com/ritchie-gr8/my-blog-app/cmd/service"
 	"github.com/ritchie-gr8/my-blog-app/docs"
 	"github.com/ritchie-gr8/my-blog-app/internal/auth"
-	"github.com/ritchie-gr8/my-blog-app/internal/env"
 	"github.com/ritchie-gr8/my-blog-app/internal/mailer"
 	"github.com/ritchie-gr8/my-blog-app/internal/ratelimiter"
 	"github.com/ritchie-gr8/my-blog-app/internal/store"
@@ -99,7 +98,10 @@ func (app *application) mount() http.Handler {
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins: []string{env.GetString("CORS_ALLOWED_ORIGIN", "http://localhost:5173")},
+		AllowedOrigins: []string{
+			app.config.frontendURL,
+			"http://localhost:5173", // for local development
+		},
 		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"},
 		AllowedHeaders: []string{
 			"Accept",
