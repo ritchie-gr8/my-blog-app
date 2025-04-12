@@ -19,7 +19,7 @@ import (
 	"go.uber.org/zap"
 )
 
-const version = "0.0.1"
+const version = "1.1.1"
 
 //	@title			Blog Post API
 //	@description	API for my blog post
