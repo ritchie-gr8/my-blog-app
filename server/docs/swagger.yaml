@@ -460,6 +460,34 @@ paths:
       summary: Create a new comment
       tags:
       - comments
+  /debug-token:
+    get:
+      consumes:
+      - application/json
+      description: Debug endpoint to diagnose token validation issues
+      parameters:
+      - description: Bearer Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad request
+          schema: {}
+        "500":
+          description: Internal server error
+          schema: {}
+      summary: Debug Token
+      tags:
+      - debug
   /feed:
     get:
       consumes:
