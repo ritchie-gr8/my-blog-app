@@ -130,6 +130,9 @@ func (app *application) mount() http.Handler {
 			r.Get("/health", app.healthCheckHandler)
 			r.With(app.BasicAuthMiddleware()).Get("/metrics", expvar.Handler().ServeHTTP)
 
+			// Debug endpoint for token validation - remove in production
+			r.Get("/debug-token", app.debugTokenHandler)
+
 			docsURL := fmt.Sprintf("%s/swagger/doc.json", app.config.addr)
 			r.Get("/swagger/*", httpSwagger.Handler(httpSwagger.URL(docsURL)))
 
