@@ -100,7 +100,6 @@ func (app *application) mount() http.Handler {
 	r.Use(cors.Handler(cors.Options{
 		AllowedOrigins: []string{
 			app.config.frontendURL,
-			"http://localhost:5173", // for local development
 		},
 		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"},
 		AllowedHeaders: []string{
@@ -130,7 +129,6 @@ func (app *application) mount() http.Handler {
 			r.Get("/health", app.healthCheckHandler)
 			r.With(app.BasicAuthMiddleware()).Get("/metrics", expvar.Handler().ServeHTTP)
 
-			// Debug endpoint for token validation - remove in production
 			r.Get("/debug-token", app.debugTokenHandler)
 
 			docsURL := fmt.Sprintf("%s/swagger/doc.json", app.config.addr)

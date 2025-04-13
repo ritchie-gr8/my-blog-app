@@ -11,7 +11,7 @@ node_modules
 dist
 dist-ssr
 *.local
-.env
+.env*
 
 # Editor directories and files
 .vscode/*
@@ -24,7 +24,7 @@ dist-ssr
 *.sln
 *.sw?
 
-# For go server 
+# For go server
 
 # Binaries for programs and plugins
 *.exe
