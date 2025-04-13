@@ -75,9 +75,23 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
+	claims := jwt.MapClaims{
+		"sub": user.ID,
+		"exp": time.Now().Add(app.config.auth.token.exp).Unix(),
+		"iat": time.Now().Unix(),
+		"nbf": time.Now().Unix(),
+		"iss": app.config.auth.token.issue,
+		"aud": app.config.auth.token.issue,
+	}
+	jwtToken, err := app.authenticator.GenerateToken(claims)
+	if err != nil {
+		app.internalServerError(w, r, err)
+		return
+	}
+
 	userWithToken := UserWithToken{
 		User:  user,
-		Token: plainToken,
+		Token: jwtToken,
 	}
 
 	activationURL := app.service.Emails.GenerateActivationURL(plainToken)
