@@ -2,12 +2,10 @@ package main
 
 import (
 	"expvar"
-	"os"
 	"runtime"
 	"time"
 
 	"github.com/go-redis/redis/v8"
-	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 	"github.com/ritchie-gr8/my-blog-app/cmd/service"
 	"github.com/ritchie-gr8/my-blog-app/internal/auth"
@@ -49,12 +47,6 @@ func main() {
 	}
 	defer zap.Sync()
 	logger := zap.Sugar()
-
-	if os.Getenv("ENV") != "production" {
-		if err := godotenv.Load(); err != nil {
-			logger.Fatal("Error loading .env file")
-		}
-	}
 
 	// setup config
 	cfg := config{
