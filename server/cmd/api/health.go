@@ -17,9 +17,10 @@ import (
 // @Router			/health [get]
 func (app *application) healthCheckHandler(w http.ResponseWriter, r *http.Request) {
 	data := map[string]string{
-		"status":  "ok",
-		"env":     app.config.env,
-		"version": version,
+		"status":       "ok",
+		"env":          app.config.env,
+		"version":      version,
+		"frontend_url": app.config.frontendURL,
 	}
 
 	if err := app.jsonResponse(w, http.StatusOK, data); err != nil {
