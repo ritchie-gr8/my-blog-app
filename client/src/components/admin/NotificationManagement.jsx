@@ -28,8 +28,8 @@ const NotificationManagement = () => {
     setIsLoading(true);
     try {
       const response = await getAdminNotifications(page, LIMIT);
-      setNotifications(response.items);
-      setTotalPages(response.total_pages);
+      setNotifications(response?.items ?? []);
+      setTotalPages(response?.total_pages ?? 1);
     } catch (error) {
       console.error("Error fetching notifications:", error);
     } finally {

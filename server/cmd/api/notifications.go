@@ -105,7 +105,12 @@ func (app *application) getAdminNotificationsHandler(w http.ResponseWriter, r *h
 
 	notifications, err := app.service.Notifications.GetNotification(r.Context(), user.ID, page, limit)
 	if err != nil {
-		app.internalServerError(w, r, err)
+		switch err {
+		case store.ErrNotFound:
+			app.notFoundResponse(w, r, err)
+		default:
+			app.internalServerError(w, r, err)
+		}
 		return
 	}
 

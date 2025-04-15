@@ -26,7 +26,7 @@ type NotificationStore struct {
 
 func (s *NotificationStore) Create(ctx context.Context, notification *Notification) error {
 	query := `
-		INSERT INTO notifications 
+		INSERT INTO notifications
 		(user_id, type, related_id, actor_id, message, is_read)
 		VALUES ($1, $2, $3, $4, $5, $6)
 		RETURNING id, created_at
@@ -67,10 +67,10 @@ func (s *NotificationStore) Get(ctx context.Context, userID int64, page, limit i
 	offset := (page - 1) * limit
 
 	query := `
-		SELECT 
+		SELECT
 			n.id, n.user_id, n.type, n.related_id, n.actor_id, n.message, n.is_read, n.created_at,
 			u.name as actor_name, u.profile_picture as actor_profile_picture,
-			CASE 
+			CASE
 				WHEN n.type = 'comment' THEN c.post_id
 				ELSE n.related_id
 			END as post_id,
@@ -79,8 +79,8 @@ func (s *NotificationStore) Get(ctx context.Context, userID int64, page, limit i
 		FROM notifications n
 		LEFT JOIN users u ON n.actor_id = u.id
 		LEFT JOIN comments c ON n.type = 'comment' AND n.related_id = c.id
-		LEFT JOIN posts p ON 
-			CASE 
+		LEFT JOIN posts p ON
+			CASE
 				WHEN n.type = 'comment' THEN p.id = c.post_id
 				ELSE p.id = n.related_id
 			END
@@ -174,11 +174,16 @@ func (s *NotificationStore) Get(ctx context.Context, userID int64, page, limit i
 
 func (s *NotificationStore) GetByUserID(ctx context.Context, userID int64, limit, offset int) ([]*Notification, error) {
 	query := `
-		SELECT 
+		SELECT
 			n.id, n.user_id, n.type, n.related_id, n.actor_id, n.message, n.is_read, n.created_at,
-			u.name as actor_name, u.profile_picture as actor_profile_picture
+			u.name as actor_name, u.profile_picture as actor_profile_picture,
+			CASE
+				WHEN n.type = 'comment' THEN c.post_id
+				ELSE n.related_id
+			END as post_id
 		FROM notifications n
 		LEFT JOIN users u ON n.actor_id = u.id
+		LEFT JOIN comments c ON n.type = 'comment' AND n.related_id = c.id
 		WHERE n.user_id = $1
 		ORDER BY n.created_at DESC
 		LIMIT $2 OFFSET $3
@@ -196,6 +201,7 @@ func (s *NotificationStore) GetByUserID(ctx context.Context, userID int64, limit
 	for rows.Next() {
 		var notification Notification
 		var actorName, actorProfilePicture sql.NullString
+		var postID sql.NullInt64
 
 		err := rows.Scan(
 			&notification.ID,
@@ -208,6 +214,7 @@ func (s *NotificationStore) GetByUserID(ctx context.Context, userID int64, limit
 			&notification.CreatedAt,
 			&actorName,
 			&actorProfilePicture,
+			&postID,
 		)
 		if err != nil {
 			return nil, err
@@ -219,6 +226,10 @@ func (s *NotificationStore) GetByUserID(ctx context.Context, userID int64, limit
 				Name:           actorName.String,
 				ProfilePicture: actorProfilePicture.String,
 			}
+		}
+
+		if postID.Valid {
+			notification.PostID = postID.Int64
 		}
 
 		notifications = append(notifications, &notification)
@@ -233,8 +244,8 @@ func (s *NotificationStore) GetByUserID(ctx context.Context, userID int64, limit
 
 func (s *NotificationStore) CountUnread(ctx context.Context, userID int64) (int64, error) {
 	query := `
-		SELECT COUNT(*) 
-		FROM notifications 
+		SELECT COUNT(*)
+		FROM notifications
 		WHERE user_id = $1 AND is_read = false
 	`
 	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)

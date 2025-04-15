@@ -9,13 +9,13 @@ const NotificationDropdown = () => {
   useEffect(() => {
     refreshNotifications();
   }, [refreshNotifications]);
-  
+
   return (
     <div className="absolute right-0 top-10 mt-2 w-80 bg-brown-100 rounded-md shadow-xl z-50">
       <div className="p-3 border-b flex justify-between items-center">
         <h3 className="font-semibold">Notifications</h3>
         {notifications.length > 0 && (
-          <button 
+          <button
             className="text-sm text-blue-500 cursor-pointer hover:text-blue-700"
             onClick={markAllAsRead}
           >
@@ -23,7 +23,7 @@ const NotificationDropdown = () => {
           </button>
         )}
       </div>
-      
+
       <div className="max-h-96 overflow-y-auto">
         {loading ? (
           <div className="p-4 text-center">Loading...</div>
@@ -31,9 +31,9 @@ const NotificationDropdown = () => {
           <div className="p-4 text-center text-gray-500">No notifications</div>
         ) : (
           notifications?.map(notification => (
-            <NotificationItem 
-              key={notification.id} 
-              notification={notification} 
+            <NotificationItem
+              key={notification.id}
+              notification={notification}
             />
           ))
         )}

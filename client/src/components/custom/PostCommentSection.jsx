@@ -89,8 +89,7 @@ const PostCommentSection = ({
         post_id: postId,
         content: formData.content,
       };
-      const res = await createComment(payload);
-      console.log(res);
+      await createComment(payload);
       form.reset();
       toast.success("Comment added");
     } catch (error) {
