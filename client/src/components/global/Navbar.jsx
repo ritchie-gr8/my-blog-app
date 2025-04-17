@@ -16,8 +16,9 @@ const Navbar = () => {
     <header className="border-b border-brown-300 relative">
       <div className="flex items-center justify-between px-6 py-3 md:px-32">
         <div>
-          <Link to={"/"}>
-            <img src="/logo.svg" alt="logo" />
+          <Link to={"/"} className="flex items-center gap-2 hover:underline">
+            <img src="/logo.png" className="size-10" alt="greato's stack & score logo" />
+            Stack & Score
           </Link>
         </div>
 
@@ -55,8 +56,8 @@ const Navbar = () => {
       </div>
       {showMobileMenu && (
         <div
-          className="flex flex-col shadow-[2px_2px_16px_0px_rgba(0,0,0,0.1)] 
-        px-6 py-10 gap-6 w-full bg-white border-t border-t-brown-300 
+          className="flex flex-col shadow-[2px_2px_16px_0px_rgba(0,0,0,0.1)]
+        px-6 py-10 gap-6 w-full bg-white border-t border-t-brown-300
         absolute top-12"
         >
           {user ? (
