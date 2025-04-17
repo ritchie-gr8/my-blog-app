@@ -147,7 +147,7 @@ const PostCommentSection = ({
       </div>
 
       <div className="mt-5" id="comments">
-        {comments.map((comment) => (
+        {comments?.length > 0 && comments.map((comment) => (
           <Comment key={comment.id} comment={comment} />
         ))}
       </div>
