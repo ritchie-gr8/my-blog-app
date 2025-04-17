@@ -27,8 +27,15 @@ export const markAllAsRead = async () => {
 };
 
 export const getAdminNotifications = async (page = 1, limit = 10) => {
-  const response = await api.get(`/notifications/admin?page=${page}&limit=${limit}`);
-  if (response.status !== 200 || !response?.data?.data)
-    throw new Error("Failed to fetch admin notifications");
-  return response.data.data;
+  try {
+    const response = await api.get(
+      `/notifications/admin?page=${page}&limit=${limit}`
+    );
+    if (response.status !== 200 || !response?.data?.data)
+      throw new Error("Failed to fetch admin notifications");
+    return response.data.data;
+  } catch (err) {
+    if (err.status === 404) return null;
+    throw err;
+  }
 };

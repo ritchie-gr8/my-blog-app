@@ -2,10 +2,12 @@ package main
 
 import (
 	"expvar"
+	"os"
 	"runtime"
 	"time"
 
 	"github.com/go-redis/redis/v8"
+	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 	"github.com/ritchie-gr8/my-blog-app/cmd/service"
 	"github.com/ritchie-gr8/my-blog-app/internal/auth"
@@ -48,16 +50,17 @@ func main() {
 	defer zap.Sync()
 	logger := zap.Sugar()
 
-	fallbackFrontEndURL := ""
-	if env.GetString("ENV", "development") == "development" {
-		fallbackFrontEndURL = "http://localhost:5173"
+	if os.Getenv("ENV") != "production" {
+		if err := godotenv.Load(); err != nil {
+			logger.Fatal("Error loading .env file")
+		}
 	}
 
 	// setup config
 	cfg := config{
 		addr:        env.GetString("ADDR", ":8080"),
 		apiURL:      env.GetString("EXTERNAL_URL", "localhost:8080"),
-		frontendURL: env.GetString("FRONTEND_URL", fallbackFrontEndURL),
+		frontendURL: env.GetString("FRONTEND_URL", "http://localhost:5173"),
 		db: dbConfig{
 			addr:         env.GetString("DB_ADDR", "postgres://admin:adminpassword@localhost/blogpost?sslmode=disable"),
 			maxOpenConns: env.GetInt("DB_MAX_OPEN_CONNS", 30),

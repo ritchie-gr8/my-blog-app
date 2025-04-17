@@ -8,6 +8,7 @@ import { Link, useNavigate } from "react-router-dom";
 import PasswordManagement from "@/components/admin/PasswordManagement";
 import { useUser } from "@/hooks/useUser";
 import NotificationManagement from "@/components/admin/NotificationManagement";
+import { frontEndUrl } from "@/constants/urls";
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("article");
@@ -50,7 +51,7 @@ const Dashboard = () => {
           </div>
 
           <div className="mt-auto pt-12">
-            <Link to="http://localhost:5173" target="_blank">
+            <Link to={frontEndUrl} target="_blank">
               <div
                 className="flex items-center gap-3 px-6 py-5 text-b1 font-medium
                cursor-pointer text-brown-500 hover:bg-brown-300"

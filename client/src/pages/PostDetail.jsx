@@ -9,7 +9,7 @@ import { toast } from "@/components/custom/Toast";
 import ReactMarkdown from "react-markdown";
 import { getFormatedDate } from "@/lib/utils";
 
-const placeholderImage = 'https://picsum.photos/587/800'
+const placeholderImage = "https://picsum.photos/587/800";
 
 const PostContent = ({ content, introduction }) => {
   return (
@@ -52,7 +52,10 @@ const PostDetail = () => {
           setPost(postData);
         }
       } catch (error) {
-        toast.error("Error fetching post", error?.message || "Failed to fetch post");
+        toast.error(
+          "Error fetching post",
+          error?.message || "Failed to fetch post"
+        );
       }
     };
 
@@ -66,7 +69,11 @@ const PostDetail = () => {
           {/* Image */}
           <div className="w-full md:px-36 md:pt-16">
             <img
-              src={post?.thumbnail_image?.trim() === "" ? placeholderImage : post?.thumbnail_image}
+              src={
+                post?.thumbnail_image?.trim() === ""
+                  ? placeholderImage
+                  : post?.thumbnail_image
+              }
               alt="article image"
               className="w-full h-[184px] sm:h-auto max-h-[587px]  md:rounded-xl object-cover max-w-full"
             />
@@ -119,14 +126,12 @@ const PostDetail = () => {
                 userHasLiked={post?.user_has_liked}
               />
 
-              {post?.comments && post?.comments.length > 0 && (
-                <PostCommentSection
-                  comments={post?.comments}
-                  postId={post?.id}
-                  onNewComment={handleNewComment}
-                  onCommentError={handleCommentError}
-                />
-              )}
+              <PostCommentSection
+                comments={post?.comments}
+                postId={post?.id}
+                onNewComment={handleNewComment}
+                onCommentError={handleCommentError}
+              />
             </div>
             {post?.author && (
               <div className="hidden md:block md:relative w-full justify-self-end">
