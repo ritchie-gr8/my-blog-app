@@ -1,5 +1,3 @@
-import Footer from "./components/global/Footer";
-import Navbar from "./components/global/Navbar";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Landing from "./pages/Landing";
 import LogIn from "./pages/LogIn";
@@ -14,6 +12,7 @@ import { NotificationProvider } from "./context/NotificationContext";
 import Dashboard from "./pages/admin/Dashboard";
 import AdminLayout from "./layouts/AdminLayout";
 import StandardLayout from "./layouts/StandardLayout";
+import Confirm from "./pages/Confirm";
 
 function App() {
   return (
@@ -34,6 +33,7 @@ function App() {
 
             <Route element={<StandardLayout />}>
               <Route path="/" element={<Landing />} />
+              <Route path="/confirm/:token" element={<Confirm />} />
               <Route
                 path="/login"
                 element={

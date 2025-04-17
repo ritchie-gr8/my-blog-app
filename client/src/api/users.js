@@ -34,3 +34,13 @@ export const registerUser = async (userData) => {
     throw new Error("Error registering user.");
   return res.data.data;
 };
+
+export const activateUser = async (token) => {
+  try {
+    const res = await api.put(`/users/activate/${token}`);
+    if (res.status !== 204) throw new Error("Error activating user.");
+    return { success: true };
+  } catch (error) {
+    return { success: false, message: error.message };
+  }
+};

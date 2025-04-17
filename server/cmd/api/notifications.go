@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/ritchie-gr8/my-blog-app/internal/env"
 	"github.com/ritchie-gr8/my-blog-app/internal/store"
 )
 
@@ -234,7 +233,7 @@ func (app *application) notificationStreamHandler(w http.ResponseWriter, r *http
 	w.Header().Set("Content-Type", "text/event-stream")
 	w.Header().Set("Cache-Control", "no-cache")
 	w.Header().Set("Connection", "keep-alive")
-	w.Header().Set("Access-Control-Allow-Origin", env.GetString("CORS_ALLOWED_ORIGIN", "http://localhost:5173"))
+	w.Header().Set("Access-Control-Allow-Origin", app.config.frontendURL)
 
 	client := app.sseManager.AddClient(user.ID)
 	defer app.sseManager.RemoveClient(user.ID)
