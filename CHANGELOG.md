@@ -1,5 +1,45 @@
 # Changelog
 
+## [1.2.0](https://github.com/ritchie-gr8/my-blog-app/compare/v1.1.2...v1.2.0) (2025-04-18)
+
+
+### Features
+
+* add confirm page and add godotenv for dev env ([a9ae3e0](https://github.com/ritchie-gr8/my-blog-app/commit/a9ae3e065514880abb3bc38faa2808d6165b427e))
+* add docker file for gcp ([52e8fbe](https://github.com/ritchie-gr8/my-blog-app/commit/52e8fbe00323f5686326cb07e904b806cd862c86))
+* add docker file for gcp ([8ce7fda](https://github.com/ritchie-gr8/my-blog-app/commit/8ce7fdab6d355c224dbe3737146ee3b41b8356fe))
+* add frontend url status in health check ([51a37d5](https://github.com/ritchie-gr8/my-blog-app/commit/51a37d530c03fd03fd9ee85dd22281f5b3bffea8))
+* add frontend url status in health check ([214cc16](https://github.com/ritchie-gr8/my-blog-app/commit/214cc161f598f85395c62cc070d98c1791b22df1))
+* add skeleton to landing page ([7ac6a1d](https://github.com/ritchie-gr8/my-blog-app/commit/7ac6a1d3bff2d9840e6f1db6b487f76773f9bc2b))
+* **notification:** unify post reference and improve notification UX ([6ebb4c3](https://github.com/ritchie-gr8/my-blog-app/commit/6ebb4c351ecaef0a3a25e9875c96cba67f356d24))
+* optimize lazy loading ([c72ee50](https://github.com/ritchie-gr8/my-blog-app/commit/c72ee50d5e88a67fd26647cf57adf03f28eaaa11))
+* optimize lazy loading ([59033db](https://github.com/ritchie-gr8/my-blog-app/commit/59033db7b51bed860fdc3fe44125feb2f3dde3f0))
+
+
+### Bug Fixes
+
+* add token checker route ([450b40e](https://github.com/ritchie-gr8/my-blog-app/commit/450b40e561dee059a964148c115add0ce4e1db65))
+* add token checker route ([398aa5a](https://github.com/ritchie-gr8/my-blog-app/commit/398aa5af7c5b116fc222dc9c10dfa7de529c832e))
+* allow cors origin header ([b1c15f4](https://github.com/ritchie-gr8/my-blog-app/commit/b1c15f45feea9fffce85830e7aef7c53a562060b))
+* allow cors origin header ([61c3c13](https://github.com/ritchie-gr8/my-blog-app/commit/61c3c139af0d4d766d307eb8ad455147bea0992d))
+* auth flow when signup and login ([3dc6900](https://github.com/ritchie-gr8/my-blog-app/commit/3dc69004f0a36ad6d34bdf316b9a223de315fa0a))
+* auth flow when signup and login ([8a200b8](https://github.com/ritchie-gr8/my-blog-app/commit/8a200b8f853971f0640d0e99c9bceb25317453ba))
+* change dockerfile ([b196889](https://github.com/ritchie-gr8/my-blog-app/commit/b1968890bfe16767bc1e400541cd8d959377b2f7))
+* change dockerfile ([7112933](https://github.com/ritchie-gr8/my-blog-app/commit/71129337d685d0b7c033f971945fd5af12a104b6))
+* change dockerfile by remove copying env ([2636c0f](https://github.com/ritchie-gr8/my-blog-app/commit/2636c0fcf5876d979823d1da0262f8e5626bb2b9))
+* change dockerfile by remove copying env ([f9caa1f](https://github.com/ritchie-gr8/my-blog-app/commit/f9caa1f42351e33fd219791ae2d29e8ea97bb8f7))
+* remove godotenv causing cors error in cloudrun ([b62a41c](https://github.com/ritchie-gr8/my-blog-app/commit/b62a41c8633d97bd04ce5dd43a967d5a7369b13c))
+* remove godotenv causing cors error in cloudrun ([83ed858](https://github.com/ritchie-gr8/my-blog-app/commit/83ed8581879a607541a0d111c0a69939f96b6c5d))
+* **server:** formatting and update golang.org/x/net dependency ([91bdbc3](https://github.com/ritchie-gr8/my-blog-app/commit/91bdbc3f0974e6e7be94b63d70ae1467506f2e45))
+* update comment section and footer components for improved UX ([875a5d2](https://github.com/ritchie-gr8/my-blog-app/commit/875a5d2cf3778457461ad41fec5ceaa0124fb686))
+* update frontend url fallback value ([909f3aa](https://github.com/ritchie-gr8/my-blog-app/commit/909f3aa5a31b61894f399b2db653fa079db2704f))
+* update frontend url fallback value ([567dfab](https://github.com/ritchie-gr8/my-blog-app/commit/567dfab3dbe57f2406a34be8b7aa2f9d2e388fea))
+* update gitignore and remove hardcode cors url ([22c2911](https://github.com/ritchie-gr8/my-blog-app/commit/22c2911866f8dc23ee92b17246c2dadb42939a53))
+* update gitignore and remove hardcode cors url ([85b0a75](https://github.com/ritchie-gr8/my-blog-app/commit/85b0a75424e8472477af4741928d8f5805fc4bea))
+* update hero picture and content, change web logo, and change admin link to use constant ([634baa7](https://github.com/ritchie-gr8/my-blog-app/commit/634baa73d9f31c943f7871a350d225a827b641f2))
+* use godotenv in dev env ([ccc8a53](https://github.com/ritchie-gr8/my-blog-app/commit/ccc8a5361279e3db7aecbb590a078e1dbdc81abb))
+* use godotenv in dev env ([e8714bf](https://github.com/ritchie-gr8/my-blog-app/commit/e8714bf8a9c1ac0bc42eb3e5661321ffda057fc2))
+
 ## [1.1.2](https://github.com/ritchie-gr8/my-blog-app/compare/v1.1.1...v1.1.2) (2025-04-12)
 
 
